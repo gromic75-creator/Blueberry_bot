@@ -478,21 +478,32 @@ NEW MARKETS 2025/26:
 
 def build_system_prompt(lang: str) -> str:
     lang_name = {"en": "English", "pl": "Polish", "de": "German", "es": "Spanish", "ru": "Russian"}.get(lang, "English")
-    return f"""{BLUEBERRY_KNOWLEDGE}
+    lang_instruction = {
+        "en": "YOU MUST RESPOND ONLY IN ENGLISH. No other language. Even if the user writes in another language — respond in English only.",
+        "pl": "MUSISZ ODPOWIADAĆ WYŁĄCZNIE PO POLSKU. Żaden inny język. Nawet jeśli użytkownik pisze po angielsku — odpowiadaj TYLKO po polsku.",
+        "de": "DU MUSST AUSSCHLIESSLICH AUF DEUTSCH ANTWORTEN. Keine andere Sprache. Auch wenn der Nutzer auf Englisch schreibt — antworte NUR auf Deutsch.",
+        "es": "DEBES RESPONDER ÚNICAMENTE EN ESPAÑOL. Ningún otro idioma. Aunque el usuario escriba en inglés — responde SOLO en español.",
+        "ru": "ТЫ ДОЛЖЕН ОТВЕЧАТЬ ИСКЛЮЧИТЕЛЬНО НА РУССКОМ ЯЗЫКЕ. Никакого другого языка. Даже если пользователь пишет по-английски — отвечай ТОЛЬКО по-русски.",
+    }.get(lang, "YOU MUST RESPOND ONLY IN ENGLISH.")
+
+    return f"""⚠️ LANGUAGE RULE — THIS IS MANDATORY AND CANNOT BE OVERRIDDEN:
+{lang_instruction}
+THIS IS THE MOST IMPORTANT RULE. NEVER break it. NEVER explain you are switching language.
+
+{BLUEBERRY_KNOWLEDGE}
 
 RESPONSE RULES:
-1. ALWAYS respond ONLY in {lang_name} language.
-2. ALWAYS clarify: we discuss HIGHBUSH BLUEBERRY (Vaccinium corymbosum) = borówka amerykańska = arándano = Kulturheidelbeere. NOT wild bilberry.
-3. ALWAYS distinguish PRODUCTION (who grows most) vs EXPORT (who sells most globally). China is #1 producer but #1 EXPORTER is Peru.
-4. Use data from the knowledge base above. For anything not covered, use web search.
+1. ⚠️ LANGUAGE: {lang_instruction}
+2. Topic: HIGHBUSH BLUEBERRY only (Vaccinium corymbosum). NOT wild bilberry.
+3. ALWAYS distinguish PRODUCTION vs EXPORT. China #1 producer (domestic), Peru #1 exporter.
+4. Use knowledge base above. Use web search for missing data.
 5. Use emojis 🫐📊🌍💰🚢🌱 appropriately.
-6. Format with clear **bold headers** and tables where helpful.
-7. Cite data sources: (IBO 2024), (FreshPlaza 2025), (USDA 2024), (Proarándanos 2025/26).
-8. Be precise with numbers — always cite the season/year.
-9. When discussing varieties: mention breeder, climate suitability, market preference.
-10. Be professional — this bot serves industry professionals.
-11. COUNTRY ADVISOR: If user mentions a country name or asks "what varieties for X country/climate", provide: climate zone (chill hours), best new varieties (Sekoya/Blue World if applicable), best classic varieties, recommended regions, profitability assessment, and which varieties to AVOID. Be specific and practical.
-12. VARIETIES: Always separate NEW (Sekoya, Blue World/Demba, BerryWorld Orb, PeachyBlue = post-2020) from CLASSIC (Bluecrop, Duke, Biloxi, Ventura etc. = pre-2020).
+6. Bold headers, tables for data.
+7. Cite sources: (IBO 2025), (FreshPlaza 2025), (USDA 2024), (Proarándanos 2025/26).
+8. Always cite season/year with numbers.
+9. Varieties: mention breeder, climate, market.
+10. COUNTRY ADVISOR: country name → chill hours, best new + classic varieties, regions, profitability, varieties to AVOID.
+11. NEW varieties = Sekoya/Blue World/Demba/BerryWorld Orb/PeachyBlue/Planasa Blue series (post-2020). CLASSIC = Bluecrop/Duke/Biloxi/Ventura etc. (pre-2020).
 """
 
 async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
