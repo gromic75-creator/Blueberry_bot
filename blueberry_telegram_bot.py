@@ -29,8 +29,8 @@ LANGUAGES = {
 }
 
 WELCOME = {
-    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\nChoose a topic or ask me anything!",
-    "pl": "🫐 *BlueberryBot v2.0* — Globalny Wywiad Rynku Borówki Amerykańskiej\n\n📊 Dane: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\nWybierz temat lub zadaj pytanie!",
+    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Tip:* Type your country name to get variety recommendations for your climate!\n\nChoose a topic or ask me anything!",
+    "pl": "🫐 *BlueberryBot v2.0* — Globalny Wywiad Rynku Borówki Amerykańskiej\n\n📊 Dane: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Wskazówka:* Napisz nazwę swojego kraju, aby dostać rekomendacje odmian dla Twojego klimatu!\n\nWybierz temat lub zadaj pytanie!",
     "de": "🫐 *BlueberryBot v2.0* — Globale Heidelbeer-Marktintelligenz\n\n📊 Daten: IBO · FreshPlaza · USDA · 2024/2025\n\nThema wählen oder Frage stellen!",
     "es": "🫐 *BlueberryBot v2.0* — Inteligencia del Mercado Global de Arándanos\n\n📊 Datos: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\n¡Elige un tema o pregunta lo que quieras!",
     "ru": "🫐 *BlueberryBot v2.0* — Глобальная аналитика рынка голубики\n\n📊 Данные: IBO · FreshPlaza · USDA · 2024/2025\n\nВыберите тему или задайте вопрос!",
@@ -44,8 +44,8 @@ MENU_LABELS = {
         "destinations": "🎯 Key Markets",
         "prices":    "💰 Prices 2024/25",
         "varieties": "🌱 New Varieties",
-        "sekoya":    "⭐ SEKOYA Platform",
-        "demba":     "🏆 Demba & Blue World",
+        "classics":  "📚 Classic Varieties",
+        "nursery":   "🏭 Nursery & Plants",
         "search":    "🔍 Live Search",
         "lang":      "🌐 Language",
     },
@@ -56,8 +56,8 @@ MENU_LABELS = {
         "destinations": "🎯 Kluczowe rynki",
         "prices":    "💰 Ceny 2024/25",
         "varieties": "🌱 Nowe odmiany",
-        "sekoya":    "⭐ Platforma SEKOYA",
-        "demba":     "🏆 Demba & Blue World",
+        "classics":  "📚 Klasyczne odmiany",
+        "nursery":   "🏭 Szkółki i sadzonki",
         "search":    "🔍 Wyszukiwanie live",
         "lang":      "🌐 Język",
     },
@@ -68,8 +68,8 @@ MENU_LABELS = {
         "destinations": "🎯 Schlüsselmärkte",
         "prices":    "💰 Preise 2024/25",
         "varieties": "🌱 Neue Sorten",
-        "sekoya":    "⭐ SEKOYA Plattform",
-        "demba":     "🏆 Demba & Blue World",
+        "classics":  "📚 Klassische Sorten",
+        "nursery":   "🏭 Baumschulen & Pflanzen",
         "search":    "🔍 Live-Suche",
         "lang":      "🌐 Sprache",
     },
@@ -80,8 +80,8 @@ MENU_LABELS = {
         "destinations": "🎯 Mercados clave",
         "prices":    "💰 Precios 2024/25",
         "varieties": "🌱 Nuevas variedades",
-        "sekoya":    "⭐ Plataforma SEKOYA",
-        "demba":     "🏆 Demba & Blue World",
+        "classics":  "📚 Variedades clásicas",
+        "nursery":   "🏭 Viveros y plantas",
         "search":    "🔍 Búsqueda en vivo",
         "lang":      "🌐 Idioma",
     },
@@ -92,8 +92,8 @@ MENU_LABELS = {
         "destinations": "🎯 Ключевые рынки",
         "prices":    "💰 Цены 2024/25",
         "varieties": "🌱 Новые сорта",
-        "sekoya":    "⭐ Платформа SEKOYA",
-        "demba":     "🏆 Demba & Blue World",
+        "classics":  "📚 Классические сорта",
+        "nursery":   "🏭 Питомники и саженцы",
         "search":    "🔍 Поиск в реальном времени",
         "lang":      "🌐 Язык",
     },
@@ -487,10 +487,12 @@ RESPONSE RULES:
 4. Use data from the knowledge base above. For anything not covered, use web search.
 5. Use emojis 🫐📊🌍💰🚢🌱 appropriately.
 6. Format with clear **bold headers** and tables where helpful.
-7. Cite data sources: (IBO 2024), (FreshPlaza 2025), (USDA 2024), (Proarándanos 2024/25).
+7. Cite data sources: (IBO 2024), (FreshPlaza 2025), (USDA 2024), (Proarándanos 2025/26).
 8. Be precise with numbers — always cite the season/year.
 9. When discussing varieties: mention breeder, climate suitability, market preference.
 10. Be professional — this bot serves industry professionals.
+11. COUNTRY ADVISOR: If user mentions a country name or asks "what varieties for X country/climate", provide: climate zone (chill hours), best new varieties (Sekoya/Blue World if applicable), best classic varieties, recommended regions, profitability assessment, and which varieties to AVOID. Be specific and practical.
+12. VARIETIES: Always separate NEW (Sekoya, Blue World/Demba, BerryWorld Orb, PeachyBlue = post-2020) from CLASSIC (Bluecrop, Duke, Biloxi, Ventura etc. = pre-2020).
 """
 
 async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
@@ -551,19 +553,103 @@ TOPIC_PROMPTS = {
         "es": "Guía completa de variedades 2024/2025: TODAS las categorías. Plataforma SEKOYA, Blue World/Demba (Superior Taste Award), top variedades Perú por mercado (Ventura Europa 50%, Sekoya Pop China 24%), Northern Highbush, nueva FC11-164 para cosecha mecánica.",
         "ru": "Полное руководство по сортам 2024/2025: ВСЕ основные категории. Платформа SEKOYA, Blue World/Demba (Superior Taste Award), топ-сорта Перу по рынкам (Ventura Европа 50%, Sekoya Pop Китай 24%), Северные высокорослые, новая FC11-164 для механической уборки.",
     },
-    "sekoya": {
-        "en": "Summarize SEKOYA® blueberry platform: B2B model by Fall Creek®, 15 members, 25 countries, 2,500 ha, 87,000 MT (2024). Market: 40% USA/CA, 36% EU, 24% Asia. Low-chill varieties: Pop, Beauty, Crunch, Grande. High-chill: Nova, ArabellaBlue, LoretoBlue, Apex (2026). China performance and why retailers request by name.",
-        "pl": "Podsumuj platformę SEKOYA® (Fall Creek®): model B2B, 15 firm, 25 krajów, 2500 ha, 87,000 MT. Rynek: 40% USA, 36% EU, 24% Azja. Odmiany low-chill: Pop, Beauty, Crunch, Grande. High-chill: Nova, ArabellaBlue, Apex. Wyniki w Chinach.",
-        "de": "SEKOYA®-Plattform: B2B-Modell, 15 Mitglieder, 25 Länder, alle Sorten (low/high chill), Marktaufteilung, China-Performance.",
-        "es": "Plataforma SEKOYA®: modelo B2B, 15 miembros, 25 países, variedades low/high chill, mercados, China.",
-        "ru": "Платформа SEKOYA®: B2B-модель, 15 членов, 25 стран, сорта low/high chill, рынки, Китай.",
+    "varieties": {
+        "en": "NEW blueberry varieties 2020-2026. TWO MAIN PLATFORMS: 1) SEKOYA® (Fall Creek): B2B, 15 members, 25 countries, 87,000 MT. Low-chill: Sekoya Pop (China favorite 24%), Sekoya Beauty, Sekoya Crunch, Sekoya Grande. High-chill: Nova FC15-173, ArabellaBlue FC14-062, LoretoBlue, Apex FCM14-057 (2026 launch, EMEA Jan-May). FC11-164 mechanical harvest trials. 2) BLUE WORLD / Demba (Onubafruit/FV.BV Netherlands): Demba + Dana = Superior Taste Award winners. Full range: Demba, Dana, Aila, Lena, Selma, Selena. EU protection 2056. 25-30 t/ha, Spain season Nov-June. Also: BerryWorld Orb (2025), PeachyBlue (retail hit USA 2025, +6% category sales at Sprouts). Mention which new varieties suit which climate.",
+        "pl": "NOWE odmiany borówki 2020-2026. DWE GŁÓWNE PLATFORMY: 1) SEKOYA® (Fall Creek): B2B, 15 firm, 25 krajów, 87,000 MT. Low-chill: Sekoya Pop (Chiny 24%), Beauty, Crunch, Grande. High-chill: Nova, ArabellaBlue, LoretoBlue, Apex (2026). FC11-164 mechaniczny zbiór. 2) BLUE WORLD/Demba (Onubafruit/FV.BV): Demba+Dana = nagroda smaku. Pełna seria: Demba, Dana, Aila, Lena, Selma, Selena. Ochrona EU 2056. 25-30 t/ha. Też: BerryWorld Orb, PeachyBlue (hit USA 2025).",
+        "de": "NEUE Sorten 2020-2026: SEKOYA® (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex) + Blue World/Demba (Superior Taste Award, EU-Schutz 2056) + BerryWorld Orb + PeachyBlue. Klimaeignung für jede Sorte.",
+        "es": "NUEVAS variedades 2020-2026: SEKOYA® (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex) + Blue World/Demba (Superior Taste Award, protección EU 2056) + BerryWorld Orb + PeachyBlue. Clima adecuado para cada variedad.",
+        "ru": "НОВЫЕ сорта 2020-2026: SEKOYA® (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex) + Blue World/Demba (Superior Taste Award, защита ЕС 2056) + BerryWorld Orb + PeachyBlue. Подходящий климат для каждого сорта.",
     },
-    "demba": {
-        "en": "Summarize Demba & Blue World varieties by Onubafruit/FV.BV: Demba and Dana won Superior Taste Award (International Taste Institute). Range: Demba, Dana, Aila, Lena, Selma, Selena. EU protection to 2056. Licensee: Onubafruit (Huelva) for Spain/Portugal/Morocco. Yield 25,000-30,000 kg/ha. Season Nov-June. 50% of Onubafruit 20,000 MT production.",
-        "pl": "Odmiany Demba i Blue World (Onubafruit/FV.BV): Demba i Dana - Superior Taste Award. Seria: Demba, Dana, Aila, Lena, Selma, Selena. Ochrona EU do 2056. Onubafruit Huelva. Wydajność 25-30 t/ha. Sezon XI-VI.",
-        "de": "Demba & Blue World: Superior Taste Award, vollständiges Sortiment, EU-Schutz 2056, Onubafruit Huelva, 25-30 t/ha.",
-        "es": "Demba & Blue World: Superior Taste Award, gama completa, protección EU 2056, Onubafruit Huelva, 25-30 t/ha.",
-        "ru": "Demba & Blue World: Superior Taste Award, полный ассортимент, защита ЕС до 2056, Onubafruit Уэльва, 25-30 т/га.",
+    "classics": {
+        "en": "CLASSIC blueberry varieties (pre-2020, still widely grown). Northern Highbush (high chill 800-1200h, cold climates: Poland, Canada, NE USA, N.Chile): Bluecrop (most planted worldwide, reliable), Duke (early, cold tolerant, very popular Poland), Draper (premium flavor, shelf life), Aurora (very late, large berry), Liberty (late, excellent flavor), Cargo (high yield), Elliott (late processing), Patriot (cold hardy), Toro, Jersey, Chandler (giant berry). Southern Highbush (low chill 200-500h, warm: Peru, S.Spain, Morocco, S.USA, Mexico): Biloxi (was dominant Peru, now declining), Ventura (Peru #1 now, 26% share, EU preferred), O'Neal, Misty, Sharpblue, Emerald, Jewel, Star, Springhigh, Farthing. Half-High (extreme cold -35°C: Scandinavia, Russia, Canada prairies): Northblue, Polaris, Chippewa, St. Cloud. Also mention: Rabbiteye varieties for SE USA/warm dry climates.",
+        "pl": "KLASYCZNE odmiany borówki (przed 2020, nadal szeroko uprawiane). Północne wysokopienne (high chill, zimne klimaty: Polska, Kanada, NE USA): Bluecrop, Duke, Draper, Aurora, Liberty, Cargo, Elliott, Patriot, Toro, Jersey, Chandler. Południowe wysokopienne (low chill, ciepłe: Peru, Hiszpania, Maroko): Biloxi (dominowało Peru, teraz wypierane), Ventura (teraz nr 1 w Peru 26%), O'Neal, Misty, Emerald, Jewel, Star. Półwysokopienne (mróz do -35°C): Northblue, Polaris, Chippewa.",
+        "de": "KLASSISCHE Sorten: Nördliche Highbush (Bluecrop, Duke, Draper, Aurora, Liberty, Cargo) + Südliche Highbush (Biloxi, Ventura, O'Neal, Misty, Emerald) + Half-High (Northblue, Polaris). Klimaanforderungen für jede Gruppe.",
+        "es": "VARIEDADES clásicas: Northern Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Southern Highbush (Biloxi, Ventura, O'Neal, Misty, Emerald) + Half-High (Northblue, Polaris). Requisitos climáticos.",
+        "ru": "КЛАССИЧЕСКИЕ сорта: Северные высокорослые (Bluecrop, Duke, Draper, Aurora, Liberty) + Южные высокорослые (Biloxi, Ventura, O'Neal, Misty, Emerald) + Полувысокорослые (Northblue, Polaris). Климатические требования.",
+    },
+    "nursery": {
+        "en": """Top 5 global blueberry nursery & genetics companies (verified data):
+
+1. FALL CREEK® (USA, founded 1978, Oregon HQ) — WORLD LEADER in blueberry genetics:
+   40+ million blueberry plants/year | 100+ varieties | 59 countries | 1,000+ employees | 10 facilities
+   Locations: USA (Oregon HQ), Peru (14M plants/yr, 5 nurseries in Quilmaná/Cañete), Spain/Seville (14M plants/yr, EMEA hub for 52 countries, 250+ staff), Netherlands, South Africa, Mexico, Chile
+   Total: 150+ hectares of nurseries globally
+   Platforms: SEKOYA® (premium B2B), Fall Creek Collection (open market), Free Marketing varieties
+   
+2. PLANASA (Spain, founded 1973, Valtierra/Navarra) — WORLD LEADER in berry plant production overall:
+   ~1,000 million plants/year TOTAL (all crops incl. strawberry, raspberry, asparagus, garlic)
+   Blueberry focus: members-only licensing model | 27+ countries | 7,000 employees | Revenue ~€220M (2023/24)
+   1,500+ hectares of nurseries: Spain, Poland, Morocco, Romania, China, Peru, USA, Mexico
+   Blueberry varieties: Blue Manila®, Blue Malibu®, Blue Madeira®, Blue Maldiva®, Blue Marina®, Blue Masirah®
+   Climate focus: zero/very-low chill (tropical) varieties — best performance in Peru, Mexico, Morocco, Yunnan (China), S.Africa, Zimbabwe
+   2023: acquired 100% China subsidiary | 2024: acquired Hansabred (Germany)
+   
+3. ONUBAFRUIT / FV.BV (Netherlands + Spain) — BLUE WORLD varieties:
+   Producer-breeder cooperative based in Huelva, Spain
+   Blue World varieties: Demba, Dana, Aila, Lena, Selma, Selena (EU protection until 2056)
+   Demba + Dana = Superior Taste Award (International Taste Institute)
+   Exclusive licensee: Onubafruit for Spain, Portugal, Morocco
+   Production: ~20,000 MT blueberries, 50% from Blue World varieties, growing 10-15%/yr
+   
+4. OREGON BLUEBERRY (USA, Oregon) — Major North American wholesale nursery:
+   One of largest wholesale blueberry nurseries in North America
+   40+ years experience | Commercial focus USA/Canada
+   Offers premium genetics for North American growers
+   
+5. LORSENA (Spain) — European nursery specialist:
+   Important supplier for European growers, esp. Spain and Portugal
+   Works with licensed varieties from multiple breeders
+   
+OTHER NOTABLE NURSERIES: BerryWorld Varieties (UK, owns Orb variety), Nourse Farms (USA, small fruit specialist), various national nurseries in Poland, Chile, Canada, Australia.
+   
+PLANT COSTS (approximate): Tissue culture plug/liner: $0.50–2.00 | Finished plant (1-2L): $2–5 | Premium licensed variety premium: +20-50%
+Ask me your country — I'll recommend the best nursery source and varieties for your climate!""",
+        "pl": """Top 5 globalnych szkółek i firm genetycznych borówki (zweryfikowane dane):
+
+1. FALL CREEK® (USA, od 1978, Oregon) — ŚWIATOWY LIDER genetyki borówkowej:
+   40+ mln sadzonek/rok | 100+ odmian | 59 krajów | 1000+ pracowników | 10 zakładów
+   Lokalizacje: USA, Peru (14 mln szt/rok, 5 szkółek), Hiszpania/Sewilla (14 mln szt/rok, centrum EMEA, 52 kraje), Holandia, RPA, Meksyk, Chile
+   Łącznie 150+ ha szkółek | Platformy: SEKOYA®, Fall Creek Collection
+
+2. PLANASA (Hiszpania, od 1973, Valtierra/Navarra) — NAJWIĘKSZY producent roślin jagodowych:
+   ~1 miliard sadzonek/rok ŁĄCZNIE (wszystkie rośliny) | 27+ krajów | 7000 pracowników | ~220 mln EUR obrót
+   1500+ ha szkółek: Hiszpania, Polska, Maroko, Rumunia, Chiny, Peru, USA, Meksyk
+   Odmiany borówki: Blue Manila®, Blue Malibu®, Blue Madeira®, Blue Maldiva®, Blue Marina®, Blue Masirah®
+   Specjalizacja: zero/very-low chill — Peru, Meksyk, Maroko, Yunnan (Chiny), RPA, Zimbabwe
+   Model: tylko dla członków (licencje)
+
+3. ONUBAFRUIT / FV.BV (Holandia + Hiszpania) — seria BLUE WORLD:
+   Odmiany: Demba, Dana, Aila, Lena, Selma, Selena (ochrona EU do 2056)
+   Nagroda: Superior Taste Award dla Demba i Dana
+   Licencja: Onubafruit (Huelva) dla Hiszpanii/Portugali/Maroka
+   Produkcja: ~20,000 MT, 50% z Blue World
+
+4. OREGON BLUEBERRY (USA, Oregon) — duża hurtowa szkółka północnoamerykańska
+
+5. LORSENA (Hiszpania) — europejski specjalista szkółkarski
+
+Koszty sadzonek: plug/liner $0.50-2.00 | sadzonka gotowa $2-5 | dopłata za odmiany licencjonowane +20-50%""",
+        "de": """Top 5 globale Heidelbeer-Baumschulen (verifizierte Daten):
+1. FALL CREEK® (USA/Oregon, 1978): 40+ Mio. Pflanzen/Jahr, 100+ Sorten, 59 Länder, 10 Standorte (Peru 14M, Spanien 14M, NL, SA). SEKOYA® Plattform.
+2. PLANASA (Spanien/Navarra, 1973): ~1 Mrd. Pflanzen/Jahr gesamt, 7.000 Mitarbeiter, 1.500+ ha, 27 Länder. Blaubeeren: Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah. Fokus: zero-chill Sorten.
+3. ONUBAFRUIT/FV.BV (Niederlande+Spanien): Blue World (Demba, Dana - Taste Award, EU-Schutz 2056).
+4. OREGON BLUEBERRY (USA): Größte Großhandels-Baumschule Nordamerikas.
+5. LORSENA (Spanien): Europäischer Spezialist.
+Pflanzenkosten: Stecklinge $0,50-2,00, fertige Pflanzen $2-5.""",
+        "es": """Top 5 viveros globales de arándano (datos verificados):
+1. FALL CREEK® (EE.UU./Oregon, 1978): 40+ millones plantas/año, 100+ variedades, 59 países, 10 instalaciones. Plataforma SEKOYA®.
+2. PLANASA (España/Navarra, 1973): ~1.000 millones plantas/año total, 7.000 empleados, 1.500+ ha en 27 países. Variedades: Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah. Especialidad: cero horas frío.
+3. ONUBAFRUIT/FV.BV (Países Bajos+España): Blue World (Demba, Dana - Premio Sabor, protección EU 2056).
+4. OREGON BLUEBERRY (EE.UU.): Mayor vivero mayorista de Norteamérica.
+5. LORSENA (España): Especialista europeo.
+Costos: esquejes $0,50-2,00, plantas terminadas $2-5.""",
+        "ru": """Топ-5 мировых питомников голубики (проверенные данные):
+1. FALL CREEK® (США/Орегон, 1978): 40+ млн саженцев/год, 100+ сортов, 59 стран, 10 объектов. Платформа SEKOYA®.
+2. PLANASA (Испания/Наварра, 1973): ~1 млрд саженцев/год всего, 7000 сотрудников, 1500+ га в 27 странах. Голубика: Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah. Специализация: нулевые часы холода.
+3. ONUBAFRUIT/FV.BV (Нидерланды+Испания): Blue World (Demba, Dana - награда вкуса, защита ЕС до 2056).
+4. OREGON BLUEBERRY (США): Крупнейший оптовый питомник Северной Америки.
+5. LORSENA (Испания): Европейский специалист.
+Стоимость: черенки $0,50-2,00, готовые саженцы $2-5.""",
     },
     "search": {
         "en": "Search the web for the very latest blueberry market news, price reports, and variety releases from 2025-2026. Check FreshPlaza, IBO, Blueberries Consulting for the most recent data. Combine with knowledge base to give the most current professional picture.",
@@ -586,8 +672,8 @@ def main_menu_keyboard(lang):
          InlineKeyboardButton(labels["destinations"], callback_data="topic_destinations")],
         [InlineKeyboardButton(labels["prices"],       callback_data="topic_prices"),
          InlineKeyboardButton(labels["varieties"],    callback_data="topic_varieties")],
-        [InlineKeyboardButton(labels["sekoya"],       callback_data="topic_sekoya"),
-         InlineKeyboardButton(labels["demba"],        callback_data="topic_demba")],
+        [InlineKeyboardButton(labels["classics"],     callback_data="topic_classics"),
+         InlineKeyboardButton(labels["nursery"],      callback_data="topic_nursery")],
         [InlineKeyboardButton(labels["search"],       callback_data="topic_search"),
          InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
     ]
