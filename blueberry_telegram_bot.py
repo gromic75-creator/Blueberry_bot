@@ -410,6 +410,70 @@ SECTION 7: KEY INDUSTRY TRENDS 2025
 7. YEAR-ROUND SUPPLY: 12-month availability now standard in EU and USA.
 
 8. PRICE DECLINE: Average international price -3% in 2025 ($6.20/kg vs $6.43).
+
+══════════════════════════════════════════════════════════════════
+SECTION 8: SEASON 2025/26 — CURRENT DATA & FORECASTS
+══════════════════════════════════════════════════════════════════
+
+⚠️ NOTE ON DATA CURRENCY (as of June 2026):
+- Season 2025/26 NOW COMPLETE for Peru/Chile (May–April cycle)
+- Season 2025 complete for USA/Poland/Europe (April–September 2025)
+- Morocco/Spain 2026 seasons complete (Feb–June 2026)
+- Season 2026/27 for Peru/Chile begins August 2026
+
+🇵🇪 PERU SEASON 2025/26 — FINAL RESULTS (FreshPlaza/Proarándanos, May 2026):
+- Total exports: 380,260 MT (+21.5% vs 2024/25!)
+- Slight miss vs forecast of 400,000 MT
+- Peak: October (90,000+ MT), September (75,000+ MT), November (66,000+ MT)
+- La Libertad: 189,700 MT (50%), Lambayeque: 89,500 MT, Ica: 50,000+ MT (+48%!)
+- Outlook 2026/27: growth expected, El Niño risk factor
+
+🇨🇱 CHILE SEASON 2025/26 — (Frutas de Chile, Oct 2025):
+- Fresh exports: +1% vs 2024/25
+- Protected/new varieties: +67% (now 35% of total, up from 21%!)
+- Traditional varieties: -17% (phased out)
+- Frozen: 161,000+ MT record (43% of all Chilean shipments — strategic channel!)
+
+🇺🇸 USA SEASON 2025 (USDA/NABC):
+- Highbush: ~9% lower than 2024 (weather impact, mainly processing affected)
+- Wild (Maine): 45M lbs vs 90.8M lbs in 2024 (-50%! Rain+drought)
+- Imports: record 720B lbs
+- Exports: 94.8M lbs
+
+🇬🇪 GEORGIA (country) — EMERGING PLAYER (FreshPlaza, Feb 2026):
+- Production 2025: 7,500 MT, 95% exported
+- Season: May–June (fills EU gap after Morocco/Spain, before Poland!)
+- Markets: Russia, Germany, Poland, Dubai + new: India, Israel, Saudi Arabia
+- 2026 target: 10,000+ MT
+
+GLOBAL FORECASTS 2026–2030:
+- Global production 2025: 2.10 million MT
+- 2030 target: 2.71 million MT (CAGR ~2.88% volume)
+- Market value 2026: ~$4.16 billion → 2030: ~$6.08 billion (CAGR 6.5%)
+- Asia-Pacific: fastest growing region
+- UK: $0.6B (2025) → $1.1B (2033)
+- South Africa exports: +10% forecast 2026
+
+IBO 5 KEY TRENDS (IBO Summit 2025, South Africa):
+1. Consistent quality beyond seasonal peaks — retailers demand year-round programs
+2. Climate resilience — resistant varieties + covered production
+3. Post-harvest innovation — shelf life critical for China/India
+4. Mechanical harvesting — FC11-164 and others, labor cost priority
+5. Market segmentation — premium (Sekoya, Demba) vs commodity bifurcation
+
+PRICE OUTLOOK 2025/26:
+- Mild global downward pressure continues
+- Q4 2025 USA: $4,658/MT; Q1 2026 China: $6,790/MT; Q4 2025 Belgium: $6,793/MT
+- Premium varieties maintain margins; commodity squeezed
+- IBO warns: oversupply risk as production outpaces demand
+
+NEW MARKETS 2025/26:
+- Vietnam: Australian access granted Dec 2025
+- India: Georgia + Australia targeting 2026
+- Saudi Arabia, Israel, UAE: emerging premium markets
+- Taiwan: Poland targeting fresh blueberry entry 2026
+- Zimbabwe: now authorized to export to China
+
 """
 
 def build_system_prompt(lang: str) -> str:
@@ -603,3 +667,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# This is just a marker — actual update is in the knowledge base below
