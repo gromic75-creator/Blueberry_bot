@@ -1,6 +1,8 @@
 """
-🫐 BlueberryBot - Global Blueberry Market Intelligence Bot
-Supports: English, Polish, German, Spanish, Russian
+🫐 BlueberryBot v2.0 — Global Highbush Blueberry Market Intelligence
+Sources: IBO, FreshPlaza, Blueberries Consulting, USDA, Proarándanos
+Data: 2024/2025 season (latest available)
+Languages: EN, PL, DE, ES, RU
 """
 
 import os
@@ -12,17 +14,12 @@ from telegram.ext import (
     MessageHandler, filters, ContextTypes
 )
 
-# ── Config ────────────────────────────────────────────────────────────────────
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "YOUR_ANTHROPIC_API_KEY")
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ── Language config ───────────────────────────────────────────────────────────
 LANGUAGES = {
     "en": "🇬🇧 English",
     "pl": "🇵🇱 Polski",
@@ -32,225 +29,409 @@ LANGUAGES = {
 }
 
 WELCOME = {
-    "en": "🫐 *BlueberryBot* — Global Blueberry Market Intelligence\n\nChoose your language / topic below, or just ask me anything about blueberries!",
-    "pl": "🫐 *BlueberryBot* — Globalny Wywiad Rynku Borówek\n\nWybierz język / temat poniżej lub po prostu zadaj mi pytanie o borówki!",
-    "de": "🫐 *BlueberryBot* — Globale Heidelbeer-Marktintelligenz\n\nWählen Sie Ihre Sprache / Ihr Thema unten oder stellen Sie mir einfach eine Frage über Heidelbeeren!",
-    "es": "🫐 *BlueberryBot* — Inteligencia del Mercado Global de Arándanos\n\n¡Elige tu idioma / tema a continuación o simplemente pregúntame lo que quieras sobre los arándanos!",
-    "ru": "🫐 *BlueberryBot* — Глобальная аналитика рынка черники\n\nВыберите язык / тему ниже или просто задайте мне любой вопрос о чернике!",
+    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\nChoose a topic or ask me anything!",
+    "pl": "🫐 *BlueberryBot v2.0* — Globalny Wywiad Rynku Borówki Amerykańskiej\n\n📊 Dane: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\nWybierz temat lub zadaj pytanie!",
+    "de": "🫐 *BlueberryBot v2.0* — Globale Heidelbeer-Marktintelligenz\n\n📊 Daten: IBO · FreshPlaza · USDA · 2024/2025\n\nThema wählen oder Frage stellen!",
+    "es": "🫐 *BlueberryBot v2.0* — Inteligencia del Mercado Global de Arándanos\n\n📊 Datos: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\n¡Elige un tema o pregunta lo que quieras!",
+    "ru": "🫐 *BlueberryBot v2.0* — Глобальная аналитика рынка голубики\n\n📊 Данные: IBO · FreshPlaza · USDA · 2024/2025\n\nВыберите тему или задайте вопрос!",
 }
 
 MENU_LABELS = {
     "en": {
-        "market":    "📊 Global Market Value",
-        "countries": "🌍 Production by Country",
-        "export":    "🚢 Export Data",
-        "prices":    "💰 Prices & Trends",
+        "market":    "📊 Global Market",
+        "production":"🌍 Production by Country",
+        "export":    "🚢 Export Leaders",
+        "destinations": "🎯 Key Markets",
+        "prices":    "💰 Prices 2024/25",
         "varieties": "🌱 New Varieties",
+        "sekoya":    "⭐ SEKOYA Platform",
+        "demba":     "🏆 Demba & Blue World",
         "search":    "🔍 Live Search",
-        "lang":      "🌐 Change Language",
+        "lang":      "🌐 Language",
     },
     "pl": {
-        "market":    "📊 Wartość rynku globalnego",
-        "countries": "🌍 Produkcja według kraju",
-        "export":    "🚢 Dane eksportowe",
-        "prices":    "💰 Ceny i trendy",
+        "market":    "📊 Rynek globalny",
+        "production":"🌍 Produkcja wg kraju",
+        "export":    "🚢 Liderzy eksportu",
+        "destinations": "🎯 Kluczowe rynki",
+        "prices":    "💰 Ceny 2024/25",
         "varieties": "🌱 Nowe odmiany",
-        "search":    "🔍 Wyszukiwanie na żywo",
-        "lang":      "🌐 Zmień język",
+        "sekoya":    "⭐ Platforma SEKOYA",
+        "demba":     "🏆 Demba & Blue World",
+        "search":    "🔍 Wyszukiwanie live",
+        "lang":      "🌐 Język",
     },
     "de": {
-        "market":    "📊 Globaler Marktwert",
-        "countries": "🌍 Produktion nach Land",
-        "export":    "🚢 Exportdaten",
-        "prices":    "💰 Preise & Trends",
+        "market":    "📊 Globaler Markt",
+        "production":"🌍 Produktion nach Land",
+        "export":    "🚢 Export-Führer",
+        "destinations": "🎯 Schlüsselmärkte",
+        "prices":    "💰 Preise 2024/25",
         "varieties": "🌱 Neue Sorten",
+        "sekoya":    "⭐ SEKOYA Plattform",
+        "demba":     "🏆 Demba & Blue World",
         "search":    "🔍 Live-Suche",
-        "lang":      "🌐 Sprache ändern",
+        "lang":      "🌐 Sprache",
     },
     "es": {
-        "market":    "📊 Valor del mercado global",
-        "countries": "🌍 Producción por país",
-        "export":    "🚢 Datos de exportación",
-        "prices":    "💰 Precios y tendencias",
+        "market":    "📊 Mercado global",
+        "production":"🌍 Producción por país",
+        "export":    "🚢 Líderes exportación",
+        "destinations": "🎯 Mercados clave",
+        "prices":    "💰 Precios 2024/25",
         "varieties": "🌱 Nuevas variedades",
+        "sekoya":    "⭐ Plataforma SEKOYA",
+        "demba":     "🏆 Demba & Blue World",
         "search":    "🔍 Búsqueda en vivo",
-        "lang":      "🌐 Cambiar idioma",
+        "lang":      "🌐 Idioma",
     },
     "ru": {
         "market":    "📊 Мировой рынок",
-        "countries": "🌍 Производство по странам",
-        "export":    "🚢 Экспортные данные",
-        "prices":    "💰 Цены и тренды",
+        "production":"🌍 Производство по странам",
+        "export":    "🚢 Лидеры экспорта",
+        "destinations": "🎯 Ключевые рынки",
+        "prices":    "💰 Цены 2024/25",
         "varieties": "🌱 Новые сорта",
+        "sekoya":    "⭐ Платформа SEKOYA",
+        "demba":     "🏆 Demba & Blue World",
         "search":    "🔍 Поиск в реальном времени",
-        "lang":      "🌐 Сменить язык",
+        "lang":      "🌐 Язык",
     },
 }
 
-# ── Knowledge base (built-in) ─────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════
+# KNOWLEDGE BASE — VERIFIED DATA FROM IBO, FRESHPLAZA, USDA
+# ══════════════════════════════════════════════════════════════
 BLUEBERRY_KNOWLEDGE = """
-You are BlueberryBot, the world's most comprehensive blueberry market intelligence assistant.
-You have deep expertise on ALL aspects of global blueberry production, trade, and economics.
+╔══════════════════════════════════════════════════════════════════╗
+║  BLUEBERRY KNOWLEDGE BASE — VERIFIED 2024/2025 DATA            ║
+║  Sources: IBO, FreshPlaza, USDA, Proarándanos, Blueberries Consulting ║
+╚══════════════════════════════════════════════════════════════════╝
 
-=== GLOBAL MARKET ===
-- Global blueberry market value: ~$3.5–4.2 billion USD (2023–2024), growing at ~7% CAGR
-- Projected to reach ~$6.5 billion by 2030
-- Fresh blueberries dominate (~65% of market), frozen/processed ~35%
+⚠️ CRITICAL DISTINCTION:
+- This bot covers ONLY cultivated HIGHBUSH BLUEBERRY (Vaccinium corymbosum)
+  = Borówka Amerykańska / Arándano / Heidelbeere (Kulturheidelbeere)
+- NOT wild bilberry / Vaccinium myrtillus (jagoda leśna / czarna jagoda)
+- These are completely different fruits and markets!
 
-=== TOP PRODUCING COUNTRIES (annual tonnes) ===
-1. USA: ~360,000–400,000 MT — States: Michigan, Oregon, Washington, Georgia, New Jersey
-2. Canada: ~170,000 MT — British Columbia, Quebec, Nova Scotia
-3. Chile: ~150,000 MT — world's largest exporter by volume
-4. Peru: ~120,000–140,000 MT — fastest growing
-5. Spain: ~110,000 MT — main EU producer (Huelva)
-6. Poland: ~70,000–80,000 MT — largest EU highbush producer
-7. Mexico: ~65,000 MT — rapidly expanding
-8. South Africa: ~35,000 MT
-9. Morocco: ~20,000 MT
-10. China: ~550,000 MT (mostly wild/half-high, Guizhou, Jilin provinces — largely domestic)
-11. Russia: ~15,000 MT cultivated + large wild harvest
-12. Germany: ~12,000 MT
-13. Netherlands: ~10,000 MT
-14. Portugal: ~25,000 MT
-15. Argentina: ~18,000 MT
-16. Australia: ~20,000 MT
-17. New Zealand: ~8,000 MT
-18. Ukraine: ~25,000 MT (before 2022 conflict significantly higher)
-19. Serbia: ~8,000 MT
-20. Romania: ~5,000 MT
+══════════════════════════════════════════════════════════════════
+SECTION 1: GLOBAL MARKET SIZE & VALUE
+══════════════════════════════════════════════════════════════════
 
-=== EXPORT DATA ===
-CHILE:
-- Total export: ~120,000–130,000 MT/year, value ~$900M–1.1B USD
-- To USA: ~55% of exports (~$500M)
-- To Europe (EU+UK): ~30% (~$280M) — Netherlands, UK, Spain main receivers
-- To China: ~8% and growing rapidly
-- To Russia: ~2% (reduced post-sanctions)
+Global cultivated highbush blueberry production (IBO data):
+- 2023: 1.78 million tonnes (global)
+- 2024: exceeded 2.0 million tonnes for first time in history
+- Global cultivation area 2023: 267,000 hectares (+7.2% vs 2022)
+- Global export value 2024: $6.73 billion (1 million tonnes exported)
+- Latin America: 42% of world acreage (Peru, Mexico, Chile)
+- Growth rate: ~10% annually in exports (+60,000 tonnes/year since 2019)
 
-PERU:
-- Total export: ~100,000–120,000 MT/year, value ~$800M–1.0B USD
-- To USA: ~50% (~$400M)
-- To Europe: ~35% (~$280M)
-- To China: ~10% and growing fast
-- Season: Sept–Dec (counter-season to Northern Hemisphere)
+IBO forecast: global fresh blueberry segment to reach 2.5 billion kg by 2029
 
-USA:
-- Exports ~50,000–60,000 MT, value ~$200M
-- Main destinations: Canada, Japan, South Korea, Netherlands
+══════════════════════════════════════════════════════════════════
+SECTION 2: PRODUCTION BY COUNTRY — IMPORTANT CLARIFICATION
+══════════════════════════════════════════════════════════════════
 
-SPAIN:
-- Exports ~90,000 MT, value ~$450M
-- Main EU supplier during spring season (April–June)
-- 80% to EU, 15% to UK, 5% other
+⚠️ PRODUCTION vs EXPORT — COMPLETELY DIFFERENT PICTURE:
 
-POLAND:
-- Exports ~50,000 MT, value ~€180M
-- Mainly to Germany, Netherlands, UK, Scandinavia
+PRODUCTION RANKING (total volume, 2023-2024):
+China is #1 producer BY VOLUME but exports almost NOTHING — all domestic.
+China overtook USA in 2021 as largest producer.
 
-MOROCCO:
-- Growing export player, mainly EU in early season (Feb–April)
+1. 🇨🇳 CHINA — ~570,000-780,000 MT (2024)
+   - Provinces: Guizhou, Jilin, Yunnan, Shandong
+   - ~32% of global production
+   - DOMESTIC CONSUMPTION ONLY — minimal exports
+   - Varieties: low-chill adapted (Misty, O'Neal, Sharpblue, Brightwell)
+   - Rapidly expanding, mainly serving 1.4B domestic consumers
+   - Also imports 80,000-100,000 MT/year — demand far exceeds domestic supply
 
-=== EXPORT TO KEY MARKETS ===
-CHINA:
-- Imports: ~80,000–100,000 MT/year, value ~$500–700M
-- Main suppliers: Chile, Peru, Australia, New Zealand
-- Growing middle class driving demand
-- Premium fresh blueberry market expanding 25%+/year
+2. 🇺🇸 USA — 358,000 MT cultivated highbush (2024, USDA data)
+   + 90.8 million lbs wild lowbush (Maine) — separate market
+   - Top states: Washington, Oregon, Georgia (= 65% of total)
+   - Also: Michigan, California, North Carolina, New Jersey, Florida
+   - 90% cultivated (highbush), 10% wild
+   - Value: $1.15 billion farm gate (2024)
+   - 55% fresh market, 45% processing/frozen
 
-USA:
-- World's largest importer: ~200,000 MT/year, value ~$800M–1.0B
-- Counter-season from Chile, Peru, Mexico (Oct–May)
-- Also Canadian imports (June–August)
+3. 🇵🇪 PERU — ~320,000-412,000 MT (2024/25 season)
+   - WORLD'S #1 EXPORTER by volume AND value
+   - 20,490 hectares certified for export (2024/25)
+   - Regions: La Libertad (51%), Lambayeque (23%), Ica (11%)
+   - Season: August–January (peak Sept–Nov)
+   - Yields: 19 MT/hectare — highest in world
+   - Export value 2025: ~$2.56 billion
 
-EUROPE (EU+UK):
-- Total imports: ~180,000–220,000 MT/year, value ~$1.0–1.3B
-- Netherlands as redistribution hub
-- Main suppliers: Morocco (Feb–Apr), Spain (Apr–Jun), Poland (Jul–Sep), Chile/Peru (Nov–Mar)
-- Germany largest EU consumer (~35,000 MT/year)
+4. 🇨🇦 CANADA — ~170,000 MT total
+   - Highbush: British Columbia (94% of highbush)
+   - Wild lowbush: Quebec (43,997 MT wild in 2024), Nova Scotia, New Brunswick
+   - Fraser Valley dominant for cultivated
 
-RUSSIA:
-- Pre-2022: imported ~30,000 MT, value ~$80M mainly from Serbia, Poland, Belarus
-- Post-2022 sanctions: significantly reduced Western imports
-- Now sourcing more from Belarus, China, Azerbaijan, Iran
-- Domestic production growing (Leningrad region, Krasnodar)
+5. 🇨🇱 CHILE — ~150,000 MT
+   - #2 exporter by volume
+   - 2024/25: 90,000+ MT fresh exports (+5% vs previous season)
+   - Regions: Biobío, La Araucanía, Bío Bío
+   - New varieties driving 50% growth in premium segment
 
-=== PRICES ===
-Fresh blueberries (FOB export price):
-- Peak season (Jul-Aug Northern Hemisphere): $1.5–2.5/kg
-- Off-season (Nov-Mar, Southern Hemisphere): $3.0–6.0/kg
-- Organic premium: +40–80%
-- China market premium: +20–30% over EU
+6. 🇪🇸 SPAIN — ~110,000 MT
+   - Main region: Huelva (Andalusia) — 90%+ of production
+   - Season: February–June (fills EU gap)
+   - #3 exporter globally (8% world export share)
+   - Key player: Onubafruit (20,000 MT, Blue World varieties)
 
-Retail prices:
-- USA: $4–8/pint (~$8–16/kg)
-- Germany: €3–6/punnet 250g (~€12–24/kg)
-- Poland: 8–18 PLN/250g (~32–72 PLN/kg)
-- Russia: 400–800 RUB/250g (~1600–3200 RUB/kg)
+7. 🇵🇱 POLAND — ~75,000-80,000 MT
+   - Largest highbush producer in EU
+   - Main regions: Mazovia, Lublin, Greater Poland
+   - Season: July–September
+   - Key varieties: Bluecrop, Duke, Patriot, Draper, Aurora
+   - ~50,000 MT exported, mainly Germany/Netherlands/UK/Scandinavia
 
-Frozen (bulk):
-- EU import price: €0.90–1.50/kg
-- USA import: $1.0–1.8/kg
+8. 🇲🇽 MEXICO — ~65,000-70,000 MT
+   - Rapid growth: +13% exports 2025
+   - Key regions: Jalisco, Baja California, Sinaloa
+   - Season: Nov–April (fills North America off-season with Chile/Peru)
+   - Growing role in US market (proximity advantage)
 
-=== NEW VARIETIES (2020–2025) ===
-HIGHBUSH NORTHERN:
-- 'Cargo' — high yield, firm, excellent shelf life
-- 'Aurora' — late season, very large berry
-- 'Calypso' — patented, disease resistant
-- 'Draper' — premium, self-fruitful, excellent flavor
-- 'Sweetcrisp' — very sweet, extended season
+9. 🇲🇦 MOROCCO — ~83,000 MT (record 2024!)
+   - Fastest rising exporter: climbed from 7th to 4th place globally in 2024
+   - 8% of global export share (equal to Chile and Spain)
+   - Season: February–April (earliest EU supply)
+   - Main market: Europe (Netherlands, UK, France)
+   - From 636 tonnes (2009) to 83,000 tonnes (2024) — extraordinary growth
 
-SOUTHERN HIGHBUSH:
-- 'Springhigh' — early season, excellent flavor
-- 'Farthing' — large berry, good for warm climates
-- 'Meadowlark' — low-chill requirement
-- 'Rebel' — low-chill, high yield, suited for Chile/Peru
+10. 🇵🇹 PORTUGAL — ~25,000 MT
+11. 🇿🇦 SOUTH AFRICA — ~35,000 MT (growing exporter)
+12. 🇦🇷 ARGENTINA — ~18,000 MT
+13. 🇦🇺 AUSTRALIA — ~20,000 MT
+14. 🇩🇪 GERMANY — ~12,000 MT
+15. 🇳🇱 NETHERLANDS — ~10,000 MT (mainly greenhouse)
+16. 🇷🇺 RUSSIA — ~15,000 MT cultivated (+ large wild bilberry harvest)
+17. 🇺🇦 UKRAINE — ~25,000 MT (before conflict was higher)
+18. 🇷🇸 SERBIA — ~8,000 MT
+19. 🇿🇼 ZIMBABWE — emerging, fast growing
+20. 🇬🇪 GEORGIA (country) — emerging new exporter
 
-HALF-HIGH:
-- 'Northblue' — cold hardy to -35°C, suited for Scandinavia/Poland
-- 'Polaris' — very aromatic, cold tolerant
+══════════════════════════════════════════════════════════════════
+SECTION 3: EXPORT DATA — WHO ACTUALLY SELLS TO THE WORLD
+══════════════════════════════════════════════════════════════════
 
-FOR CHINA MARKET (low-chill):
-- 'O'Neal' adaptation — widely planted Guizhou
-- 'Misty' — low chill ~150h, very popular SE China
-- 'Sharpblue' — nearly evergreen, S. China / Vietnam
+GLOBAL EXPORT 2024 (IBO / Blue Book data):
+- Total: 1,000,000 MT (first time exceeding 1 million tonnes!)
+- Total value: $6.73 billion
 
-FOR POLAND/RUSSIA:
-- 'Bluecrop' — still dominant (reliable, proven)
-- 'Duke' — early, very cold tolerant
-- 'Patriot' — cold hardy, well-drained soils
-- 'Toro' — high yield, medium chill requirement
+TOP EXPORTERS 2024 by share:
+1. 🇵🇪 Peru — 31% (~310,000 MT) — WORLD LEADER
+2. 🇨🇱 Chile — 8% (~80,000 MT)
+3. 🇪🇸 Spain — 8% (~80,000 MT)
+4. 🇲🇦 Morocco — 8% (~83,000 MT) ⬆️ NEW — rose from 7th to 4th!
+5. 🇺🇸 USA — 7% (~70,000 MT)
+6. 🇵🇱 Poland — ~5% (~50,000 MT)
+7. 🇲🇽 Mexico — ~2.3% (~23,000 MT, +13%)
+8. 🇨🇦 Canada — ~3%
+9. 🇿🇦 South Africa — growing
+10. 🇦🇺 Australia — growing
 
-ORGANIC / SPECIALTY:
-- 'Pink Lemonade' — pink-berried novelty, growing demand
-- 'Jelly Bean' — very small, intensely flavored
+PERU EXPORTS 2025 (most detailed data):
+- Total volume 2025: ~412,000 MT (record), value ~$2.56 billion
+- USA: 150,673 MT (+3%) = #1 destination, value $1.19B
+- Europe (Netherlands hub): 91,926 MT (+36%), value $508M
+- China: 43,935 MT (+18%), value $231M (surged 153% in some reports)
+- Other destinations: +122% growth (diversification)
+- Average price: $6.20/kg (vs $6.43 in 2024 — slight decline)
+- 66 destination countries (up from 52 in 2024)
+
+CHILE EXPORTS 2024/25:
+- Fresh exports: 90,000+ MT (+5% vs previous season)
+- New varieties: 50% growth, now 21% of total exports
+- Main varieties shifting from Biloxi to premium (Sekoya, Eureka)
+
+══════════════════════════════════════════════════════════════════
+SECTION 4: KEY IMPORT MARKETS
+══════════════════════════════════════════════════════════════════
+
+🇺🇸 USA:
+- World's largest importer: ~200,000+ MT/year
+- Counter-season supply: Chile, Peru, Mexico (Oct–May)
+- Domestic season: April–September
+- USA + Netherlands = 48% of world imports (2023)
+
+🇨🇳 CHINA:
+- Imports: 80,000-100,000 MT/year
+- Fastest growing import market (+25%/year)
+- Main suppliers: Peru (#1, +153% in 2025), Chile, Australia, NZ
+- Key driver: Chancay Port (Peru) reduces logistics costs
+- Preference: large, firm, sweet varieties (Sekoya Pop, Ventura)
+- Domestic production growing but demand still far exceeds supply
+
+🇪🇺 EUROPE (EU + UK):
+- Netherlands: central redistribution hub
+- ~200,000+ MT/year imports
+- Seasonal supply chain:
+  * November–January: Southern Hemisphere (Peru, Chile, Argentina)
+  * February–April: Morocco (fastest growing!)
+  * April–June: Spain (Huelva dominates)
+  * July–September: Poland, Germany, Netherlands (domestic)
+  * October: gap → Southern Hemisphere returns
+
+🇷🇺 RUSSIA:
+- Pre-2022: imported ~30,000 MT mainly from Serbia, Poland, Belarus
+- Post-2022 sanctions: Western imports drastically reduced
+- Current suppliers: Belarus, Azerbaijan, China, Iran, Serbia (via third countries)
+- Domestic production growing: Leningrad region, Krasnodar, Siberia
+- Wild bilberry/cowberry still main berry consumed (different product!)
+- Retail prices: 400-800 RUB/250g punnet
+
+══════════════════════════════════════════════════════════════════
+SECTION 5: PRICES 2024/2025
+══════════════════════════════════════════════════════════════════
+
+EXPORT (FOB) PRICES:
+- Peru average 2025: $6.20/kg (down from $6.43/kg in 2024, -3%)
+- Peak season (Sept-Oct Peru): can fall sharply due to volume glut
+- Off-season (Jan-May): $3.5-7.0/kg depending on origin
+- Premium varieties (Sekoya): +20-40% premium over conventional
+
+RETAIL PRICES (approximate):
+- USA: $4-8/pint punnet (~$8-16/kg)
+- Germany: €3-6/250g punnet (~€12-24/kg)
+- UK: £2.50-5.00/150g (~£16-33/kg)
+- Poland: 12-25 PLN/250g (~50-100 PLN/kg) in peak season
+- Russia: 400-900 RUB/250g
+- China: 80-200 CNY/kg (premium for large Sekoya-type berries)
+
+FROZEN (bulk, EU import):
+- Standard: €0.90-1.50/kg
+- Premium/organic: €1.80-2.50/kg
+
+PRICE TREND: Mild downward pressure globally due to oversupply.
+IBO warns of "margin squeeze" as production outpaces demand growth.
+
+══════════════════════════════════════════════════════════════════
+SECTION 6: VARIETIES — THE NEW GENERATION 2022-2025
+══════════════════════════════════════════════════════════════════
+
+▶ SEKOYA PLATFORM (Fall Creek® breeding) — MOST IMPORTANT BRAND GLOBALLY
+  The #1 premium variety platform worldwide, B2B model with 15 member companies.
+  Present in 25 countries, 2,500 hectares, ~87,000 MT production target 2024.
+  40% sold USA/Canada, 36% Europe, 24% Asia
+  
+  LOW/ZERO CHILL (warm climates — Peru, Mexico, S.USA):
+  - Sekoya Pop™ 'FCM14-052' — most planted in Peru, preferred in China market
+  - Sekoya Beauty™ 'FCM12-097' — early season, large berry
+  - Sekoya Crunch™ 'FC13-083' — exceptional firmness, shelf life
+  - Sekoya Grande™ 'FC13-122' — jumbo size
+
+  HIGH CHILL (cold climates — Poland, Canada, N.USA, high Chile):
+  - SEKOYA® Nova 'FC15-173' — newest high-chill, just launched
+  - ArabellaBlue® 'FC14-062' — vigorous, early-fruiting (launched Dec 2025)
+  - LoretoBlue™ 'FC11-118' — high performance
+  - FC11-164 — mechanical harvest focused (commercial trials 2024, Europe/US/Chile)
+  - Apex 'FCM14-057' — launched April 2026, for EMEA Jan-May window
+
+▶ DEMBA & BLUE WORLD (Onubafruit / FV.BV Netherlands) — TOP EUROPEAN VARIETIES
+  Developed by Dutch company FV.BV, exclusive licensee Onubafruit (Spain/Portugal/Morocco)
+  Protected until December 31, 2056 in EU.
+  Awards: International Taste Institute Superior Taste Award (Demba, Dana)
+  Productivity: 25,000-30,000 kg/hectare, >80% size 18mm+
+  Season: November to June (Huelva, Spain)
+  
+  - Demba (FV1908) ⭐ — AWARD WINNER. Precocity, size, firmness, exceptional flavor.
+    One of world's best-rated blueberries by International Taste Institute.
+  - Dana (FV1907) ⭐ — Award winner, excellent flavor and firmness
+  - Selma (FV1901) — covers mid-season
+  - Aila (FV1905) — early season
+  - Lena (FV1904) — part of full-season portfolio
+  - Selena (FV1905) — additional coverage
+  - FV1902, FV1903 — in development, no commercial name yet
+  Onubafruit Blue World target: 50% of 20,000 MT production, +10-15%/year growth
+
+▶ PERU TOP VARIETIES (2024/25 season, Proarándanos data):
+  ~65 varieties grown commercially in Peru!
+  Top 9 = 80% of certified area:
+  1. Ventura — 26% share (EU preference: 50% of shipments to Europe!)
+  2. Biloxi — 16% (declining, being replaced)
+  3. Sekoya Pop — 14% ⬆️ (growing fast, preferred in China: 24% of China shipments)
+  4. Rocío — growing
+  5. Mágica — growing (19% of China shipments in 2024/25!)
+  6. Atlasblue — present
+  7. Eureka / Eureka Sunrise — growing
+  8. Scintilla — present
+  9. Stella Blue / Kirra / Terrapin — other notable varieties
+  
+  Other: Emerald, Jupiterblue, Bella, Kestrel, Springhigh, Bonita,
+         Snowchaser, Sekoya Beauty, Magnifica, First Blush, Salvador,
+         Arana, Biancablue, Stellar, Jewel, among others
+
+▶ NORTHERN HIGHBUSH (cold climates — Poland, Canada, NE USA, high Chile):
+  Classic proven varieties still dominant in Poland/Eastern Europe:
+  - Bluecrop — still most planted worldwide (reliable workhorse)
+  - Duke — early season, cold tolerant, very popular Poland
+  - Draper — premium, excellent flavor, good shelf life
+  - Aurora — very late season, large berry
+  - Liberty — late season, excellent flavor
+  - Cargo — high yield, firmness
+  - Calypso — disease resistant, patented
+
+▶ HALF-HIGH (extreme cold — Scandinavia, Russia, Canada prairies):
+  - Northblue — cold hardy to -35°C
+  - Polaris — very aromatic, cold tolerant
+  - Chippewa — reliable in harsh conditions
+
+▶ NEW EMERGING VARIETIES (various breeders):
+  - BerryWorld Orb® — new northern highbush, commercial volumes 2025
+  - Eureka Sunrise, Eureka Sunset (Clear genetics)
+  - Magnifica™, Bella™, Bonita™, Julieta™ (Clear genetics, Peru)
+  - FC11-164 (Fall Creek) — mechanical harvest, trials in Europe/US/Chile
+  - Stella Blue — growing presence Peru
+  - Arana — appearing in Peru export data
+
+══════════════════════════════════════════════════════════════════
+SECTION 7: KEY INDUSTRY TRENDS 2025
+══════════════════════════════════════════════════════════════════
+
+1. OVERSUPPLY PRESSURE: Production growing faster than demand.
+   IBO warns of "margin squeeze" — growers face lower prices.
+   
+2. VARIETAL REVOLUTION: Rapid replacement of old varieties (Biloxi→Sekoya/Ventura)
+   for better quality, yield, shelf life.
+
+3. MECHANICAL HARVESTING: Fall Creek FC11-164 leading development.
+   Critical for labor cost reduction in Europe and USA.
+
+4. CHINA MARKET BOOM: Imports surging. Peru exports to China +153% in 2025.
+   Chancay Port dramatically reduces logistics costs Peru→China.
+
+5. MOROCCO RISE: From 636 MT (2009) to 83,000 MT (2024).
+   Now 4th largest exporter. Disrupting EU early-season supply.
+
+6. SEGMENTATION: Premium (Sekoya, Demba) vs commodity (Biloxi, Bluecrop).
+   "Blueberries are no longer a generic product" — Sekoya CEO.
+
+7. YEAR-ROUND SUPPLY: 12-month availability now standard in EU and USA.
+
+8. PRICE DECLINE: Average international price -3% in 2025 ($6.20/kg vs $6.43).
 """
 
-# ── System prompt builder ─────────────────────────────────────────────────────
 def build_system_prompt(lang: str) -> str:
-    lang_name = LANGUAGES.get(lang, "English")
-    return f"""
-{BLUEBERRY_KNOWLEDGE}
+    lang_name = {"en": "English", "pl": "Polish", "de": "German", "es": "Spanish", "ru": "Russian"}.get(lang, "English")
+    return f"""{BLUEBERRY_KNOWLEDGE}
 
-=== RESPONSE RULES ===
-1. ALWAYS respond in {lang_name} language ONLY.
-2. Use emojis appropriately (🫐📊🌍💰🚢🌱).
-3. Format data in clear tables using Markdown when showing statistics.
-4. When you have web search results, integrate them with your knowledge base.
-5. Be specific with numbers — cite years for data (e.g., 2023/2024).
-6. Structure long answers with headers (bold **text**) for readability.
-7. Keep answers focused and practical for blueberry industry professionals.
-8. If asked about current prices, note these fluctuate and recommend checking live market sources.
-9. Always be helpful, precise, and comprehensive.
+RESPONSE RULES:
+1. ALWAYS respond ONLY in {lang_name} language.
+2. ALWAYS clarify: we discuss HIGHBUSH BLUEBERRY (Vaccinium corymbosum) = borówka amerykańska = arándano = Kulturheidelbeere. NOT wild bilberry.
+3. ALWAYS distinguish PRODUCTION (who grows most) vs EXPORT (who sells most globally). China is #1 producer but #1 EXPORTER is Peru.
+4. Use data from the knowledge base above. For anything not covered, use web search.
+5. Use emojis 🫐📊🌍💰🚢🌱 appropriately.
+6. Format with clear **bold headers** and tables where helpful.
+7. Cite data sources: (IBO 2024), (FreshPlaza 2025), (USDA 2024), (Proarándanos 2024/25).
+8. Be precise with numbers — always cite the season/year.
+9. When discussing varieties: mention breeder, climate suitability, market preference.
+10. Be professional — this bot serves industry professionals.
 """
 
-# ── Anthropic Claude call ─────────────────────────────────────────────────────
 async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-    tools = []
-    if use_search:
-        tools = [{"type": "web_search_20250305", "name": "web_search"}]
-
+    tools = [{"type": "web_search_20250305", "name": "web_search"}] if use_search else []
     kwargs = {
         "model": "claude-sonnet-4-6",
         "max_tokens": 1500,
@@ -259,234 +440,165 @@ async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
     }
     if tools:
         kwargs["tools"] = tools
-
     response = client.messages.create(**kwargs)
+    parts = [block.text for block in response.content if block.type == "text"]
+    return "\n".join(parts) if parts else "⚠️ No response."
 
-    # Collect all text from response
-    parts = []
-    for block in response.content:
-        if block.type == "text":
-            parts.append(block.text)
-
-    return "\n".join(parts) if parts else "⚠️ No response generated."
-
-# ── Preset topic prompts ──────────────────────────────────────────────────────
 TOPIC_PROMPTS = {
     "market": {
-        "en": "Give me a comprehensive overview of the global blueberry market value in USD, market size, growth rate (CAGR), segmentation (fresh vs frozen vs processed), and projections to 2030. Include key market drivers.",
-        "pl": "Podaj mi kompleksowy przegląd wartości globalnego rynku borówek w USD, wielkości rynku, tempa wzrostu (CAGR), segmentacji (świeże vs mrożone vs przetworzone) i prognozy do 2030 roku. Uwzględnij kluczowe czynniki rynkowe.",
-        "de": "Geben Sie mir einen umfassenden Überblick über den globalen Heidelbeer-Marktwert in USD, Marktgröße, Wachstumsrate (CAGR), Segmentierung (frisch vs. gefroren vs. verarbeitet) und Prognosen bis 2030.",
-        "es": "Dame una descripción completa del valor del mercado global de arándanos en USD, tamaño del mercado, tasa de crecimiento (CAGR), segmentación (fresco vs congelado vs procesado) y proyecciones hasta 2030.",
-        "ru": "Дайте мне исчерпывающий обзор стоимости мирового рынка черники в долларах США, размера рынка, темпов роста (CAGR), сегментации (свежие / замороженные / переработанные) и прогнозов до 2030 года.",
+        "en": "Give a professional overview of the global highbush blueberry market 2024/2025: total production volume (IBO data), market value, growth trends, key producing regions, and outlook to 2030. Distinguish clearly between production and export volumes.",
+        "pl": "Podaj profesjonalny przegląd globalnego rynku borówki amerykańskiej (highbush) 2024/2025: całkowita produkcja (dane IBO), wartość rynku, trendy wzrostu, kluczowe regiony produkcji i perspektywy do 2030. Wyraźnie rozróżnij produkcję od eksportu.",
+        "de": "Professioneller Überblick über den globalen Kulturheidelbeer-Markt 2024/2025: Gesamtproduktion (IBO-Daten), Marktwert, Wachstumstrends, wichtigste Produktionsregionen und Ausblick bis 2030. Produktion klar von Export unterscheiden.",
+        "es": "Visión profesional del mercado global de arándanos highbush 2024/2025: producción total (datos IBO), valor de mercado, tendencias de crecimiento, regiones clave y perspectivas hasta 2030. Distinguir claramente producción de exportación.",
+        "ru": "Профессиональный обзор мирового рынка высокорослой голубики 2024/2025: общий объём производства (данные IBO), стоимость рынка, тенденции роста, ключевые регионы производства и прогноз до 2030 года. Чётко разграничить производство и экспорт.",
     },
-    "countries": {
-        "en": "List all major blueberry producing countries with their annual production in metric tonnes, which regions/states they grow in, and their share of global production. Include both cultivated and wild harvests.",
-        "pl": "Wymień wszystkie główne kraje produkujące borówki z roczną produkcją w tonach metrycznych, w których regionach/stanach uprawiają, oraz ich udział w globalnej produkcji. Uwzględnij zarówno uprawiane, jak i dzikie zbiory.",
-        "de": "Listen Sie alle wichtigen Heidelbeer-produzierenden Länder mit ihrer Jahresproduktion in Tonnen, in welchen Regionen/Bundesstaaten sie angebaut werden, und ihrem Anteil an der Weltproduktion auf.",
-        "es": "Lista todos los principales países productores de arándanos con su producción anual en toneladas métricas, en qué regiones/estados los cultivan y su participación en la producción mundial.",
-        "ru": "Перечислите все основные страны-производители черники с указанием годового производства в метрических тоннах, в каких регионах/штатах выращивают, и их долей в мировом производстве.",
+    "production": {
+        "en": "Detailed production data for ALL major highbush blueberry producing countries 2024/2025. IMPORTANT: Distinguish China (#1 by volume, domestic only) vs export leaders (Peru, Chile, Spain, Morocco). Include: volumes in MT, key regions, varieties, season windows, and whether production is domestic or export-oriented. Source: USDA, IBO, Proarándanos.",
+        "pl": "Szczegółowe dane produkcji borówki amerykańskiej dla WSZYSTKICH głównych krajów 2024/2025. WAŻNE: Rozróżnij Chiny (nr 1 wolumenem, tylko rynek wewnętrzny) od liderów eksportu (Peru, Chile, Hiszpania, Maroko). Podaj: wolumeny w tonach, kluczowe regiony, odmiany, okna sezonowe, orientacja rynkowa. Źródła: USDA, IBO, Proarándanos.",
+        "de": "Detaillierte Produktionsdaten für ALLE wichtigen Highbush-Heidelbeer-Produzenten 2024/2025. WICHTIG: China (#1 Volumen, nur Inland) vs. Exportführer (Peru, Chile, Spanien, Marokko) unterscheiden. Mengen in MT, Regionen, Sorten, Saisonfenster.",
+        "es": "Datos detallados de producción de arándanos highbush para TODOS los países principales 2024/2025. IMPORTANTE: Distinguir China (#1 en volumen, consumo doméstico) de líderes exportadores (Perú, Chile, España, Marruecos). Volúmenes en TM, regiones, variedades, ventanas de temporada.",
+        "ru": "Подробные данные производства высокорослой голубики по ВСЕМ основным странам 2024/2025. ВАЖНО: Отличить Китай (#1 по объёму, внутренний рынок) от лидеров экспорта (Перу, Чили, Испания, Марокко). Объёмы в тоннах, регионы, сорта, сезонные окна.",
     },
     "export": {
-        "en": "Give detailed blueberry export data: top exporting countries, volumes in MT, export values in USD, and breakdown of exports to China, USA, Europe, and Russia. Include trade flow trends 2022–2024.",
-        "pl": "Podaj szczegółowe dane eksportowe borówek: czołowe kraje eksportujące, wolumeny w tonach, wartości eksportu w USD oraz podział eksportu do Chin, USA, Europy i Rosji. Uwzględnij trendy przepływów handlowych 2022–2024.",
-        "de": "Geben Sie detaillierte Heidelbeer-Exportdaten: Top-Exportländer, Mengen in MT, Exportwerte in USD und Aufschlüsselung der Exporte nach China, USA, Europa und Russland.",
-        "es": "Dame datos detallados de exportación de arándanos: principales países exportadores, volúmenes en TM, valores de exportación en USD y desglose de exportaciones a China, EE.UU., Europa y Rusia.",
-        "ru": "Предоставьте подробные данные по экспорту черники: ведущие страны-экспортёры, объёмы в тоннах, стоимость экспорта в долларах, разбивка по экспорту в Китай, США, Европу и Россию.",
+        "en": "Complete export analysis 2024/2025: Global exports hit 1 million MT ($6.73B) for first time. Show: top 10 exporters with MT and $ values, Peru's dominance (31% share, $2.56B in 2025), Morocco's dramatic rise (from 7th to 4th), Chile's recovery, Spain's EU role. Include season windows for each exporter.",
+        "pl": "Pełna analiza eksportu 2024/2025: Globalny eksport osiągnął po raz pierwszy 1 milion MT ($6,73 mld). Pokaż: top 10 eksporterów z wolumenami (MT) i wartościami ($), dominację Peru (31% udziału, $2,56 mld w 2025), dramatyczny wzrost Maroka (z 7 na 4 miejsce), odbicie Chile, rolę Hiszpanii w UE. Uwzględnij okna sezonowe.",
+        "de": "Vollständige Exportanalyse 2024/2025: Globale Exporte erreichten erstmals 1 Million MT ($6,73 Mrd). Top 10 Exporteure mit MT und $ Werten, Perus Dominanz (31% Anteil), Marokkos dramatischer Aufstieg (7. auf 4. Platz), Chiles Erholung, Spaniens EU-Rolle.",
+        "es": "Análisis completo de exportaciones 2024/2025: Las exportaciones globales alcanzaron por primera vez 1 millón TM ($6.73B). Top 10 exportadores con TM y valores $, dominio de Perú (31%, $2.56B en 2025), ascenso espectacular de Marruecos (del 7° al 4°), recuperación de Chile, papel de España en EU.",
+        "ru": "Полный анализ экспорта 2024/2025: Мировой экспорт впервые достиг 1 млн тонн ($6,73 млрд). Топ-10 экспортёров с объёмами и стоимостью, доминирование Перу (31%, $2,56 млрд в 2025), стремительный взлёт Марокко (с 7-го на 4-е место), восстановление Чили, роль Испании в ЕС.",
+    },
+    "destinations": {
+        "en": "Detailed analysis of key import markets 2024/2025: USA (largest importer, ~200,000 MT), China (fastest growing, +153% from Peru in 2025, Chancay Port impact), Europe (seasonal supply chain: Morocco→Spain→Poland→Southern Hemisphere), Russia (post-2022 situation, alternative suppliers). Include prices and trends per market.",
+        "pl": "Szczegółowa analiza kluczowych rynków importowych 2024/2025: USA (największy importer, ~200,000 MT), Chiny (najszybciej rosnący, +153% z Peru w 2025, wpływ portu Chancay), Europa (sezonowy łańcuch dostaw: Maroko→Hiszpania→Polska→Półkula Południowa), Rosja (sytuacja po 2022, alternatywni dostawcy). Uwzględnij ceny i trendy.",
+        "de": "Detaillierte Analyse der wichtigsten Importmärkte 2024/2025: USA (größter Importeur), China (am schnellsten wachsend, +153% aus Peru 2025, Chancay-Hafen), Europa (saisonale Lieferkette), Russland (Post-2022-Situation).",
+        "es": "Análisis detallado de mercados de importación clave 2024/2025: USA (mayor importador), China (crecimiento más rápido, +153% desde Perú en 2025, Puerto Chancay), Europa (cadena de suministro estacional), Rusia (situación post-2022).",
+        "ru": "Подробный анализ ключевых рынков импорта 2024/2025: США (крупнейший импортёр), Китай (самый быстрорастущий, +153% из Перу в 2025, порт Чанкай), Европа (сезонная цепочка поставок), Россия (ситуация после 2022 года).",
     },
     "prices": {
-        "en": "What are current blueberry prices? Show FOB export prices, wholesale prices, retail prices in key markets (USA, Germany, Poland, Russia, China). Include seasonal price variations and organic premium.",
-        "pl": "Jakie są aktualne ceny borówek? Pokaż ceny FOB eksportowe, ceny hurtowe, ceny detaliczne na kluczowych rynkach (USA, Niemcy, Polska, Rosja, Chiny). Uwzględnij sezonowe wahania cen i premię za produkty organiczne.",
-        "de": "Was sind die aktuellen Heidelbeerpreise? Zeigen Sie FOB-Exportpreise, Großhandelspreise, Einzelhandelspreise auf wichtigen Märkten (USA, Deutschland, Polen, Russland, China).",
-        "es": "¿Cuáles son los precios actuales de los arándanos? Muestra precios FOB de exportación, precios mayoristas, precios minoristas en mercados clave (EE.UU., Alemania, Polonia, Rusia, China).",
-        "ru": "Каковы текущие цены на чернику? Покажите цены FOB на экспорт, оптовые цены, розничные цены на ключевых рынках (США, Германия, Польша, Россия, Китай).",
+        "en": "Blueberry price analysis 2024/2025: Peru FOB average $6.20/kg (-3% vs 2024), seasonal price variations (glut in Sept-Oct), premium varieties (Sekoya, Demba) vs commodity pricing, retail prices by country (USA $8-16/kg, Germany €12-24/kg, Poland 50-100 PLN/kg, China 80-200 CNY/kg, Russia 400-900 RUB/250g), frozen bulk prices, price outlook and margin pressure.",
+        "pl": "Analiza cen borówek 2024/2025: Peru FOB średnio $6,20/kg (-3% vs 2024), sezonowe wahania (glut wrzesień-październik), premium (Sekoya, Demba) vs commodity, ceny detaliczne: USA $8-16/kg, Niemcy €12-24/kg, Polska 50-100 PLN/kg, Chiny 80-200 CNY/kg, Rosja 400-900 RUB/250g, ceny mrożonych, perspektywy cen i presja na marże.",
+        "de": "Preisanalyse 2024/2025: Peru FOB $6,20/kg (-3%), saisonale Schwankungen, Premium (Sekoya, Demba) vs. Commodity, Einzelhandelspreise: USA, Deutschland, Polen, China, Russland, Tiefkühlpreise, Preisausblick.",
+        "es": "Análisis de precios 2024/2025: Perú FOB $6.20/kg (-3%), variaciones estacionales, premium (Sekoya, Demba) vs commodity, precios minoristas: USA, Alemania, Polonia, China, Rusia, precios congelados, perspectivas de precios y presión en márgenes.",
+        "ru": "Анализ цен 2024/2025: Перу FOB $6,20/кг (-3%), сезонные колебания, премиум (Sekoya, Demba) vs стандарт, розничные цены: США, Германия, Польша, Китай, Россия, цены на замороженные, прогноз цен и давление на маржу.",
     },
     "varieties": {
-        "en": "What are the newest blueberry varieties released 2020–2025? Include highbush, southern highbush, half-high varieties. Note which are suited for warm climates (China, Peru), cold climates (Poland, Russia, Scandinavia), and which have best export characteristics.",
-        "pl": "Jakie są najnowsze odmiany borówek wprowadzone w latach 2020–2025? Uwzględnij wysokopienne, południowe wysokopienne i półwysokopienne. Zaznacz, które nadają się do ciepłych klimatów (Chiny, Peru), zimnych klimatów (Polska, Rosja, Skandynawia) i które mają najlepsze cechy eksportowe.",
-        "de": "Was sind die neuesten Heidelbeersorten, die 2020–2025 eingeführt wurden? Umfassen Sie Highbush, Southern Highbush, Half-High-Sorten. Notieren Sie, welche für warme Klimata (China, Peru), kalte Klimata (Polen, Russland, Skandinavien) geeignet sind.",
-        "es": "¿Cuáles son las variedades de arándanos más nuevas lanzadas entre 2020 y 2025? Incluye highbush, southern highbush, half-high. Nota cuáles son adecuadas para climas cálidos (China, Perú) y fríos (Polonia, Rusia, Escandinavia).",
-        "ru": "Какие новейшие сорта черники были выпущены в 2020–2025 годах? Включите высокорослые, южные высокорослые, полувысокорослые сорта. Отметьте, какие подходят для тёплого климата (Китай, Перу) и холодного (Польша, Россия, Скандинавия).",
+        "en": "Complete guide to blueberry varieties 2024/2025: Cover ALL major categories. SEKOYA platform (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex FCM14-057 - latest 2026 launch). Blue World/Demba range (Demba, Dana, Selma, Aila - Superior Taste Award winners). Peru's top varieties by market (Ventura dominant in Europe 50%, Sekoya Pop in China 24%, Mágica in China 19%). Northern highbush (Bluecrop, Duke, Draper, Aurora). New mechanical harvest FC11-164. Include: breeder, climate, markets, season, advantages.",
+        "pl": "Kompletny przewodnik po odmianach borówek 2024/2025: WSZYSTKIE główne kategorie. Platforma SEKOYA (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex FCM14-057 - premiera 2026). Seria Blue World/Demba (Demba, Dana, Selma, Aila - nagrody smaku). Topowe odmiany Peru wg rynku (Ventura dominuje Europa 50%, Sekoya Pop Chiny 24%, Mágica Chiny 19%). Północne wysokopienne. Nowe FC11-164 dla mechanicznego zbioru. Hodowca, klimat, rynki, sezon, zalety.",
+        "de": "Kompletter Sortenleitfaden 2024/2025: ALLE wichtigen Kategorien. SEKOYA-Plattform, Blue World/Demba (Superior Taste Award), Perus Top-Sorten nach Märkten, Nördliche Highbush, neue FC11-164. Züchter, Klima, Märkte, Saison, Vorteile.",
+        "es": "Guía completa de variedades 2024/2025: TODAS las categorías. Plataforma SEKOYA, Blue World/Demba (Superior Taste Award), top variedades Perú por mercado (Ventura Europa 50%, Sekoya Pop China 24%), Northern Highbush, nueva FC11-164 para cosecha mecánica.",
+        "ru": "Полное руководство по сортам 2024/2025: ВСЕ основные категории. Платформа SEKOYA, Blue World/Demba (Superior Taste Award), топ-сорта Перу по рынкам (Ventura Европа 50%, Sekoya Pop Китай 24%), Северные высокорослые, новая FC11-164 для механической уборки.",
+    },
+    "sekoya": {
+        "en": "Deep dive into SEKOYA® blueberry platform by Fall Creek®: B2B model, 15 member companies (NorthBay, Alpine Fresh, SanLucar, Surexport/RK, abbGrowers, Joy Wing Mau, Fresh Produce Group, Core, Zur Group, Prize, Agrovision, Agroberries, Berries Paradise, Rainier Fruit, Mastronardi). Present in 25 countries, 2,500 ha, 87,000 MT target 2024. Market split: 40% USA/Canada, 36% Europe, 24% Asia. All varieties: Pop, Beauty, Crunch, Grande (low chill) + Nova, ArabellaBlue, LoretoBlue, Apex (high chill). Why retailers ask for it by name. China market performance.",
+        "pl": "Dogłębna analiza platformy SEKOYA® (Fall Creek®): model B2B, 15 firm członkowskich, 25 krajów, 2500 ha, cel 87,000 MT (2024). Podział rynku: 40% USA/Kanada, 36% Europa, 24% Azja. Wszystkie odmiany z opisami. Dlaczego detaliści żądają SEKOYA z nazwy. Wyniki w Chinach.",
+        "de": "Tiefenanalyse der SEKOYA®-Plattform: B2B-Modell, 15 Mitgliedsunternehmen, 25 Länder, alle Sorten. Marktaufteilung, China-Performance, warum Einzelhändler SEKOYA beim Namen nennen.",
+        "es": "Análisis profundo de la plataforma SEKOYA®: modelo B2B, 15 empresas miembro, 25 países, 2.500 ha, objetivo 87.000 TM. División de mercado, todas las variedades, rendimiento en China.",
+        "ru": "Глубокий анализ платформы SEKOYA®: B2B-модель, 15 компаний-членов, 25 стран, 2500 га, цель 87 000 тонн. Разбивка рынка, все сорта, результаты в Китае.",
+    },
+    "demba": {
+        "en": "Detailed analysis of Demba and Blue World varieties by Onubafruit/FV.BV: Demba (FV1908) and Dana (FV1907) won International Taste Institute Superior Taste Award. Full Blue World range: Demba, Dana, Aila, Lena, Selma, Selena, FV1902, FV1903. EU protection until 2056. Exclusive licensee: Onubafruit (Huelva, Spain) for Spain/Portugal/Morocco. Productivity 25,000-30,000 kg/ha. Season November-June. 50% of Onubafruit's 20,000 MT is Blue World. Growing 10-15%/year.",
+        "pl": "Szczegółowa analiza odmian Demba i Blue World (Onubafruit/FV.BV): Demba i Dana zdobyły nagrodę Superior Taste Award International Taste Institute. Pełna seria Blue World. Ochrona UE do 2056. Licencjobiorca: Onubafruit (Huelva, Hiszpania) dla Hiszpanii/Portugali/Maroka. Produktywność 25,000-30,000 kg/ha. Sezon listopad-czerwiec.",
+        "de": "Detaillierte Analyse der Demba und Blue World Sorten: Superior Taste Award Gewinner. Vollständiges Blue World Sortiment, EU-Schutz bis 2056, Onubafruit Lizenz, Produktivität 25.000-30.000 kg/ha.",
+        "es": "Análisis detallado de Demba y Blue World (Onubafruit/FV.BV): Demba y Dana ganaron el Superior Taste Award. Gama Blue World completa, protección EU hasta 2056, licenciatario Onubafruit (Huelva), productividad 25.000-30.000 kg/ha.",
+        "ru": "Подробный анализ сортов Demba и Blue World (Onubafruit/FV.BV): Demba и Dana получили Superior Taste Award. Полная линейка Blue World, защита ЕС до 2056 года, лицензиат Onubafruit (Уэльва), продуктивность 25-30 т/га.",
+    },
+    "search": {
+        "en": "Search the web for the very latest blueberry market news, price reports, and variety releases from 2025-2026. Check FreshPlaza, IBO, Blueberries Consulting for the most recent data. Combine with knowledge base to give the most current professional picture.",
+        "pl": "Przeszukaj internet w poszukiwaniu najnowszych wiadomości rynku borówek, raportów cen i nowych odmian z 2025-2026. Sprawdź FreshPlaza, IBO, Blueberries Consulting. Połącz z bazą wiedzy.",
+        "de": "Suchen Sie nach den neuesten Heidelbeer-Marktnachrichten 2025-2026 auf FreshPlaza, IBO, Blueberries Consulting. Mit Wissensbasis kombinieren.",
+        "es": "Busca las últimas noticias del mercado de arándanos 2025-2026 en FreshPlaza, IBO, Blueberries Consulting. Combinar con base de conocimiento.",
+        "ru": "Поиск последних новостей рынка черники 2025-2026 на FreshPlaza, IBO, Blueberries Consulting. Объединить с базой знаний.",
     },
 }
 
-SEARCH_PROMPTS = {
-    "en": "Search for the latest 2024-2025 blueberry market data, prices, export statistics, and new variety releases. Combine with your knowledge to give the most current overview.",
-    "pl": "Wyszukaj najnowsze dane rynku borówek 2024–2025, ceny, statystyki eksportowe i nowe odmiany. Połącz z wiedzą, aby dać najbardziej aktualny przegląd.",
-    "de": "Suchen Sie nach den neuesten Heidelbeer-Marktdaten 2024–2025, Preisen, Exportstatistiken und neuen Sortenstarts. Kombinieren Sie mit Ihrem Wissen für den aktuellsten Überblick.",
-    "es": "Busca los últimos datos del mercado de arándanos 2024–2025, precios, estadísticas de exportación y nuevas variedades. Combina con tu conocimiento para dar el resumen más actual.",
-    "ru": "Найдите последние данные рынка черники 2024–2025, цены, статистику экспорта и новые сорта. Объедините с вашими знаниями для самого актуального обзора.",
-}
-
-# ── Telegram handlers ─────────────────────────────────────────────────────────
-def get_lang(context: ContextTypes.DEFAULT_TYPE) -> str:
+def get_lang(context):
     return context.user_data.get("lang", "en")
 
-def main_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
+def main_menu_keyboard(lang):
     labels = MENU_LABELS[lang]
     keyboard = [
-        [
-            InlineKeyboardButton(labels["market"],    callback_data="topic_market"),
-            InlineKeyboardButton(labels["countries"], callback_data="topic_countries"),
-        ],
-        [
-            InlineKeyboardButton(labels["export"],    callback_data="topic_export"),
-            InlineKeyboardButton(labels["prices"],    callback_data="topic_prices"),
-        ],
-        [
-            InlineKeyboardButton(labels["varieties"], callback_data="topic_varieties"),
-            InlineKeyboardButton(labels["search"],    callback_data="topic_search"),
-        ],
-        [
-            InlineKeyboardButton(labels["lang"],      callback_data="choose_lang"),
-        ],
+        [InlineKeyboardButton(labels["market"],       callback_data="topic_market"),
+         InlineKeyboardButton(labels["production"],   callback_data="topic_production")],
+        [InlineKeyboardButton(labels["export"],       callback_data="topic_export"),
+         InlineKeyboardButton(labels["destinations"], callback_data="topic_destinations")],
+        [InlineKeyboardButton(labels["prices"],       callback_data="topic_prices"),
+         InlineKeyboardButton(labels["varieties"],    callback_data="topic_varieties")],
+        [InlineKeyboardButton(labels["sekoya"],       callback_data="topic_sekoya"),
+         InlineKeyboardButton(labels["demba"],        callback_data="topic_demba")],
+        [InlineKeyboardButton(labels["search"],       callback_data="topic_search"),
+         InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
-def lang_keyboard() -> InlineKeyboardMarkup:
-    keyboard = [
+def lang_keyboard():
+    return InlineKeyboardMarkup([
         [InlineKeyboardButton(name, callback_data=f"lang_{code}")]
         for code, name in LANGUAGES.items()
-    ]
-    return InlineKeyboardMarkup(keyboard)
+    ])
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
-    await update.message.reply_text(
-        WELCOME[lang],
-        parse_mode="Markdown",
-        reply_markup=main_menu_keyboard(lang),
-    )
+    await update.message.reply_text(WELCOME[lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
-    help_texts = {
-        "en": "🫐 *BlueberryBot Help*\n\n• Use the menu buttons for preset topics\n• Type any question in chat for custom answers\n• Change language with 🌐 button\n\nTopics covered: market value, production by country, export data (China/USA/EU/Russia), prices, new varieties.",
-        "pl": "🫐 *Pomoc BlueberryBot*\n\n• Używaj przycisków menu dla gotowych tematów\n• Wpisz pytanie w czacie dla niestandardowych odpowiedzi\n• Zmień język przyciskiem 🌐\n\nTematy: wartość rynku, produkcja krajowa, dane eksportowe (Chiny/USA/UE/Rosja), ceny, nowe odmiany.",
-        "de": "🫐 *BlueberryBot Hilfe*\n\n• Verwenden Sie die Menü-Schaltflächen für voreingestellte Themen\n• Tippen Sie eine Frage im Chat für benutzerdefinierte Antworten\n• Sprache mit 🌐-Schaltfläche ändern",
-        "es": "🫐 *Ayuda de BlueberryBot*\n\n• Usa los botones del menú para temas preestablecidos\n• Escribe cualquier pregunta en el chat para respuestas personalizadas\n• Cambia el idioma con el botón 🌐",
-        "ru": "🫐 *Помощь BlueberryBot*\n\n• Используйте кнопки меню для готовых тем\n• Введите любой вопрос в чат для индивидуальных ответов\n• Измените язык кнопкой 🌐",
-    }
-    await update.message.reply_text(
-        help_texts.get(lang, help_texts["en"]),
-        parse_mode="Markdown",
-        reply_markup=main_menu_keyboard(lang),
-    )
+    await update.message.reply_text(WELCOME[lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
 
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     data = query.data
     lang = get_lang(context)
 
-    # Language selection menu
     if data == "choose_lang":
-        choose_texts = {
-            "en": "🌐 Choose your language:",
-            "pl": "🌐 Wybierz język:",
-            "de": "🌐 Sprache wählen:",
-            "es": "🌐 Elige tu idioma:",
-            "ru": "🌐 Выберите язык:",
-        }
-        await query.edit_message_text(
-            choose_texts.get(lang, choose_texts["en"]),
-            reply_markup=lang_keyboard(),
-        )
+        await query.edit_message_text("🌐 Choose language / Wybierz język:", reply_markup=lang_keyboard())
         return
 
-    # Language set
     if data.startswith("lang_"):
         new_lang = data.split("_", 1)[1]
         context.user_data["lang"] = new_lang
-        await query.edit_message_text(
-            WELCOME[new_lang],
-            parse_mode="Markdown",
-            reply_markup=main_menu_keyboard(new_lang),
-        )
+        await query.edit_message_text(WELCOME[new_lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(new_lang))
         return
 
-    # Topic buttons
     if data.startswith("topic_"):
         topic = data.split("_", 1)[1]
-        loading_texts = {
-            "en": "⏳ Fetching blueberry data...",
-            "pl": "⏳ Pobieranie danych o borówkach...",
-            "de": "⏳ Heidelbeerdaten werden abgerufen...",
-            "es": "⏳ Obteniendo datos de arándanos...",
-            "ru": "⏳ Получение данных о чернике...",
-        }
-        await query.edit_message_text(loading_texts.get(lang, loading_texts["en"]))
-
+        loading = {"en": "⏳ Analyzing market data...", "pl": "⏳ Analizuję dane rynkowe...",
+                   "de": "⏳ Marktdaten werden analysiert...", "es": "⏳ Analizando datos...",
+                   "ru": "⏳ Анализирую данные..."}
+        await query.edit_message_text(loading.get(lang, "⏳ Loading..."))
         use_search = (topic == "search")
-        if topic == "search":
-            prompt = SEARCH_PROMPTS.get(lang, SEARCH_PROMPTS["en"])
-        else:
-            prompt = TOPIC_PROMPTS.get(topic, {}).get(lang, TOPIC_PROMPTS.get(topic, {}).get("en", "Tell me about blueberries."))
-
+        prompt = TOPIC_PROMPTS.get(topic, {}).get(lang) or TOPIC_PROMPTS.get(topic, {}).get("en", "Tell me about blueberries.")
         try:
             response = await ask_claude(prompt, lang, use_search=use_search)
-            # Telegram message limit: 4096 chars
             if len(response) > 4000:
                 response = response[:3990] + "\n\n_(truncated)_"
-            await query.edit_message_text(
-                response,
-                parse_mode="Markdown",
-                reply_markup=main_menu_keyboard(lang),
-            )
+            await query.edit_message_text(response, parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
         except Exception as e:
-            logger.error(f"Claude error: {e}")
-            err_texts = {
-                "en": "⚠️ Error fetching data. Please try again.",
-                "pl": "⚠️ Błąd pobierania danych. Spróbuj ponownie.",
-                "de": "⚠️ Fehler beim Abrufen der Daten. Bitte versuchen Sie es erneut.",
-                "es": "⚠️ Error al obtener datos. Por favor, inténtalo de nuevo.",
-                "ru": "⚠️ Ошибка при получении данных. Пожалуйста, попробуйте снова.",
-            }
-            await query.edit_message_text(
-                err_texts.get(lang, err_texts["en"]),
-                reply_markup=main_menu_keyboard(lang),
-            )
+            logger.error(f"Error: {e}")
+            await query.edit_message_text("⚠️ Error. Please try again.", reply_markup=main_menu_keyboard(lang))
 
-async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle free-text questions from users."""
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     user_msg = update.message.text
-
-    thinking_texts = {
-        "en": "🫐 Thinking...",
-        "pl": "🫐 Myślę...",
-        "de": "🫐 Denke nach...",
-        "es": "🫐 Pensando...",
-        "ru": "🫐 Думаю...",
-    }
-    thinking_msg = await update.message.reply_text(thinking_texts.get(lang, "🫐 Thinking..."))
-
+    thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
+                "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
+    msg = await update.message.reply_text(thinking.get(lang, "🫐 Thinking..."))
     try:
-        # Use web search for free-text questions to get freshest data
         response = await ask_claude(user_msg, lang, use_search=True)
         if len(response) > 4000:
             response = response[:3990] + "\n\n_(truncated)_"
-        await thinking_msg.edit_text(
-            response,
-            parse_mode="Markdown",
-        )
-        # Show menu after answer
-        await update.message.reply_text(
-            "─" * 20,
-            reply_markup=main_menu_keyboard(lang),
-        )
+        await msg.edit_text(response, parse_mode="Markdown")
+        await update.message.reply_text("─" * 20, reply_markup=main_menu_keyboard(lang))
     except Exception as e:
-        logger.error(f"Message handler error: {e}")
-        await thinking_msg.edit_text("⚠️ Error. Please try again.")
+        logger.error(f"Error: {e}")
+        await msg.edit_text("⚠️ Error. Please try again.")
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-def main() -> None:
+def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
-
-    logger.info("🫐 BlueberryBot starting...")
+    logger.info("🫐 BlueberryBot v2.0 starting...")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
