@@ -512,151 +512,67 @@ async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
 
 TOPIC_PROMPTS = {
     "market": {
-        "en": "Give a professional overview of the global highbush blueberry market 2024/2025: total production volume (IBO data), market value, growth trends, key producing regions, and outlook to 2030. Distinguish clearly between production and export volumes.",
-        "pl": "Podaj profesjonalny przegląd globalnego rynku borówki amerykańskiej (highbush) 2024/2025: całkowita produkcja (dane IBO), wartość rynku, trendy wzrostu, kluczowe regiony produkcji i perspektywy do 2030. Wyraźnie rozróżnij produkcję od eksportu.",
-        "de": "Professioneller Überblick über den globalen Kulturheidelbeer-Markt 2024/2025: Gesamtproduktion (IBO-Daten), Marktwert, Wachstumstrends, wichtigste Produktionsregionen und Ausblick bis 2030. Produktion klar von Export unterscheiden.",
-        "es": "Visión profesional del mercado global de arándanos highbush 2024/2025: producción total (datos IBO), valor de mercado, tendencias de crecimiento, regiones clave y perspectivas hasta 2030. Distinguir claramente producción de exportación.",
-        "ru": "Профессиональный обзор мирового рынка высокорослой голубики 2024/2025: общий объём производства (данные IBO), стоимость рынка, тенденции роста, ключевые регионы производства и прогноз до 2030 года. Чётко разграничить производство и экспорт.",
+        "en": "Global highbush blueberry market 2025/26: production volume, market value, growth rate, top regions. Distinguish production vs export. Key numbers only, concise.",
+        "pl": "Globalny rynek borówki amerykańskiej 2025/26: produkcja, wartość, wzrost, regiony. Rozróżnij produkcję od eksportu. Tylko kluczowe liczby.",
+        "de": "Globaler Heidelbeermarkt 2025/26: Produktion, Wert, Wachstum, Regionen. Produktion vs. Export unterscheiden. Kurz und präzise.",
+        "es": "Mercado global arándanos 2025/26: producción, valor, crecimiento, regiones. Distinguir producción de exportación. Solo cifras clave.",
+        "ru": "Мировой рынок голубики 2025/26: производство, стоимость, рост, регионы. Отличить производство от экспорта. Только ключевые цифры.",
     },
     "production": {
-        "en": "Detailed production data for ALL major highbush blueberry producing countries 2024/2025. IMPORTANT: Distinguish China (#1 by volume, domestic only) vs export leaders (Peru, Chile, Spain, Morocco). Include: volumes in MT, key regions, varieties, season windows, and whether production is domestic or export-oriented. Source: USDA, IBO, Proarándanos.",
-        "pl": "Szczegółowe dane produkcji borówki amerykańskiej dla WSZYSTKICH głównych krajów 2024/2025. WAŻNE: Rozróżnij Chiny (nr 1 wolumenem, tylko rynek wewnętrzny) od liderów eksportu (Peru, Chile, Hiszpania, Maroko). Podaj: wolumeny w tonach, kluczowe regiony, odmiany, okna sezonowe, orientacja rynkowa. Źródła: USDA, IBO, Proarándanos.",
-        "de": "Detaillierte Produktionsdaten für ALLE wichtigen Highbush-Heidelbeer-Produzenten 2024/2025. WICHTIG: China (#1 Volumen, nur Inland) vs. Exportführer (Peru, Chile, Spanien, Marokko) unterscheiden. Mengen in MT, Regionen, Sorten, Saisonfenster.",
-        "es": "Datos detallados de producción de arándanos highbush para TODOS los países principales 2024/2025. IMPORTANTE: Distinguir China (#1 en volumen, consumo doméstico) de líderes exportadores (Perú, Chile, España, Marruecos). Volúmenes en TM, regiones, variedades, ventanas de temporada.",
-        "ru": "Подробные данные производства высокорослой голубики по ВСЕМ основным странам 2024/2025. ВАЖНО: Отличить Китай (#1 по объёму, внутренний рынок) от лидеров экспорта (Перу, Чили, Испания, Марокко). Объёмы в тоннах, регионы, сорта, сезонные окна.",
+        "en": "Top 20 highbush blueberry producing countries 2024/25 with MT volumes, key regions, season. Note: China #1 producer (domestic only), Peru #1 exporter. Table format.",
+        "pl": "Top 20 krajów produkujących borówkę amerykańską 2024/25: wolumeny MT, regiony, sezon. Chiny nr 1 producent (rynek wewnętrzny), Peru nr 1 eksporter. Format tabeli.",
+        "de": "Top 20 Highbush-Produzenten 2024/25: MT, Regionen, Saison. China #1 Produzent (Inland), Peru #1 Exporteur. Tabellenformat.",
+        "es": "Top 20 productores highbush 2024/25: TM, regiones, temporada. China #1 productor (doméstico), Perú #1 exportador. Formato tabla.",
+        "ru": "Топ-20 производителей высокорослой голубики 2024/25: тонны, регионы, сезон. Китай #1 производитель (внутренний), Перу #1 экспортёр. Таблица.",
     },
     "export": {
-        "en": "Complete export analysis 2024/2025: Global exports hit 1 million MT ($6.73B) for first time. Show: top 10 exporters with MT and $ values, Peru's dominance (31% share, $2.56B in 2025), Morocco's dramatic rise (from 7th to 4th), Chile's recovery, Spain's EU role. Include season windows for each exporter.",
-        "pl": "Pełna analiza eksportu 2024/2025: Globalny eksport osiągnął po raz pierwszy 1 milion MT ($6,73 mld). Pokaż: top 10 eksporterów z wolumenami (MT) i wartościami ($), dominację Peru (31% udziału, $2,56 mld w 2025), dramatyczny wzrost Maroka (z 7 na 4 miejsce), odbicie Chile, rolę Hiszpanii w UE. Uwzględnij okna sezonowe.",
-        "de": "Vollständige Exportanalyse 2024/2025: Globale Exporte erreichten erstmals 1 Million MT ($6,73 Mrd). Top 10 Exporteure mit MT und $ Werten, Perus Dominanz (31% Anteil), Marokkos dramatischer Aufstieg (7. auf 4. Platz), Chiles Erholung, Spaniens EU-Rolle.",
-        "es": "Análisis completo de exportaciones 2024/2025: Las exportaciones globales alcanzaron por primera vez 1 millón TM ($6.73B). Top 10 exportadores con TM y valores $, dominio de Perú (31%, $2.56B en 2025), ascenso espectacular de Marruecos (del 7° al 4°), recuperación de Chile, papel de España en EU.",
-        "ru": "Полный анализ экспорта 2024/2025: Мировой экспорт впервые достиг 1 млн тонн ($6,73 млрд). Топ-10 экспортёров с объёмами и стоимостью, доминирование Перу (31%, $2,56 млрд в 2025), стремительный взлёт Марокко (с 7-го на 4-е место), восстановление Чили, роль Испании в ЕС.",
+        "en": "Global blueberry export 2024/25: 1M MT, $6.73B. Top 10 exporters with MT and $ share. Peru 31% ($2.56B), Morocco rose 7th→4th. Season windows per country. Concise table.",
+        "pl": "Globalny eksport borówek 2024/25: 1 mln MT, $6,73 mld. Top 10 eksporterów z MT i udziałem $. Peru 31% ($2,56 mld), Maroko wzrosło z 7 na 4 miejsce. Okna sezonowe. Tabela.",
+        "de": "Globaler Export 2024/25: 1 Mio MT, $6,73 Mrd. Top 10 Exporteure mit MT und %. Peru 31%, Marokko 7.→4. Saisonfenster. Kompakte Tabelle.",
+        "es": "Exportación global 2024/25: 1M TM, $6.73B. Top 10 exportadores con TM y %. Perú 31%, Marruecos subió 7°→4°. Ventanas temporada. Tabla.",
+        "ru": "Мировой экспорт 2024/25: 1 млн тонн, $6,73 млрд. Топ-10 экспортёров с тоннами и долей. Перу 31%, Марокко с 7 на 4 место. Сезонные окна. Таблица.",
     },
     "destinations": {
-        "en": "Detailed analysis of key import markets 2024/2025: USA (largest importer, ~200,000 MT), China (fastest growing, +153% from Peru in 2025, Chancay Port impact), Europe (seasonal supply chain: Morocco→Spain→Poland→Southern Hemisphere), Russia (post-2022 situation, alternative suppliers). Include prices and trends per market.",
-        "pl": "Szczegółowa analiza kluczowych rynków importowych 2024/2025: USA (największy importer, ~200,000 MT), Chiny (najszybciej rosnący, +153% z Peru w 2025, wpływ portu Chancay), Europa (sezonowy łańcuch dostaw: Maroko→Hiszpania→Polska→Półkula Południowa), Rosja (sytuacja po 2022, alternatywni dostawcy). Uwzględnij ceny i trendy.",
-        "de": "Detaillierte Analyse der wichtigsten Importmärkte 2024/2025: USA (größter Importeur), China (am schnellsten wachsend, +153% aus Peru 2025, Chancay-Hafen), Europa (saisonale Lieferkette), Russland (Post-2022-Situation).",
-        "es": "Análisis detallado de mercados de importación clave 2024/2025: USA (mayor importador), China (crecimiento más rápido, +153% desde Perú en 2025, Puerto Chancay), Europa (cadena de suministro estacional), Rusia (situación post-2022).",
-        "ru": "Подробный анализ ключевых рынков импорта 2024/2025: США (крупнейший импортёр), Китай (самый быстрорастущий, +153% из Перу в 2025, порт Чанкай), Европа (сезонная цепочка поставок), Россия (ситуация после 2022 года).",
+        "en": "Key blueberry import markets 2025/26: USA (largest, 200k MT), China (fastest +153% from Peru, Chancay Port), Europe (Morocco→Spain→Poland→S.Hemisphere supply chain), Russia (post-2022 suppliers). Prices per market.",
+        "pl": "Kluczowe rynki importu borówek 2025/26: USA (największy, 200k MT), Chiny (najszybszy +153% z Peru, port Chancay), Europa (Maroko→Hiszpania→Polska→PołHem), Rosja (dostawcy po 2022). Ceny per rynek.",
+        "de": "Wichtigste Importmärkte 2025/26: USA (200k MT), China (+153% aus Peru, Chancay), Europa (Lieferkette), Russland (Post-2022). Preise je Markt.",
+        "es": "Mercados importación clave 2025/26: USA (200k TM), China (+153% Perú, Chancay), Europa (cadena suministro), Rusia (post-2022). Precios por mercado.",
+        "ru": "Ключевые рынки импорта 2025/26: США (200к тонн), Китай (+153% из Перу, Чанкай), Европа (цепочка поставок), Россия (после 2022). Цены по рынкам.",
     },
     "prices": {
-        "en": "Blueberry price analysis 2024/2025: Peru FOB average $6.20/kg (-3% vs 2024), seasonal price variations (glut in Sept-Oct), premium varieties (Sekoya, Demba) vs commodity pricing, retail prices by country (USA $8-16/kg, Germany €12-24/kg, Poland 50-100 PLN/kg, China 80-200 CNY/kg, Russia 400-900 RUB/250g), frozen bulk prices, price outlook and margin pressure.",
-        "pl": "Analiza cen borówek 2024/2025: Peru FOB średnio $6,20/kg (-3% vs 2024), sezonowe wahania (glut wrzesień-październik), premium (Sekoya, Demba) vs commodity, ceny detaliczne: USA $8-16/kg, Niemcy €12-24/kg, Polska 50-100 PLN/kg, Chiny 80-200 CNY/kg, Rosja 400-900 RUB/250g, ceny mrożonych, perspektywy cen i presja na marże.",
-        "de": "Preisanalyse 2024/2025: Peru FOB $6,20/kg (-3%), saisonale Schwankungen, Premium (Sekoya, Demba) vs. Commodity, Einzelhandelspreise: USA, Deutschland, Polen, China, Russland, Tiefkühlpreise, Preisausblick.",
-        "es": "Análisis de precios 2024/2025: Perú FOB $6.20/kg (-3%), variaciones estacionales, premium (Sekoya, Demba) vs commodity, precios minoristas: USA, Alemania, Polonia, China, Rusia, precios congelados, perspectivas de precios y presión en márgenes.",
-        "ru": "Анализ цен 2024/2025: Перу FOB $6,20/кг (-3%), сезонные колебания, премиум (Sekoya, Demba) vs стандарт, розничные цены: США, Германия, Польша, Китай, Россия, цены на замороженные, прогноз цен и давление на маржу.",
+        "en": "Blueberry prices 2025/26: Peru FOB $6.20/kg (-3%). Retail: USA $8-16/kg, Germany €12-24/kg, Poland 50-100 PLN/kg, China 80-200 CNY/kg, Russia 400-900 RUB/250g. Premium (Sekoya/Demba) +20-40%. Frozen €0.90-1.50/kg. Price outlook.",
+        "pl": "Ceny borówek 2025/26: Peru FOB $6,20/kg (-3%). Detal: USA $8-16/kg, Niemcy €12-24/kg, Polska 50-100 PLN/kg, Chiny 80-200 CNY/kg, Rosja 400-900 RUB/250g. Premium (Sekoya/Demba) +20-40%. Mrożone €0,90-1,50/kg.",
+        "de": "Preise 2025/26: Peru FOB $6,20/kg (-3%). Einzelhandel: USA, DE, PL, CN, RU. Premium +20-40%. Tiefkühl €0,90-1,50/kg.",
+        "es": "Precios 2025/26: Perú FOB $6,20/kg (-3%). Retail: USA, DE, PL, CN, RU. Premium +20-40%. Congelado €0,90-1,50/kg.",
+        "ru": "Цены 2025/26: Перу FOB $6,20/кг (-3%). Розница: США, Германия, Польша, Китай, Россия. Премиум +20-40%. Замороженные €0,90-1,50/кг.",
     },
     "varieties": {
-        "en": "Complete guide to blueberry varieties 2024/2025: Cover ALL major categories. SEKOYA platform (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex FCM14-057 - latest 2026 launch). Blue World/Demba range (Demba, Dana, Selma, Aila - Superior Taste Award winners). Peru's top varieties by market (Ventura dominant in Europe 50%, Sekoya Pop in China 24%, Mágica in China 19%). Northern highbush (Bluecrop, Duke, Draper, Aurora). New mechanical harvest FC11-164. Include: breeder, climate, markets, season, advantages.",
-        "pl": "Kompletny przewodnik po odmianach borówek 2024/2025: WSZYSTKIE główne kategorie. Platforma SEKOYA (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex FCM14-057 - premiera 2026). Seria Blue World/Demba (Demba, Dana, Selma, Aila - nagrody smaku). Topowe odmiany Peru wg rynku (Ventura dominuje Europa 50%, Sekoya Pop Chiny 24%, Mágica Chiny 19%). Północne wysokopienne. Nowe FC11-164 dla mechanicznego zbioru. Hodowca, klimat, rynki, sezon, zalety.",
-        "de": "Kompletter Sortenleitfaden 2024/2025: ALLE wichtigen Kategorien. SEKOYA-Plattform, Blue World/Demba (Superior Taste Award), Perus Top-Sorten nach Märkten, Nördliche Highbush, neue FC11-164. Züchter, Klima, Märkte, Saison, Vorteile.",
-        "es": "Guía completa de variedades 2024/2025: TODAS las categorías. Plataforma SEKOYA, Blue World/Demba (Superior Taste Award), top variedades Perú por mercado (Ventura Europa 50%, Sekoya Pop China 24%), Northern Highbush, nueva FC11-164 para cosecha mecánica.",
-        "ru": "Полное руководство по сортам 2024/2025: ВСЕ основные категории. Платформа SEKOYA, Blue World/Demba (Superior Taste Award), топ-сорта Перу по рынкам (Ventura Европа 50%, Sekoya Pop Китай 24%), Северные высокорослые, новая FC11-164 для механической уборки.",
-    },
-    "varieties": {
-        "en": "NEW blueberry varieties 2020-2026. TWO MAIN PLATFORMS: 1) SEKOYA® (Fall Creek): B2B, 15 members, 25 countries, 87,000 MT. Low-chill: Sekoya Pop (China favorite 24%), Sekoya Beauty, Sekoya Crunch, Sekoya Grande. High-chill: Nova FC15-173, ArabellaBlue FC14-062, LoretoBlue, Apex FCM14-057 (2026 launch, EMEA Jan-May). FC11-164 mechanical harvest trials. 2) BLUE WORLD / Demba (Onubafruit/FV.BV Netherlands): Demba + Dana = Superior Taste Award winners. Full range: Demba, Dana, Aila, Lena, Selma, Selena. EU protection 2056. 25-30 t/ha, Spain season Nov-June. Also: BerryWorld Orb (2025), PeachyBlue (retail hit USA 2025, +6% category sales at Sprouts). Mention which new varieties suit which climate.",
-        "pl": "NOWE odmiany borówki 2020-2026. DWE GŁÓWNE PLATFORMY: 1) SEKOYA® (Fall Creek): B2B, 15 firm, 25 krajów, 87,000 MT. Low-chill: Sekoya Pop (Chiny 24%), Beauty, Crunch, Grande. High-chill: Nova, ArabellaBlue, LoretoBlue, Apex (2026). FC11-164 mechaniczny zbiór. 2) BLUE WORLD/Demba (Onubafruit/FV.BV): Demba+Dana = nagroda smaku. Pełna seria: Demba, Dana, Aila, Lena, Selma, Selena. Ochrona EU 2056. 25-30 t/ha. Też: BerryWorld Orb, PeachyBlue (hit USA 2025).",
-        "de": "NEUE Sorten 2020-2026: SEKOYA® (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex) + Blue World/Demba (Superior Taste Award, EU-Schutz 2056) + BerryWorld Orb + PeachyBlue. Klimaeignung für jede Sorte.",
-        "es": "NUEVAS variedades 2020-2026: SEKOYA® (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex) + Blue World/Demba (Superior Taste Award, protección EU 2056) + BerryWorld Orb + PeachyBlue. Clima adecuado para cada variedad.",
-        "ru": "НОВЫЕ сорта 2020-2026: SEKOYA® (Pop, Beauty, Crunch, Grande, Nova, ArabellaBlue, Apex) + Blue World/Demba (Superior Taste Award, защита ЕС 2056) + BerryWorld Orb + PeachyBlue. Подходящий климат для каждого сорта.",
+        "en": "NEW blueberry varieties 2020-2026: SEKOYA low-chill (Pop-China fav, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026). Demba/Blue World (Taste Award: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva-zero chill). BerryWorld Orb, PeachyBlue. Best climate for each.",
+        "pl": "NOWE odmiany 2020-2026: SEKOYA low-chill (Pop-Chiny, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026). Demba/Blue World (nagroda: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva-zero chill). BerryWorld Orb, PeachyBlue. Klimat dla każdej.",
+        "de": "NEUE Sorten 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Demba/Blue World (Taste Award) + Planasa (Blue Manila, Madeira, Maldiva) + BerryWorld Orb. Klima je Sorte.",
+        "es": "NUEVAS variedades 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Demba/Blue World (Taste Award) + Planasa (Blue Manila, Madeira, Maldiva) + BerryWorld Orb. Clima por variedad.",
+        "ru": "НОВЫЕ сорта 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Demba/Blue World (Taste Award) + Planasa (Blue Manila, Madeira, Maldiva) + BerryWorld Orb. Климат для каждого.",
     },
     "classics": {
-        "en": "CLASSIC blueberry varieties (pre-2020, still widely grown). Northern Highbush (high chill 800-1200h, cold climates: Poland, Canada, NE USA, N.Chile): Bluecrop (most planted worldwide, reliable), Duke (early, cold tolerant, very popular Poland), Draper (premium flavor, shelf life), Aurora (very late, large berry), Liberty (late, excellent flavor), Cargo (high yield), Elliott (late processing), Patriot (cold hardy), Toro, Jersey, Chandler (giant berry). Southern Highbush (low chill 200-500h, warm: Peru, S.Spain, Morocco, S.USA, Mexico): Biloxi (was dominant Peru, now declining), Ventura (Peru #1 now, 26% share, EU preferred), O'Neal, Misty, Sharpblue, Emerald, Jewel, Star, Springhigh, Farthing. Half-High (extreme cold -35°C: Scandinavia, Russia, Canada prairies): Northblue, Polaris, Chippewa, St. Cloud. Also mention: Rabbiteye varieties for SE USA/warm dry climates.",
-        "pl": "KLASYCZNE odmiany borówki (przed 2020, nadal szeroko uprawiane). Północne wysokopienne (high chill, zimne klimaty: Polska, Kanada, NE USA): Bluecrop, Duke, Draper, Aurora, Liberty, Cargo, Elliott, Patriot, Toro, Jersey, Chandler. Południowe wysokopienne (low chill, ciepłe: Peru, Hiszpania, Maroko): Biloxi (dominowało Peru, teraz wypierane), Ventura (teraz nr 1 w Peru 26%), O'Neal, Misty, Emerald, Jewel, Star. Półwysokopienne (mróz do -35°C): Northblue, Polaris, Chippewa.",
-        "de": "KLASSISCHE Sorten: Nördliche Highbush (Bluecrop, Duke, Draper, Aurora, Liberty, Cargo) + Südliche Highbush (Biloxi, Ventura, O'Neal, Misty, Emerald) + Half-High (Northblue, Polaris). Klimaanforderungen für jede Gruppe.",
-        "es": "VARIEDADES clásicas: Northern Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Southern Highbush (Biloxi, Ventura, O'Neal, Misty, Emerald) + Half-High (Northblue, Polaris). Requisitos climáticos.",
-        "ru": "КЛАССИЧЕСКИЕ сорта: Северные высокорослые (Bluecrop, Duke, Draper, Aurora, Liberty) + Южные высокорослые (Biloxi, Ventura, O'Neal, Misty, Emerald) + Полувысокорослые (Northblue, Polaris). Климатические требования.",
+        "en": "Classic blueberry varieties pre-2020: Northern Highbush high-chill (Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Patriot, Elliott). Southern Highbush low-chill (Biloxi, Ventura, O'Neal, Misty, Emerald, Jewel). Half-High extreme cold (Northblue, Polaris, Chippewa). Climate requirements table.",
+        "pl": "Klasyczne odmiany pre-2020: Północne high-chill (Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Patriot). Południowe low-chill (Biloxi, Ventura, O'Neal, Misty, Emerald). Półwysokopienne (Northblue, Polaris, Chippewa). Tabela wymagań klimatycznych.",
+        "de": "Klassische Sorten pre-2020: Nord-Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Süd-Highbush (Biloxi, Ventura, O'Neal, Misty) + Half-High (Northblue, Polaris). Klimatabelle.",
+        "es": "Variedades clásicas pre-2020: Northern Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Southern Highbush (Biloxi, Ventura, O'Neal, Misty) + Half-High (Northblue, Polaris). Tabla climática.",
+        "ru": "Классические сорта до 2020: Северные (Bluecrop, Duke, Draper, Aurora, Liberty) + Южные (Biloxi, Ventura, O'Neal, Misty) + Полувысокорослые (Northblue, Polaris). Таблица климата.",
     },
     "nursery": {
-        "en": """Top 5 global blueberry nursery & genetics companies (verified data):
-
-1. FALL CREEK® (USA, founded 1978, Oregon HQ) — WORLD LEADER in blueberry genetics:
-   40+ million blueberry plants/year | 100+ varieties | 59 countries | 1,000+ employees | 10 facilities
-   Locations: USA (Oregon HQ), Peru (14M plants/yr, 5 nurseries in Quilmaná/Cañete), Spain/Seville (14M plants/yr, EMEA hub for 52 countries, 250+ staff), Netherlands, South Africa, Mexico, Chile
-   Total: 150+ hectares of nurseries globally
-   Platforms: SEKOYA® (premium B2B), Fall Creek Collection (open market), Free Marketing varieties
-   
-2. PLANASA (Spain, founded 1973, Valtierra/Navarra) — WORLD LEADER in berry plant production overall:
-   ~1,000 million plants/year TOTAL (all crops incl. strawberry, raspberry, asparagus, garlic)
-   Blueberry focus: members-only licensing model | 27+ countries | 7,000 employees | Revenue ~€220M (2023/24)
-   1,500+ hectares of nurseries: Spain, Poland, Morocco, Romania, China, Peru, USA, Mexico
-   Blueberry varieties: Blue Manila®, Blue Malibu®, Blue Madeira®, Blue Maldiva®, Blue Marina®, Blue Masirah®
-   Climate focus: zero/very-low chill (tropical) varieties — best performance in Peru, Mexico, Morocco, Yunnan (China), S.Africa, Zimbabwe
-   2023: acquired 100% China subsidiary | 2024: acquired Hansabred (Germany)
-   
-3. ONUBAFRUIT / FV.BV (Netherlands + Spain) — BLUE WORLD varieties:
-   Producer-breeder cooperative based in Huelva, Spain
-   Blue World varieties: Demba, Dana, Aila, Lena, Selma, Selena (EU protection until 2056)
-   Demba + Dana = Superior Taste Award (International Taste Institute)
-   Exclusive licensee: Onubafruit for Spain, Portugal, Morocco
-   Production: ~20,000 MT blueberries, 50% from Blue World varieties, growing 10-15%/yr
-   
-4. OREGON BLUEBERRY (USA, Oregon) — Major North American wholesale nursery:
-   One of largest wholesale blueberry nurseries in North America
-   40+ years experience | Commercial focus USA/Canada
-   Offers premium genetics for North American growers
-   
-5. LORSENA (Spain) — European nursery specialist:
-   Important supplier for European growers, esp. Spain and Portugal
-   Works with licensed varieties from multiple breeders
-   
-OTHER NOTABLE NURSERIES: BerryWorld Varieties (UK, owns Orb variety), Nourse Farms (USA, small fruit specialist), various national nurseries in Poland, Chile, Canada, Australia.
-   
-PLANT COSTS (approximate): Tissue culture plug/liner: $0.50–2.00 | Finished plant (1-2L): $2–5 | Premium licensed variety premium: +20-50%
-Ask me your country — I'll recommend the best nursery source and varieties for your climate!""",
-        "pl": """Top 5 globalnych szkółek i firm genetycznych borówki (zweryfikowane dane):
-
-1. FALL CREEK® (USA, od 1978, Oregon) — ŚWIATOWY LIDER genetyki borówkowej:
-   40+ mln sadzonek/rok | 100+ odmian | 59 krajów | 1000+ pracowników | 10 zakładów
-   Lokalizacje: USA, Peru (14 mln szt/rok, 5 szkółek), Hiszpania/Sewilla (14 mln szt/rok, centrum EMEA, 52 kraje), Holandia, RPA, Meksyk, Chile
-   Łącznie 150+ ha szkółek | Platformy: SEKOYA®, Fall Creek Collection
-
-2. PLANASA (Hiszpania, od 1973, Valtierra/Navarra) — NAJWIĘKSZY producent roślin jagodowych:
-   ~1 miliard sadzonek/rok ŁĄCZNIE (wszystkie rośliny) | 27+ krajów | 7000 pracowników | ~220 mln EUR obrót
-   1500+ ha szkółek: Hiszpania, Polska, Maroko, Rumunia, Chiny, Peru, USA, Meksyk
-   Odmiany borówki: Blue Manila®, Blue Malibu®, Blue Madeira®, Blue Maldiva®, Blue Marina®, Blue Masirah®
-   Specjalizacja: zero/very-low chill — Peru, Meksyk, Maroko, Yunnan (Chiny), RPA, Zimbabwe
-   Model: tylko dla członków (licencje)
-
-3. ONUBAFRUIT / FV.BV (Holandia + Hiszpania) — seria BLUE WORLD:
-   Odmiany: Demba, Dana, Aila, Lena, Selma, Selena (ochrona EU do 2056)
-   Nagroda: Superior Taste Award dla Demba i Dana
-   Licencja: Onubafruit (Huelva) dla Hiszpanii/Portugali/Maroka
-   Produkcja: ~20,000 MT, 50% z Blue World
-
-4. OREGON BLUEBERRY (USA, Oregon) — duża hurtowa szkółka północnoamerykańska
-
-5. LORSENA (Hiszpania) — europejski specjalista szkółkarski
-
-Koszty sadzonek: plug/liner $0.50-2.00 | sadzonka gotowa $2-5 | dopłata za odmiany licencjonowane +20-50%""",
-        "de": """Top 5 globale Heidelbeer-Baumschulen (verifizierte Daten):
-1. FALL CREEK® (USA/Oregon, 1978): 40+ Mio. Pflanzen/Jahr, 100+ Sorten, 59 Länder, 10 Standorte (Peru 14M, Spanien 14M, NL, SA). SEKOYA® Plattform.
-2. PLANASA (Spanien/Navarra, 1973): ~1 Mrd. Pflanzen/Jahr gesamt, 7.000 Mitarbeiter, 1.500+ ha, 27 Länder. Blaubeeren: Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah. Fokus: zero-chill Sorten.
-3. ONUBAFRUIT/FV.BV (Niederlande+Spanien): Blue World (Demba, Dana - Taste Award, EU-Schutz 2056).
-4. OREGON BLUEBERRY (USA): Größte Großhandels-Baumschule Nordamerikas.
-5. LORSENA (Spanien): Europäischer Spezialist.
-Pflanzenkosten: Stecklinge $0,50-2,00, fertige Pflanzen $2-5.""",
-        "es": """Top 5 viveros globales de arándano (datos verificados):
-1. FALL CREEK® (EE.UU./Oregon, 1978): 40+ millones plantas/año, 100+ variedades, 59 países, 10 instalaciones. Plataforma SEKOYA®.
-2. PLANASA (España/Navarra, 1973): ~1.000 millones plantas/año total, 7.000 empleados, 1.500+ ha en 27 países. Variedades: Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah. Especialidad: cero horas frío.
-3. ONUBAFRUIT/FV.BV (Países Bajos+España): Blue World (Demba, Dana - Premio Sabor, protección EU 2056).
-4. OREGON BLUEBERRY (EE.UU.): Mayor vivero mayorista de Norteamérica.
-5. LORSENA (España): Especialista europeo.
-Costos: esquejes $0,50-2,00, plantas terminadas $2-5.""",
-        "ru": """Топ-5 мировых питомников голубики (проверенные данные):
-1. FALL CREEK® (США/Орегон, 1978): 40+ млн саженцев/год, 100+ сортов, 59 стран, 10 объектов. Платформа SEKOYA®.
-2. PLANASA (Испания/Наварра, 1973): ~1 млрд саженцев/год всего, 7000 сотрудников, 1500+ га в 27 странах. Голубика: Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah. Специализация: нулевые часы холода.
-3. ONUBAFRUIT/FV.BV (Нидерланды+Испания): Blue World (Demba, Dana - награда вкуса, защита ЕС до 2056).
-4. OREGON BLUEBERRY (США): Крупнейший оптовый питомник Северной Америки.
-5. LORSENA (Испания): Европейский специалист.
-Стоимость: черенки $0,50-2,00, готовые саженцы $2-5.""",
+        "en": "Top 5 global blueberry nurseries: 1) Fall Creek® USA - 40M+ plants/yr, 59 countries, SEKOYA platform. 2) Planasa Spain - 1B plants/yr total, 7000 staff, Blue Manila/Madeira/Maldiva. 3) Onubafruit/FV.BV - Blue World (Demba, Dana). 4) Oregon Blueberry USA - largest N.America wholesale. 5) Lorsena Spain - EU specialist. Plant costs: $0.50-5.00.",
+        "pl": "Top 5 szkółek borówki: 1) Fall Creek® USA - 40 mln szt/rok, 59 krajów, SEKOYA. 2) Planasa Hiszpania - 1 mld szt/rok łącznie, 7000 prac., Blue Manila/Madeira/Maldiva. 3) Onubafruit/FV.BV - Blue World (Demba, Dana). 4) Oregon Blueberry USA - największa hurt. Ameryka Pn. 5) Lorsena Hiszpania - specjalista EU. Ceny: $0,50-5,00.",
+        "de": "Top 5 Baumschulen: 1) Fall Creek® USA 40M+/Jahr, 59 Länder. 2) Planasa Spanien 1Mrd/Jahr, 7000 MA. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry USA. 5) Lorsena Spanien. Preise $0,50-5.",
+        "es": "Top 5 viveros: 1) Fall Creek® USA 40M+/año, 59 países. 2) Planasa España 1000M/año, 7000 emp. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry USA. 5) Lorsena España. Precios $0,50-5.",
+        "ru": "Топ-5 питомников: 1) Fall Creek® США 40М+/год, 59 стран. 2) Planasa Испания 1 млрд/год, 7000 сотр. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry США. 5) Lorsena Испания. Цены $0,50-5.",
     },
     "search": {
-        "en": "Search the web for the very latest blueberry market news, price reports, and variety releases from 2025-2026. Check FreshPlaza, IBO, Blueberries Consulting for the most recent data. Combine with knowledge base to give the most current professional picture.",
-        "pl": "Przeszukaj internet w poszukiwaniu najnowszych wiadomości rynku borówek, raportów cen i nowych odmian z 2025-2026. Sprawdź FreshPlaza, IBO, Blueberries Consulting. Połącz z bazą wiedzy.",
-        "de": "Suchen Sie nach den neuesten Heidelbeer-Marktnachrichten 2025-2026 auf FreshPlaza, IBO, Blueberries Consulting. Mit Wissensbasis kombinieren.",
-        "es": "Busca las últimas noticias del mercado de arándanos 2025-2026 en FreshPlaza, IBO, Blueberries Consulting. Combinar con base de conocimiento.",
-        "ru": "Поиск последних новостей рынка черники 2025-2026 на FreshPlaza, IBO, Blueberries Consulting. Объединить с базой знаний.",
+        "en": "Search web for latest 2025-2026 blueberry news from FreshPlaza, IBO, Proarándanos. Current prices, export data, new varieties. Combine with knowledge base.",
+        "pl": "Szukaj najnowszych wiadomości borówkowych 2025-2026 z FreshPlaza, IBO, Proarándanos. Aktualne ceny, eksport, nowe odmiany.",
+        "de": "Aktuelle Heidelbeernews 2025-2026 von FreshPlaza, IBO suchen. Preise, Export, neue Sorten.",
+        "es": "Buscar noticias arándanos 2025-2026 FreshPlaza, IBO, Proarándanos. Precios actuales, exportación, nuevas variedades.",
+        "ru": "Поиск новостей черники 2025-2026 с FreshPlaza, IBO, Proarándanos. Цены, экспорт, новые сорта.",
     },
 }
 
@@ -717,6 +633,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(loading.get(lang, "⏳ Loading..."))
         use_search = (topic == "search")
         prompt = TOPIC_PROMPTS.get(topic, {}).get(lang) or TOPIC_PROMPTS.get(topic, {}).get("en", "Tell me about blueberries.")
+        user = query.from_user
+        track(user.id, user.username or "anon", lang, "topic", topic)
         try:
             response = await ask_claude(prompt, lang, use_search=use_search)
             if len(response) > 4000:
@@ -726,9 +644,61 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             logger.error(f"Error: {e}")
             await query.edit_message_text("⚠️ Error. Please try again.", reply_markup=main_menu_keyboard(lang))
 
+# ── Analytics ──────────────────────────────────────────────────────────────
+import json
+from datetime import datetime
+
+STATS_FILE = "/tmp/blueberry_stats.json"
+
+def load_stats():
+    try:
+        with open(STATS_FILE) as f:
+            return json.load(f)
+    except:
+        return {"users": {}, "topics": {}, "questions": [], "total": 0}
+
+def save_stats(s):
+    try:
+        with open(STATS_FILE, "w") as f:
+            json.dump(s, f, ensure_ascii=False)
+    except Exception as e:
+        logger.error(f"Stats: {e}")
+
+def track(uid, uname, lang, etype, content=""):
+    s = load_stats()
+    uid = str(uid)
+    now = datetime.utcnow().isoformat()
+    if uid not in s["users"]:
+        s["users"][uid] = {"name": uname, "lang": lang, "first": now, "count": 0, "topics": []}
+    s["users"][uid]["count"] += 1
+    s["users"][uid]["last"] = now
+    s["users"][uid]["lang"] = lang
+    if etype == "topic":
+        s["topics"][content] = s["topics"].get(content, 0) + 1
+    if etype == "question" and content:
+        s["questions"].append({"q": content[:150], "lang": lang, "t": now})
+        s["questions"] = s["questions"][-500:]
+    s["total"] = s.get("total", 0) + 1
+    save_stats(s)
+
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     user_msg = update.message.text
+    user = update.effective_user
+    track(user.id, user.username or "anon", lang, "question", user_msg)
+
+    # Admin stats command
+    if user_msg.strip() == "/stats" and user.id in [int(os.getenv("ADMIN_ID", "0"))]:
+        s = load_stats()
+        txt = f"📊 BlueberryBot Stats\n👥 Users: {len(s['users'])}\n📨 Total queries: {s.get('total',0)}\n\n🔝 Top topics:\n"
+        for t, c in sorted(s["topics"].items(), key=lambda x: -x[1])[:10]:
+            txt += f"  {t}: {c}\n"
+        txt += f"\n💬 Last questions:\n"
+        for q in s["questions"][-5:]:
+            txt += f"  [{q['lang']}] {q['q']}\n"
+        await update.message.reply_text(txt[:4000])
+        return
+
     thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
                 "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
     msg = await update.message.reply_text(thinking.get(lang, "🫐 Thinking..."))
