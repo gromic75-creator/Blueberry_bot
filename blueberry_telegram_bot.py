@@ -609,6 +609,38 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     await update.message.reply_text(WELCOME[lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
 
+async def ask_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /ask <question> command"""
+    lang = get_lang(context)
+    user = update.effective_user
+    question = " ".join(context.args) if context.args else ""
+
+    if not question:
+        hints = {
+            "en": "💡 Usage: /ask <your question>\n\nExamples:\n/ask best varieties for Poland\n/ask blueberry price in China 2025\n/ask how many tonnes does Peru export",
+            "pl": "💡 Użycie: /ask <pytanie>\n\nPrzykłady:\n/ask najlepsze odmiany do Polski\n/ask cena borówek w Chinach 2025\n/ask ile ton eksportuje Peru",
+            "de": "💡 Verwendung: /ask <Frage>\n\nBeispiele:\n/ask beste Sorten für Polen\n/ask Heidelbeerpreis China 2025",
+            "es": "💡 Uso: /ask <pregunta>\n\nEjemplos:\n/ask mejores variedades para Polonia\n/ask precio arándanos China 2025",
+            "ru": "💡 Использование: /ask <вопрос>\n\nПримеры:\n/ask лучшие сорта для Польши\n/ask цена черники в Китае 2025",
+        }
+        await update.message.reply_text(hints.get(lang, hints["en"]))
+        return
+
+    track(user.id, user.username or "anon", lang, "question", f"/ask {question}")
+
+    thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
+                "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
+    msg = await update.message.reply_text(thinking.get(lang, "🫐 Thinking..."))
+    try:
+        response = await ask_claude(question, lang, use_search=True)
+        if len(response) > 4000:
+            response = response[:3990] + "\n\n_(truncated)_"
+        await msg.edit_text(response, parse_mode="Markdown")
+        await update.message.reply_text("─" * 20, reply_markup=main_menu_keyboard(lang))
+    except Exception as e:
+        logger.error(f"Ask error: {e}")
+        await msg.edit_text("⚠️ Error. Please try again.")
+
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -716,6 +748,7 @@ def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("ask", ask_command))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
     logger.info("🫐 BlueberryBot v2.0 starting...")
