@@ -47,6 +47,7 @@ MENU_LABELS = {
         "classics":  "📚 Classic Varieties",
         "nursery":   "🏭 Nursery & Plants",
         "search":    "🔍 Live Search",
+        "news":      "📰 Breaking News",
         "lang":      "🌐 Language",
     },
     "pl": {
@@ -59,6 +60,7 @@ MENU_LABELS = {
         "classics":  "📚 Klasyczne odmiany",
         "nursery":   "🏭 Szkółki i sadzonki",
         "search":    "🔍 Wyszukiwanie live",
+        "news":      "📰 Aktualności",
         "lang":      "🌐 Język",
     },
     "de": {
@@ -71,6 +73,7 @@ MENU_LABELS = {
         "classics":  "📚 Klassische Sorten",
         "nursery":   "🏭 Baumschulen & Pflanzen",
         "search":    "🔍 Live-Suche",
+        "news":      "📰 Aktuelle News",
         "lang":      "🌐 Sprache",
     },
     "es": {
@@ -83,6 +86,7 @@ MENU_LABELS = {
         "classics":  "📚 Variedades clásicas",
         "nursery":   "🏭 Viveros y plantas",
         "search":    "🔍 Búsqueda en vivo",
+        "news":      "📰 Noticias",
         "lang":      "🌐 Idioma",
     },
     "ru": {
@@ -95,6 +99,7 @@ MENU_LABELS = {
         "classics":  "📚 Классические сорта",
         "nursery":   "🏭 Питомники и саженцы",
         "search":    "🔍 Поиск в реальном времени",
+        "news":      "📰 Новости",
         "lang":      "🌐 Язык",
     },
 }
@@ -410,6 +415,73 @@ SECTION 7: KEY INDUSTRY TRENDS 2025
 7. YEAR-ROUND SUPPLY: 12-month availability now standard in EU and USA.
 
 8. PRICE DECLINE: Average international price -3% in 2025 ($6.20/kg vs $6.43).
+══════════════════════════════════════════════════════════════════
+SECTION 9: BREAKING NEWS — JUNE 2026 (CURRENT SEASON)
+Sources: Bronisze/sadyogrody.pl/jagodnik.pl/fresh-market.pl/hortidaily/IBO/Tridge/EastFruit
+══════════════════════════════════════════════════════════════════
+
+THIS IS THE MOST CURRENT DATA — June 21, 2026
+
+SERBIA — June 2026 PEAK SEASON:
+- Production: 6,000-7,000 MT/year, ~2,500 ha, 4,161 growers (2023)
+- Duke variety = 90-95% of all Serbian blueberries — season June to mid-July
+- Export markets: Netherlands, Germany, Poland, Czech Republic, UK
+- PRICES June 2026: Started at EUR 6.50-7.00/kg early June → NOW DROPPING sharply
+  as volumes spike. Mid-June trend: toward EUR 4.00-5.00/kg
+- This Serbian surge is pulling down ALL European blueberry prices simultaneously
+- 80%+ exported in retail packs (500g) directly to EU supermarket chains
+- Labor costs: +12-15% vs 2024 — margins squeezed
+- Quality 2026: GOOD — no major frost damage unlike Poland
+- New investment: Serbia expanding facilities, targeting China market access (since 2023)
+
+ROMANIA — June 2026 STARTING:
+- Season: June 15 - August 31
+- New varieties from 2021 onwards: Sekoya (Fall Creek/Agrovision)
+- First commercial volumes new varieties 2026 (~450-500 MT)
+- Large volumes expected from 2027 (100+ ha new plantings)
+- Romania follows Serbia by ~3 weeks on the EU market
+- Target: become largest premium blueberry producer in Europe
+
+CROATIA: Not a significant commercial exporter — domestic market only.
+
+POLAND — June 2026 VERIFIED DATA:
+Weather: April-May 2026 frosts (coldest May in 34 years)
+- April 26-30: frosts to -10C locally — flowers severely damaged at bloom stage
+- May 3-14: Arctic air sweeping country every night for 12 days
+- Government compensation: ARiMR payments for losses over 70%
+- Final verdict: season similar to 2025 — NOT catastrophic, borówek nie zabraknie
+
+PRICES Poland June 2026 (VERIFIED from Bronisze/sadyogrody.pl):
+- Tunnel borówki (first Polish, under cover): 20-45 zł/kg depending on caliber/quality
+- Field crop: NOT YET — starts first week of July
+- Imported borówki (Serbia/Peru): 30-40 zł/kg wholesale
+- Retail stores: 45-70 zł/kg in June (pre-season)
+- March 2026 import price in Krakow: EUR 10.47-14.66/kg
+- "Ceny importowanych borówek mocno w dół" — fresh-market.pl, May 20, 2026
+
+WHY SERBIAN PRICE DROP MATTERS FOR POLAND:
+Serbia farm gate EUR 5-7/kg + transport EUR 1.5-2/kg + margins = EUR 7-9/kg
+= approx. 30-38 zł/kg wholesale Poland — so Serbian prices DO match Polish wholesale.
+Any further Serbian price drop will directly pull Polish import prices down.
+
+EUROPE SUPPLY CHAIN June 2026:
+- Spain (Huelva): season ENDING — Germany main destination (June 16)
+- Morocco: season COMPLETE
+- Serbia: PEAK NOW — volumes causing price drops across EU
+- Romania: STARTING (June 15+)
+- Germany/Netherlands domestic: 2-3 weeks away (early July)
+- Poland field crop: first week of July
+- Georgia (country): Active May-June, supplying Germany/Poland/Russia/Dubai
+
+GLOBAL PRICE REFERENCES Q4 2025 - Q1 2026 (Tridge/IMARC verified):
+- USA: $4,405/MT = $4.41/kg (March 2026, downward trend)
+- Netherlands wholesale: $4,062/MT = $4.06/kg (March 2026)
+- Belgium: $6,507/MT = $6.51/kg (December 2025, premium market)
+- China: $6,790/MT = $6.79/kg (Q1 2026 — highest price globally)
+- Peru FOB: $4,193/MT = $4.19/kg (March 2026)
+- Chile Nov 2025: $8.92/kg (Tridge transaction data)
+- Netherlands Nov 2025: $13.50/kg (premium retail)
+
 
 ══════════════════════════════════════════════════════════════════
 SECTION 8: SEASON 2025/26 — CURRENT DATA & FORECASTS
@@ -565,6 +637,13 @@ TOPIC_PROMPTS = {
         "es": "Top 5 viveros: 1) Fall Creek® USA 40M+/año, 59 países. 2) Planasa España 1000M/año, 7000 emp. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry USA. 5) Lorsena España. Precios $0,50-5.",
         "ru": "Топ-5 питомников: 1) Fall Creek® США 40М+/год, 59 стран. 2) Planasa Испания 1 млрд/год, 7000 сотр. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry США. 5) Lorsena Испания. Цены $0,50-5.",
     },
+    "news": {
+        "en": "Report the CURRENT situation in June 2026 blueberry markets using Section 9: Serbia price crash details, Poland frost damage update, Romania start, European wholesale prices now. Be specific with numbers.",
+        "pl": "Podaj AKTUALNĄ sytuację na rynku borówek czerwiec 2026 z Sekcji 9: szczegóły spadku cen w Serbii, szkody przymrozkowe w Polsce, start Rumunii, europejskie ceny hurtowe teraz. Podaj konkretne liczby.",
+        "de": "Aktuelle Situation Juni 2026 aus Abschnitt 9: Serbien Preiseinbruch, Polen Frostschäden, Rumänien Saisonstart, europäische Großhandelspreise. Konkrete Zahlen.",
+        "es": "Situación ACTUAL junio 2026 de Sección 9: caída precios Serbia, daños heladas Polonia, inicio Rumanía, precios mayoristas europeos ahora. Números específicos.",
+        "ru": "ТЕКУЩАЯ ситуация июнь 2026 из Раздела 9: обвал цен в Сербии, ущерб от заморозков в Польше, старт Румынии, европейские оптовые цены. Конкретные цифры.",
+    },
     "search": {
         "en": "Search web for latest 2025-2026 blueberry news from FreshPlaza, IBO, Proarándanos. Current prices, export data, new varieties. Combine with knowledge base.",
         "pl": "Szukaj najnowszych wiadomości borówkowych 2025-2026 z FreshPlaza, IBO, Proarándanos. Aktualne ceny, eksport, nowe odmiany.",
@@ -588,8 +667,9 @@ def main_menu_keyboard(lang):
          InlineKeyboardButton(labels["varieties"],    callback_data="topic_varieties")],
         [InlineKeyboardButton(labels["classics"],     callback_data="topic_classics"),
          InlineKeyboardButton(labels["nursery"],      callback_data="topic_nursery")],
-        [InlineKeyboardButton(labels["search"],       callback_data="topic_search"),
-         InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
+        [InlineKeyboardButton(labels["news"],         callback_data="topic_news"),
+         InlineKeyboardButton(labels["search"],       callback_data="topic_search")],
+        [InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
