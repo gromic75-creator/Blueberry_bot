@@ -681,7 +681,63 @@ def lang_keyboard():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
+    user = update.effective_user
+    s = load_stats()
+    is_new = str(user.id) not in s["users"]
+
+    # Show welcome message first
     await update.message.reply_text(WELCOME[lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
+
+    # Show sponsor ad only to NEW users
+    if is_new:
+        ad_texts = {
+            "en": (
+                "🌱 *Sponsored · Partner of BlueberryBot*\n\n"
+                "**NanoGro Aqua Forest** — biostimulant for professional cultivation\n"
+                "Improves root development, stress resistance and yield quality.\n"
+                "Trusted by blueberry growers across Europe.\n\n"
+                "🔗 [Learn more → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
+            ),
+            "pl": (
+                "🌱 *Sponsor · Partner BlueberryBot*\n\n"
+                "**NanoGro Aqua Forest** — biostymulator dla profesjonalnych upraw\n"
+                "Poprawia ukorzenianie, odporność na stres i jakość plonów.\n"
+                "Stosowany przez plantatorów borówek w całej Europie.\n\n"
+                "🔗 [Dowiedz się więcej → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
+            ),
+            "de": (
+                "🌱 *Gesponsert · Partner von BlueberryBot*\n\n"
+                "**NanoGro Aqua Forest** — Biostimulans für professionellen Anbau\n"
+                "Verbessert Wurzelentwicklung, Stressresistenz und Ertragsqualität.\n\n"
+                "🔗 [Mehr erfahren → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
+            ),
+            "es": (
+                "🌱 *Patrocinado · Partner de BlueberryBot*\n\n"
+                "**NanoGro Aqua Forest** — bioestimulante para cultivo profesional\n"
+                "Mejora el desarrollo radicular, resistencia al estrés y calidad del rendimiento.\n\n"
+                "🔗 [Saber más → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
+            ),
+            "ru": (
+                "🌱 *Реклама · Партнёр BlueberryBot*\n\n"
+                "**NanoGro Aqua Forest** — биостимулятор для профессионального выращивания\n"
+                "Улучшает корнеобразование, устойчивость к стрессу и качество урожая.\n\n"
+                "🔗 [Узнать больше → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
+            ),
+        }
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        ad_button = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                "🌱 NanoGro Aqua Forest → agrarius.eu",
+                url="https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/"
+            )
+        ]])
+        await update.message.reply_text(
+            ad_texts.get(lang, ad_texts["en"]),
+            parse_mode="Markdown",
+            reply_markup=ad_button,
+            disable_web_page_preview=False
+        )
+        track(user.id, user.username or "anon", lang, "question", "NEW USER /start", tg_lang_code=user.language_code)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
