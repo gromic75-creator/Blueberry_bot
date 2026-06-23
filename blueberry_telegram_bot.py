@@ -704,7 +704,7 @@ async def ask_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(hints.get(lang, hints["en"]))
         return
 
-    track(user.id, user.username or "anon", lang, "question", f"/ask {question}")
+    track(user.id, user.username or "anon", lang, "question", f"/ask {question}", tg_lang_code=user.language_code)
 
     thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
                 "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
@@ -744,7 +744,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         use_search = (topic == "search")
         prompt = TOPIC_PROMPTS.get(topic, {}).get(lang) or TOPIC_PROMPTS.get(topic, {}).get("en", "Tell me about blueberries.")
         user = query.from_user
-        track(user.id, user.username or "anon", lang, "topic", topic)
+        track(user.id, user.username or "anon", lang, "topic", topic, tg_lang_code=user.language_code)
         try:
             response = await ask_claude(prompt, lang, use_search=use_search)
             if len(response) > 4000:
@@ -774,20 +774,46 @@ def save_stats(s):
     except Exception as e:
         logger.error(f"Stats: {e}")
 
-def track(uid, uname, lang, etype, content=""):
+# Telegram language_code → country mapping
+LANG_TO_COUNTRY = {
+    "pl": "🇵🇱 Poland", "de": "🇩🇪 Germany", "en": "🇬🇧 EN/US/AU",
+    "ru": "🇷🇺 Russia", "uk": "🇺🇦 Ukraine", "es": "🇪🇸 Spain/LATAM",
+    "fr": "🇫🇷 France", "it": "🇮🇹 Italy", "nl": "🇳🇱 Netherlands",
+    "pt": "🇵🇹 Portugal/Brazil", "ro": "🇷🇴 Romania", "sr": "🇷🇸 Serbia",
+    "tr": "🇹🇷 Turkey", "ar": "🇸🇦 Arabic", "zh": "🇨🇳 China",
+    "ja": "🇯🇵 Japan", "ko": "🇰🇷 Korea", "cs": "🇨🇿 Czech",
+    "sk": "🇸🇰 Slovakia", "hu": "🇭🇺 Hungary", "bg": "🇧🇬 Bulgaria",
+    "hr": "🇭🇷 Croatia", "sl": "🇸🇮 Slovenia", "sv": "🇸🇪 Sweden",
+    "no": "🇳🇴 Norway", "da": "🇩🇰 Denmark", "fi": "🇫🇮 Finland",
+    "he": "🇮🇱 Israel", "fa": "🇮🇷 Iran", "be": "🇧🇾 Belarus",
+    "ka": "🇬🇪 Georgia", "az": "🇦🇿 Azerbaijan", "kk": "🇰🇿 Kazakhstan",
+    "uz": "🇺🇿 Uzbekistan", "lt": "🇱🇹 Lithuania", "lv": "🇱🇻 Latvia",
+    "et": "🇪🇪 Estonia", "mk": "🇲🇰 Macedonia", "sq": "🇦🇱 Albania",
+    "ms": "🇲🇾 Malaysia", "id": "🇮🇩 Indonesia", "vi": "🇻🇳 Vietnam",
+}
+
+def track(uid, uname, lang, etype, content="", tg_lang_code=None):
     s = load_stats()
     uid = str(uid)
     now = datetime.utcnow().isoformat()
+    country = LANG_TO_COUNTRY.get(tg_lang_code, f"🌍 {tg_lang_code or 'unknown'}")
     if uid not in s["users"]:
-        s["users"][uid] = {"name": uname, "lang": lang, "first": now, "count": 0, "topics": []}
+        s["users"][uid] = {"name": uname, "lang": lang, "first": now, "count": 0, "topics": [], "country": country, "tg_lang": tg_lang_code}
     s["users"][uid]["count"] += 1
     s["users"][uid]["last"] = now
     s["users"][uid]["lang"] = lang
+    if tg_lang_code:
+        s["users"][uid]["tg_lang"] = tg_lang_code
+        s["users"][uid]["country"] = country
     if etype == "topic":
         s["topics"][content] = s["topics"].get(content, 0) + 1
     if etype == "question" and content:
-        s["questions"].append({"q": content[:150], "lang": lang, "t": now})
+        s["questions"].append({"q": content[:150], "lang": lang, "country": country, "t": now})
         s["questions"] = s["questions"][-500:]
+    # Track countries
+    if "countries" not in s:
+        s["countries"] = {}
+    s["countries"][country] = s["countries"].get(country, 0) + 1
     s["total"] = s.get("total", 0) + 1
     save_stats(s)
 
@@ -812,16 +838,20 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lang_count[l] = lang_count.get(l, 0) + 1
     for l, cnt in sorted(lang_count.items(), key=lambda x: -x[1]):
         txt += f"  {l}: {cnt} users\n"
+    txt += f"\n🌍 *Countries (by phone language):*\n"
+    countries = s.get("countries", {})
+    for country, cnt in sorted(countries.items(), key=lambda x: -x[1])[:15]:
+        txt += f"  {country}: {cnt}\n"
     txt += f"\n💬 *Last 5 questions:*\n"
     for q in s["questions"][-5:]:
-        txt += f"  [{q['lang']}] {q['q'][:80]}\n"
+        txt += f"  [{q.get('country','?')}] {q['q'][:60]}\n"
     await update.message.reply_text(txt[:4000], parse_mode="Markdown")
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     user_msg = update.message.text
     user = update.effective_user
-    track(user.id, user.username or "anon", lang, "question", user_msg)
+    track(user.id, user.username or "anon", lang, "question", user_msg, tg_lang_code=user.language_code)
 
     thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
                 "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
