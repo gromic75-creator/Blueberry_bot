@@ -29,8 +29,8 @@ LANGUAGES = {
 }
 
 WELCOME = {
-    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Tip:* Type your country name to get variety recommendations for your climate!\n\nChoose a topic or ask me anything!",
-    "pl": "🫐 *BlueberryBot v2.0* — Globalny Wywiad Rynku Borówki Amerykańskiej\n\n📊 Dane: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Wskazówka:* Napisz nazwę swojego kraju, aby dostać rekomendacje odmian dla Twojego klimatu!\n\nWybierz temat lub zadaj pytanie!",
+    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Tip:* Type your country name for variety advice!\n📸 *Send a photo* — variety identification + disease diagnosis!\n\nChoose a topic or ask me anything!",
+    "pl": "🫐 *BlueberryBot v2.0* — Globalny Wywiad Rynku Borówki Amerykańskiej\n\n📊 Dane: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Wskazówka:* Napisz kraj aby dostać rekomendacje odmian!\n📸 *Wyślij zdjęcie* — rozpoznanie odmiany + diagnoza chorób!\n\nWybierz temat lub zadaj pytanie!",
     "de": "🫐 *BlueberryBot v2.0* — Globale Heidelbeer-Marktintelligenz\n\n📊 Daten: IBO · FreshPlaza · USDA · 2024/2025\n\nThema wählen oder Frage stellen!",
     "es": "🫐 *BlueberryBot v2.0* — Inteligencia del Mercado Global de Arándanos\n\n📊 Datos: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\n¡Elige un tema o pregunta lo que quieras!",
     "ru": "🫐 *BlueberryBot v2.0* — Глобальная аналитика рынка голубики\n\n📊 Данные: IBO · FreshPlaza · USDA · 2024/2025\n\nВыберите тему или задайте вопрос!",
@@ -580,6 +580,72 @@ async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
     parts = [block.text for block in response.content if block.type == "text"]
     return "\n".join(parts) if parts else "⚠️ No response."
 
+async def analyze_plant_photo(image_data: bytes, lang: str) -> str:
+    """Analyze blueberry plant photo for diseases, pests, deficiencies"""
+    import base64
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    lang_name = {"en": "English", "pl": "Polish", "de": "German", "es": "Spanish", "ru": "Russian"}.get(lang, "English")
+
+    system = f"""You are an expert blueberry plant pathologist, agronomist AND variety specialist with 20+ years experience.
+
+First determine what is shown in the photo:
+A) BERRIES/FRUIT → identify variety + any disease
+B) LEAVES/PLANT → diagnose disease/pest/deficiency
+C) BOTH → do both analyses
+
+VARIETY IDENTIFICATION (if berries visible):
+Analyze: size, shape, color (deep blue/light blue/almost black), bloom (waxy coating), 
+crown (calyx) size, clustering, firmness appearance.
+Compare against known varieties:
+- Large, firm, light blue, small crown → likely Draper, Duke, Bluecrop
+- Very large, light blue, waxy → Chandler, Aurora, Liberty  
+- Small-medium, dark blue, tight crown → Biloxi, O'Neal, Misty
+- Large, very firm, excellent bloom → Sekoya Pop, Sekoya Crunch, Ventura
+- Medium, deep blue, aromatic → Patriot, Northblue
+- Pink/red berries → Pink Lemonade, PeachyBlue
+State confidence level: HIGH/MEDIUM/LOW and why.
+
+DISEASE/HEALTH DIAGNOSIS (always do this):
+1. 🫐 **Variety ID** — most likely variety(ies), confidence level, visual clues
+2. 🔍 **Plant Health** — healthy / disease / pest / deficiency
+3. 🦠 **Diagnosis** — specific name (scientific if relevant)
+4. ⚠️ **Severity** — mild/moderate/severe  
+5. 💊 **Treatment** — specific products, timing, dosage
+6. 🛡️ **Prevention** — future protection
+7. ✅ **Prognosis** — recovery outlook
+
+If only plant/leaves shown (no berries): skip variety ID, focus on disease diagnosis.
+If photo quality poor: say so clearly.
+Always respond in {lang_name} ONLY."""
+
+    image_b64 = base64.standard_b64encode(image_data).decode("utf-8")
+
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1500,
+        system=system,
+        messages=[{
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/jpeg",
+                        "data": image_b64,
+                    },
+                },
+                {
+                    "type": "text",
+                    "text": "Please analyze this blueberry photo. If berries are visible, identify the variety. Always check plant health and diagnose any diseases, pests or deficiencies."
+                }
+            ],
+        }]
+    )
+    parts = [block.text for block in response.content if block.type == "text"]
+    return "\n".join(parts) if parts else "⚠️ Could not analyze image."
+
 TOPIC_PROMPTS = {
     "market": {
         "en": "Global highbush blueberry market 2025/26: production volume, market value, growth rate, top regions. Distinguish production vs export. Key numbers only, concise.",
@@ -922,6 +988,64 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Error: {e}")
         await msg.edit_text("⚠️ Error. Please try again.")
 
+async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle photo messages — plant disease detection"""
+    lang = get_lang(context)
+    user = update.effective_user
+
+    thinking_texts = {
+        "en": "🔬 Analyzing photo — identifying variety & checking plant health...",
+        "pl": "🔬 Analizuję zdjęcie — rozpoznaję odmianę i stan zdrowia rośliny...",
+        "de": "🔬 Foto wird analysiert — Sorte und Pflanzengesundheit werden geprüft...",
+        "es": "🔬 Analizando foto — identificando variedad y salud de la planta...",
+        "ru": "🔬 Анализирую фото — определяю сорт и состояние здоровья растения...",
+    }
+    msg = await update.message.reply_text(thinking_texts.get(lang, "🔬 Analyzing..."))
+
+    try:
+        # Get highest resolution photo
+        photo = update.message.photo[-1]
+        photo_file = await context.bot.get_file(photo.file_id)
+        
+        # Download photo bytes
+        import io
+        photo_bytes = await photo_file.download_as_bytearray()
+        
+        # Analyze with Claude Vision
+        result = await analyze_plant_photo(bytes(photo_bytes), lang)
+        
+        if len(result) > 4000:
+            result = result[:3990] + "\n\n_(truncated)_"
+        
+        await msg.edit_text(result, parse_mode="Markdown")
+        
+        # Track analytics
+        track(user.id, user.username or "anon", lang, "topic", "photo_diagnosis", tg_lang_code=user.language_code)
+        
+        # Show menu after diagnosis
+        followup = {
+            "en": "📸 Send another photo or choose a topic:",
+            "pl": "📸 Wyślij kolejne zdjęcie lub wybierz temat:",
+            "de": "📸 Weiteres Foto senden oder Thema wählen:",
+            "es": "📸 Envía otra foto o elige un tema:",
+            "ru": "📸 Отправьте ещё фото или выберите тему:",
+        }
+        await update.message.reply_text(
+            followup.get(lang, followup["en"]),
+            reply_markup=main_menu_keyboard(lang)
+        )
+
+    except Exception as e:
+        logger.error(f"Photo analysis error: {e}")
+        error_texts = {
+            "en": "⚠️ Could not analyze photo. Please send a clear, well-lit photo of the affected plant part.",
+            "pl": "⚠️ Nie udało się przeanalizować zdjęcia. Wyślij wyraźne zdjęcie dobrze oświetlonej chorej części rośliny.",
+            "de": "⚠️ Foto konnte nicht analysiert werden. Bitte senden Sie ein klares, gut beleuchtetes Foto.",
+            "es": "⚠️ No se pudo analizar la foto. Envía una foto clara y bien iluminada.",
+            "ru": "⚠️ Не удалось проанализировать фото. Отправьте чёткое, хорошо освещённое фото.",
+        }
+        await msg.edit_text(error_texts.get(lang, error_texts["en"]))
+
 def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
@@ -929,6 +1053,7 @@ def main():
     app.add_handler(CommandHandler("ask", ask_command))
     app.add_handler(CommandHandler("stats", stats_command))
     app.add_handler(CallbackQueryHandler(button_handler))
+    app.add_handler(MessageHandler(filters.PHOTO, photo_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
     logger.info("🫐 BlueberryBot v2.0 starting...")
     app.run_polling(drop_pending_updates=True)
