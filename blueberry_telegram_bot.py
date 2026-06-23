@@ -42,7 +42,7 @@ MENU_LABELS = {
         "production":"🌍 Production by Country",
         "export":    "🚢 Export Leaders",
         "destinations": "🎯 Key Markets",
-        "prices":    "💰 Prices 2024/25",
+        "prices":    "💰 Market Prices 2025/26",
         "varieties": "🌱 New Varieties",
         "classics":  "📚 Classic Varieties",
         "nursery":   "🏭 Nursery & Plants",
@@ -55,7 +55,7 @@ MENU_LABELS = {
         "production":"🌍 Produkcja wg kraju",
         "export":    "🚢 Liderzy eksportu",
         "destinations": "🎯 Kluczowe rynki",
-        "prices":    "💰 Ceny 2024/25",
+        "prices":    "💰 Ceny rynkowe 2025/26",
         "varieties": "🌱 Nowe odmiany",
         "classics":  "📚 Klasyczne odmiany",
         "nursery":   "🏭 Szkółki i sadzonki",
@@ -68,7 +68,7 @@ MENU_LABELS = {
         "production":"🌍 Produktion nach Land",
         "export":    "🚢 Export-Führer",
         "destinations": "🎯 Schlüsselmärkte",
-        "prices":    "💰 Preise 2024/25",
+        "prices":    "💰 Marktpreise 2025/26",
         "varieties": "🌱 Neue Sorten",
         "classics":  "📚 Klassische Sorten",
         "nursery":   "🏭 Baumschulen & Pflanzen",
@@ -81,7 +81,7 @@ MENU_LABELS = {
         "production":"🌍 Producción por país",
         "export":    "🚢 Líderes exportación",
         "destinations": "🎯 Mercados clave",
-        "prices":    "💰 Precios 2024/25",
+        "prices":    "💰 Precios mercado 2025/26",
         "varieties": "🌱 Nuevas variedades",
         "classics":  "📚 Variedades clásicas",
         "nursery":   "🏭 Viveros y plantas",
@@ -94,7 +94,7 @@ MENU_LABELS = {
         "production":"🌍 Производство по странам",
         "export":    "🚢 Лидеры экспорта",
         "destinations": "🎯 Ключевые рынки",
-        "prices":    "💰 Цены 2024/25",
+        "prices":    "💰 Рыночные цены 2025/26",
         "varieties": "🌱 Новые сорта",
         "classics":  "📚 Классические сорта",
         "nursery":   "🏭 Питомники и саженцы",
@@ -610,11 +610,11 @@ TOPIC_PROMPTS = {
         "ru": "Ключевые рынки импорта 2025/26: США (200к тонн), Китай (+153% из Перу, Чанкай), Европа (цепочка поставок), Россия (после 2022). Цены по рынкам.",
     },
     "prices": {
-        "en": "Blueberry prices 2025/26: Peru FOB $6.20/kg (-3%). Retail: USA $8-16/kg, Germany €12-24/kg, Poland 50-100 PLN/kg, China 80-200 CNY/kg, Russia 400-900 RUB/250g. Premium (Sekoya/Demba) +20-40%. Frozen €0.90-1.50/kg. Price outlook.",
-        "pl": "Ceny borówek 2025/26: Peru FOB $6,20/kg (-3%). Detal: USA $8-16/kg, Niemcy €12-24/kg, Polska 50-100 PLN/kg, Chiny 80-200 CNY/kg, Rosja 400-900 RUB/250g. Premium (Sekoya/Demba) +20-40%. Mrożone €0,90-1,50/kg.",
-        "de": "Preise 2025/26: Peru FOB $6,20/kg (-3%). Einzelhandel: USA, DE, PL, CN, RU. Premium +20-40%. Tiefkühl €0,90-1,50/kg.",
-        "es": "Precios 2025/26: Perú FOB $6,20/kg (-3%). Retail: USA, DE, PL, CN, RU. Premium +20-40%. Congelado €0,90-1,50/kg.",
-        "ru": "Цены 2025/26: Перу FOB $6,20/кг (-3%). Розница: США, Германия, Польша, Китай, Россия. Премиум +20-40%. Замороженные €0,90-1,50/кг.",
+        "en": "Current blueberry market & wholesale prices 2025/26: Serbia farm gate June 2026 EUR 5-7/kg (dropping fast at peak). Poland wholesale Bronisze June 2026: tunnel 20-45 zł/kg, Serbian import 30-40 zł/kg. Peru FOB $4.19/kg (March 2026, down). Netherlands wholesale $4.06/kg. Belgium $6.51/kg. China $6.79/kg (highest globally). USA $4.41/kg. Retail: USA $8-16/kg, Germany €12-24/kg, Poland 45-70 zł/kg pre-season. Frozen bulk €0.90-1.50/kg. Overall trend: downward pressure globally.",
+        "pl": "Aktualne ceny rynkowe i hurtowe borówek 2025/26: Serbia skup czerwiec 2026 EUR 5-7/kg (gwałtownie spada przy szczycie). Polska hurt Bronisze czerwiec 2026: tunelowe 20-45 zł/kg, import serbski 30-40 zł/kg. Peru FOB $4,19/kg (marzec 2026). Holandia hurt $4,06/kg. Belgia $6,51/kg. Chiny $6,79/kg (najdrożej). USA $4,41/kg. Detal: USA $8-16/kg, Niemcy €12-24/kg, Polska 45-70 zł/kg. Mrożone €0,90-1,50/kg. Trend: globalna presja spadkowa.",
+        "de": "Aktuelle Markt- und Großhandelspreise 2025/26: Serbien Erzeugerpreis Juni 2026 EUR 5-7/kg (fällt stark). Polen Großhandel Bronisze Juni: Tunnel 20-45 zł/kg, Import 30-40 zł/kg. Peru FOB $4,19/kg. NL $4,06/kg. BE $6,51/kg. China $6,79/kg. USA $4,41/kg. Einzelhandel: USA, DE, PL, CN. TK €0,90-1,50/kg. Trend: globaler Preisdruck.",
+        "es": "Precios actuales mercado y mayorista 2025/26: Serbia productor junio 2026 EUR 5-7/kg (bajando rápido). Polonia mayorista Bronisze junio: túnel 20-45 zł/kg, importado 30-40 zł/kg. Perú FOB $4,19/kg. NL $4,06/kg. BE $6,51/kg. China $6,79/kg. USA $4,41/kg. Retail: USA, DE, PL, CN. Congelado €0,90-1,50/kg. Tendencia: presión bajista global.",
+        "ru": "Актуальные рыночные и оптовые цены 2025/26: Сербия скупка июнь 2026 EUR 5-7/кг (резко падает на пике). Польша опт Брониши июнь: тепличные 20-45 зл/кг, импорт 30-40 зл/кг. Перу FOB $4,19/кг. Нидерланды $4,06/кг. Бельгия $6,51/кг. Китай $6,79/кг. США $4,41/кг. Розница: США, Германия, Польша, Китай. Замороженные €0,90-1,50/кг. Тренд: глобальное снижение.",
     },
     "varieties": {
         "en": "NEW blueberry varieties 2020-2026: SEKOYA low-chill (Pop-China fav, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026). Demba/Blue World (Taste Award: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva-zero chill). BerryWorld Orb, PeachyBlue. Best climate for each.",
@@ -791,23 +791,37 @@ def track(uid, uname, lang, etype, content=""):
     s["total"] = s.get("total", 0) + 1
     save_stats(s)
 
+async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin /stats command"""
+    user = update.effective_user
+    admin_id = int(os.getenv("ADMIN_ID", "0"))
+    if user.id != admin_id:
+        await update.message.reply_text("⛔ Access denied.")
+        return
+    s = load_stats()
+    txt = f"📊 *BlueberryBot Stats*\n"
+    txt += f"👥 Users: {len(s['users'])}\n"
+    txt += f"📨 Total queries: {s.get('total', 0)}\n\n"
+    txt += f"🔝 *Top topics:*\n"
+    for t, cnt in sorted(s["topics"].items(), key=lambda x: -x[1])[:10]:
+        txt += f"  {t}: {cnt}\n"
+    txt += f"\n🌍 *Languages:*\n"
+    lang_count = {}
+    for u in s["users"].values():
+        l = u.get("lang", "en")
+        lang_count[l] = lang_count.get(l, 0) + 1
+    for l, cnt in sorted(lang_count.items(), key=lambda x: -x[1]):
+        txt += f"  {l}: {cnt} users\n"
+    txt += f"\n💬 *Last 5 questions:*\n"
+    for q in s["questions"][-5:]:
+        txt += f"  [{q['lang']}] {q['q'][:80]}\n"
+    await update.message.reply_text(txt[:4000], parse_mode="Markdown")
+
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     user_msg = update.message.text
     user = update.effective_user
     track(user.id, user.username or "anon", lang, "question", user_msg)
-
-    # Admin stats command
-    if user_msg.strip() == "/stats" and user.id in [int(os.getenv("ADMIN_ID", "0"))]:
-        s = load_stats()
-        txt = f"📊 BlueberryBot Stats\n👥 Users: {len(s['users'])}\n📨 Total queries: {s.get('total',0)}\n\n🔝 Top topics:\n"
-        for t, c in sorted(s["topics"].items(), key=lambda x: -x[1])[:10]:
-            txt += f"  {t}: {c}\n"
-        txt += f"\n💬 Last questions:\n"
-        for q in s["questions"][-5:]:
-            txt += f"  [{q['lang']}] {q['q']}\n"
-        await update.message.reply_text(txt[:4000])
-        return
 
     thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
                 "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
@@ -827,6 +841,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("ask", ask_command))
+    app.add_handler(CommandHandler("stats", stats_command))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
     logger.info("🫐 BlueberryBot v2.0 starting...")
