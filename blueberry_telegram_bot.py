@@ -49,6 +49,9 @@ MENU_LABELS = {
         "search":    "🔍 Live Search",
         "news":      "📰 Breaking News",
         "photo":     "📸 Photo Analysis",
+        "roi":       "🧮 ROI Calculator",
+        "currency":  "💱 Currency & Prices",
+        "health":    "🏥 Health Benefits",
         "lang":      "🌐 Language",
     },
     "pl": {
@@ -63,6 +66,9 @@ MENU_LABELS = {
         "search":    "🔍 Wyszukiwanie live",
         "news":      "📰 Aktualności",
         "photo":     "📸 Analiza zdjęcia",
+        "roi":       "🧮 Kalkulator ROI",
+        "currency":  "💱 Waluty i ceny",
+        "health":    "🏥 Właściwości zdrowotne",
         "lang":      "🌐 Język",
     },
     "de": {
@@ -77,6 +83,9 @@ MENU_LABELS = {
         "search":    "🔍 Live-Suche",
         "news":      "📰 Aktuelle News",
         "photo":     "📸 Foto-Analyse",
+        "roi":       "🧮 ROI-Rechner",
+        "currency":  "💱 Währung & Preise",
+        "health":    "🏥 Gesundheitsvorteile",
         "lang":      "🌐 Sprache",
     },
     "es": {
@@ -91,6 +100,9 @@ MENU_LABELS = {
         "search":    "🔍 Búsqueda en vivo",
         "news":      "📰 Noticias",
         "photo":     "📸 Análisis de foto",
+        "roi":       "🧮 Calculadora ROI",
+        "currency":  "💱 Divisas y precios",
+        "health":    "🏥 Beneficios salud",
         "lang":      "🌐 Idioma",
     },
     "ru": {
@@ -105,6 +117,9 @@ MENU_LABELS = {
         "search":    "🔍 Поиск в реальном времени",
         "news":      "📰 Новости",
         "photo":     "📸 Анализ фото",
+        "roi":       "🧮 ROI Калькулятор",
+        "currency":  "💱 Валюты и цены",
+        "health":    "🏥 Польза для здоровья",
         "lang":      "🌐 Язык",
     },
 }
@@ -861,6 +876,27 @@ TOPIC_PROMPTS = {
         "es": "¡Elegiste Análisis de Foto! Envíame una foto de tu planta de arándano. Haré: 1) Identificar variedad 2) Diagnosticar enfermedades/plagas 3) Recomendar tratamiento. ¡Envía la foto ahora! 📸",
         "ru": "Вы выбрали Анализ Фото! Отправьте мне фото вашего растения голубики. Я: 1) Определю сорт 2) Диагностирую болезни/вредителей 3) Порекомендую лечение. Отправьте фото сейчас! 📸",
     },
+    "roi": {
+        "en": "You are a blueberry investment advisor. Ask the user: 1) Country/region 2) Area in hectares 3) Variety (new like Sekoya/Demba or classic like Bluecrop/Duke) 4) Market target (fresh export/domestic/frozen). Then calculate: setup costs (land prep, plants, irrigation, nets, labor), annual operating costs, expected yield (MT/ha), expected price, gross revenue, net profit, and payback period in years. Use realistic 2025/26 data. Be specific with numbers. Format as a clear financial summary.",
+        "pl": "Jesteś doradcą inwestycyjnym ds. borówek. Zapytaj użytkownika: 1) Kraj/region 2) Powierzchnia w ha 3) Odmiana (nowa jak Sekoya/Demba czy klasyczna jak Bluecrop/Duke) 4) Rynek docelowy (świeży eksport/krajowy/mrożony). Następnie oblicz: koszty założenia, koszty operacyjne, spodziewany plon (t/ha), cena, przychód brutto, zysk netto i okres zwrotu. Użyj danych 2025/26. Konkretne liczby. Format jako jasne podsumowanie finansowe.",
+        "de": "Sie sind ein Heidelbeer-Investitionsberater. Fragen Sie: 1) Land/Region 2) Fläche in Hektar 3) Sorte 4) Zielmarkt. Berechnen Sie dann: Einrichtungskosten, Betriebskosten, erwarteter Ertrag, Preis, Bruttoeinnahmen, Nettogewinn, Amortisationszeit. Daten 2025/26. Klare Finanzzusammenfassung.",
+        "es": "Eres asesor de inversión en arándanos. Pregunta: 1) País/región 2) Área en hectáreas 3) Variedad 4) Mercado objetivo. Calcula: costos de establecimiento, costos operativos, rendimiento esperado, precio, ingresos brutos, ganancia neta, período de recuperación. Datos 2025/26. Resumen financiero claro.",
+        "ru": "Вы инвестиционный советник по голубике. Спросите: 1) Страна/регион 2) Площадь в га 3) Сорт 4) Целевой рынок. Рассчитайте: затраты на создание, операционные расходы, ожидаемый урожай, цена, валовой доход, чистая прибыль, срок окупаемости. Данные 2025/26. Чёткое финансовое резюме.",
+    },
+    "currency": {
+        "en": "Current blueberry price converter and market rates June 2026. Show prices in all major currencies: EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD (Serbian Dinar), MAD (Moroccan Dirham). Use verified June 2026 exchange rates. Show: Serbia farm gate EUR 5-7/kg in all currencies, Peru FOB $4.19/kg in all currencies, Poland wholesale 30-40 PLN/kg in all currencies, Netherlands wholesale $4.06/kg in all currencies, China market $6.79/kg in all currencies. Also show retail prices per country. User can ask: 'convert 5 EUR to PLN for blueberry price' or 'what is 40 PLN/kg in EUR?'",
+        "pl": "Przelicznik cen borówek i aktualne kursy czerwiec 2026. Pokaż ceny we wszystkich głównych walutach: EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD, MAD. Użyj kursów z czerwca 2026. Pokaż: Serbia skup EUR 5-7/kg we wszystkich walutach, Peru FOB $4,19/kg, Polska hurt 30-40 PLN/kg, Holandia $4,06/kg, Chiny $6,79/kg we wszystkich walutach. Też ceny detaliczne. Użytkownik może pytać: 'przelicz 5 EUR na PLN dla ceny borówki'.",
+        "de": "Heidelbeer-Preisrechner und Wechselkurse Juni 2026. Preise in EUR, USD, PLN, GBP, CNY, RUB, RON, RSD, MAD. Serbien Erzeuger EUR 5-7/kg, Peru FOB $4,19/kg, Polen Großhandel 30-40 PLN/kg, NL $4,06/kg, China $6,79/kg — alle in allen Währungen.",
+        "es": "Conversor de precios de arándanos y tasas de cambio junio 2026. Precios en EUR, USD, PLN, GBP, CNY, RUB, RON, RSD, MAD. Serbia productor EUR 5-7/kg, Perú FOB $4,19/kg, Polonia mayorista 30-40 PLN/kg, NL $4,06/kg, China $6,79/kg — todos en todas las divisas.",
+        "ru": "Конвертер цен на голубику и курсы валют июнь 2026. Цены в EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD, MAD. Сербия EUR 5-7/кг, Перу FOB $4,19/кг, Польша опт 30-40 зл/кг, Нидерланды $4,06/кг, Китай $6,79/кг — всё во всех валютах.",
+    },
+    "health": {
+        "en": "Comprehensive blueberry health benefits guide: 1) ANTIOXIDANTS — ORAC value 9,621 μmol TE/100g (highest among common fruits), anthocyanins (malvidin, delphinidin, cyanidin, petunidin, peonidin), pterostilbene, resveratrol. 2) BRAIN HEALTH — studies show 26% reduction in cognitive decline (Harvard 2012, 16,000 women), improve memory and motor skills, cross blood-brain barrier. 3) HEART — lower LDL oxidation, reduce blood pressure by 4-6mmHg, reduce heart attack risk 32% (women, Harvard Nurses Study). 4) DIABETES — low GI (53), improve insulin sensitivity, regulate blood glucose. 5) CANCER — anthocyanins inhibit tumor cell growth (colon, breast, liver cancer studies), pterostilbene more bioavailable than resveratrol. 6) EYES — lutein, zeaxanthin protect against macular degeneration, improve night vision. 7) GUT HEALTH — prebiotic fiber, polyphenols feed beneficial bacteria. 8) ANTI-AGING — reduce DNA damage, slow cellular aging. 9) SPORTS PERFORMANCE — reduce muscle damage, faster recovery (studies: 300g before exercise). 10) NUTRITION per 100g: 57 kcal, 14.5g carbs, 2.4g fiber, 0.7g protein, Vitamin C 9.7mg, K 19μg, Mn 0.34mg. Fresh vs frozen — frozen retains 90%+ of antioxidants. Wild blueberries (bilberry) have 2-3x more anthocyanins than cultivated.",
+        "pl": "Kompleksowy przewodnik po właściwościach zdrowotnych borówki: 1) ANTYOKSYDANTY — ORAC 9621 μmol TE/100g (najwyższy wśród popularnych owoców), antocyjany (malwidyna, delfinidyna, cjanidyna), pterostilben, resweratrol. 2) MÓZG — badania pokazują 26% redukcję spadku funkcji poznawczych (Harvard 2012, 16.000 kobiet), poprawa pamięci i motoryki, przenikają barierę krew-mózg. 3) SERCE — obniżenie utleniania LDL, redukcja ciśnienia o 4-6mmHg, zmniejszenie ryzyka zawału o 32%. 4) CUKRZYCA — niski IG (53), poprawa wrażliwości na insulinę. 5) RAK — antocyjany hamują wzrost komórek nowotworowych (okrężnica, pierś, wątroba). 6) OCZY — luteina, zeaksantyna chronią plamkę. 7) JELITA — błonnik prebiotyczny, polifenole odżywiają dobre bakterie. 8) SPORT — redukcja uszkodzeń mięśni, szybsza regeneracja (300g przed treningiem). 9) WARTOŚCI odżywcze/100g: 57 kcal, 14,5g węglowodanów, 2,4g błonnika, wit. C 9,7mg. Mrożone zachowują 90%+ antyoksydantów.",
+        "de": "Umfassender Gesundheitsleitfaden Heidelbeeren: ORAC 9.621 μmol TE/100g, Anthocyane, Pterostilben. Gehirn: -26% kognitive Abnahme (Harvard 2012). Herz: -32% Herzinfarktrisiko, -4-6mmHg Blutdruck. Diabetes: GI 53, Insulinsensitivität. Krebs: Anthocyane hemmen Tumorwachstum. Augen: Lutein, Zeaxanthin. Darm: Präbiotika. Sport: Muskelregeneration. 100g: 57kcal, 14,5g KH, 2,4g Ballaststoffe, Vit.C 9,7mg.",
+        "es": "Guía completa beneficios salud arándanos: ORAC 9.621 μmol TE/100g, antocianinas, pterostilbeno. Cerebro: -26% declive cognitivo (Harvard 2012). Corazón: -32% infarto, -4-6mmHg presión. Diabetes: IG 53, sensibilidad insulina. Cáncer: antocianinas inhiben tumores. Ojos: luteína, zeaxantina. Intestino: prebióticos. Deporte: recuperación muscular. 100g: 57kcal, 14,5g carbos, 2,4g fibra, Vit.C 9,7mg.",
+        "ru": "Полное руководство по пользе черники для здоровья: ORAC 9621 мкмоль TE/100г, антоцианы, птеростильбен. Мозг: -26% снижение когнитивных функций (Гарвард 2012). Сердце: -32% риск инфаркта, -4-6мм рт.ст. давление. Диабет: ГИ 53, чувствительность к инсулину. Рак: антоцианы подавляют опухоли. Глаза: лютеин, зеаксантин. Кишечник: пребиотики. Спорт: восстановление мышц. 100г: 57 ккал, 14,5г углеводов, 2,4г клетчатки, Вит.С 9,7мг.",
+    },
     "search": {
         "en": "Search web for latest 2025-2026 blueberry news from FreshPlaza, IBO, Proarándanos. Current prices, export data, new varieties. Combine with knowledge base.",
         "pl": "Szukaj najnowszych wiadomości borówkowych 2025-2026 z FreshPlaza, IBO, Proarándanos. Aktualne ceny, eksport, nowe odmiany.",
@@ -886,8 +922,11 @@ def main_menu_keyboard(lang):
          InlineKeyboardButton(labels["nursery"],      callback_data="topic_nursery")],
         [InlineKeyboardButton(labels["news"],         callback_data="topic_news"),
          InlineKeyboardButton(labels["photo"],        callback_data="topic_photo")],
-        [InlineKeyboardButton(labels["search"],       callback_data="topic_search"),
-         InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
+        [InlineKeyboardButton(labels["roi"],          callback_data="topic_roi"),
+         InlineKeyboardButton(labels["currency"],     callback_data="topic_currency")],
+        [InlineKeyboardButton(labels["health"],       callback_data="topic_health"),
+         InlineKeyboardButton(labels["search"],       callback_data="topic_search")],
+        [InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
