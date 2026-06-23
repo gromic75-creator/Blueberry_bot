@@ -48,6 +48,7 @@ MENU_LABELS = {
         "nursery":   "🏭 Nursery & Plants",
         "search":    "🔍 Live Search",
         "news":      "📰 Breaking News",
+        "photo":     "📸 Photo Analysis",
         "lang":      "🌐 Language",
     },
     "pl": {
@@ -61,6 +62,7 @@ MENU_LABELS = {
         "nursery":   "🏭 Szkółki i sadzonki",
         "search":    "🔍 Wyszukiwanie live",
         "news":      "📰 Aktualności",
+        "photo":     "📸 Analiza zdjęcia",
         "lang":      "🌐 Język",
     },
     "de": {
@@ -74,6 +76,7 @@ MENU_LABELS = {
         "nursery":   "🏭 Baumschulen & Pflanzen",
         "search":    "🔍 Live-Suche",
         "news":      "📰 Aktuelle News",
+        "photo":     "📸 Foto-Analyse",
         "lang":      "🌐 Sprache",
     },
     "es": {
@@ -87,6 +90,7 @@ MENU_LABELS = {
         "nursery":   "🏭 Viveros y plantas",
         "search":    "🔍 Búsqueda en vivo",
         "news":      "📰 Noticias",
+        "photo":     "📸 Análisis de foto",
         "lang":      "🌐 Idioma",
     },
     "ru": {
@@ -100,6 +104,7 @@ MENU_LABELS = {
         "nursery":   "🏭 Питомники и саженцы",
         "search":    "🔍 Поиск в реальном времени",
         "news":      "📰 Новости",
+        "photo":     "📸 Анализ фото",
         "lang":      "🌐 Язык",
     },
 }
@@ -710,6 +715,13 @@ TOPIC_PROMPTS = {
         "es": "Situación ACTUAL junio 2026 de Sección 9: caída precios Serbia, daños heladas Polonia, inicio Rumanía, precios mayoristas europeos ahora. Números específicos.",
         "ru": "ТЕКУЩАЯ ситуация июнь 2026 из Раздела 9: обвал цен в Сербии, ущерб от заморозков в Польше, старт Румынии, европейские оптовые цены. Конкретные цифры.",
     },
+    "photo": {
+        "en": "You clicked Photo Analysis! Please send me a photo of your blueberry plant, berries, or leaves. I will: 1) Identify the variety (if berries visible) 2) Diagnose any diseases, pests or nutrient deficiencies 3) Recommend treatment. Just send the photo now! 📸",
+        "pl": "Kliknąłeś Analizę Zdjęcia! Wyślij mi zdjęcie swojej borówki — owoców, liści lub krzewu. Zrobię: 1) Rozpoznam odmianę (jeśli widać owoce) 2) Zdiagnozuję choroby, szkodniki lub niedobory 3) Zaproponuję leczenie. Wyślij zdjęcie teraz! 📸",
+        "de": "Sie haben Foto-Analyse gewählt! Senden Sie mir ein Foto Ihrer Heidelbeerpflanze. Ich werde: 1) Sorte identifizieren 2) Krankheiten/Schädlinge diagnostizieren 3) Behandlung empfehlen. Foto jetzt senden! 📸",
+        "es": "¡Elegiste Análisis de Foto! Envíame una foto de tu planta de arándano. Haré: 1) Identificar variedad 2) Diagnosticar enfermedades/plagas 3) Recomendar tratamiento. ¡Envía la foto ahora! 📸",
+        "ru": "Вы выбрали Анализ Фото! Отправьте мне фото вашего растения голубики. Я: 1) Определю сорт 2) Диагностирую болезни/вредителей 3) Порекомендую лечение. Отправьте фото сейчас! 📸",
+    },
     "search": {
         "en": "Search web for latest 2025-2026 blueberry news from FreshPlaza, IBO, Proarándanos. Current prices, export data, new varieties. Combine with knowledge base.",
         "pl": "Szukaj najnowszych wiadomości borówkowych 2025-2026 z FreshPlaza, IBO, Proarándanos. Aktualne ceny, eksport, nowe odmiany.",
@@ -734,8 +746,9 @@ def main_menu_keyboard(lang):
         [InlineKeyboardButton(labels["classics"],     callback_data="topic_classics"),
          InlineKeyboardButton(labels["nursery"],      callback_data="topic_nursery")],
         [InlineKeyboardButton(labels["news"],         callback_data="topic_news"),
-         InlineKeyboardButton(labels["search"],       callback_data="topic_search")],
-        [InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
+         InlineKeyboardButton(labels["photo"],        callback_data="topic_photo")],
+        [InlineKeyboardButton(labels["search"],       callback_data="topic_search"),
+         InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
