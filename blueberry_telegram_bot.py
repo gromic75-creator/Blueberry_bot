@@ -912,8 +912,8 @@ def main_menu_keyboard(lang):
          InlineKeyboardButton(labels["photo"],        callback_data="topic_photo")],
         [InlineKeyboardButton(labels["currency"],     callback_data="topic_currency"),
          InlineKeyboardButton(labels["health"],       callback_data="topic_health")],
-
-
+        [InlineKeyboardButton(labels["search"],       callback_data="topic_search"),
+         InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
