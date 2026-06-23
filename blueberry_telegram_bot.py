@@ -49,7 +49,6 @@ MENU_LABELS = {
         "search":    "🔍 Live Search",
         "news":      "📰 Breaking News",
         "photo":     "📸 Photo Analysis",
-        "roi":       "🧮 ROI Calculator",
         "currency":  "💱 Currency & Prices",
         "health":    "🏥 Health Benefits",
         "lang":      "🌐 Language",
@@ -66,7 +65,6 @@ MENU_LABELS = {
         "search":    "🔍 Wyszukiwanie live",
         "news":      "📰 Aktualności",
         "photo":     "📸 Analiza zdjęcia",
-        "roi":       "🧮 Kalkulator ROI",
         "currency":  "💱 Waluty i ceny",
         "health":    "🏥 Właściwości zdrowotne",
         "lang":      "🌐 Język",
@@ -83,7 +81,6 @@ MENU_LABELS = {
         "search":    "🔍 Live-Suche",
         "news":      "📰 Aktuelle News",
         "photo":     "📸 Foto-Analyse",
-        "roi":       "🧮 ROI-Rechner",
         "currency":  "💱 Währung & Preise",
         "health":    "🏥 Gesundheitsvorteile",
         "lang":      "🌐 Sprache",
@@ -100,7 +97,6 @@ MENU_LABELS = {
         "search":    "🔍 Búsqueda en vivo",
         "news":      "📰 Noticias",
         "photo":     "📸 Análisis de foto",
-        "roi":       "🧮 Calculadora ROI",
         "currency":  "💱 Divisas y precios",
         "health":    "🏥 Beneficios salud",
         "lang":      "🌐 Idioma",
@@ -117,7 +113,6 @@ MENU_LABELS = {
         "search":    "🔍 Поиск в реальном времени",
         "news":      "📰 Новости",
         "photo":     "📸 Анализ фото",
-        "roi":       "🧮 ROI Калькулятор",
         "currency":  "💱 Валюты и цены",
         "health":    "🏥 Польза для здоровья",
         "lang":      "🌐 Язык",
@@ -876,13 +871,6 @@ TOPIC_PROMPTS = {
         "es": "¡Elegiste Análisis de Foto! Envíame una foto de tu planta de arándano. Haré: 1) Identificar variedad 2) Diagnosticar enfermedades/plagas 3) Recomendar tratamiento. ¡Envía la foto ahora! 📸",
         "ru": "Вы выбрали Анализ Фото! Отправьте мне фото вашего растения голубики. Я: 1) Определю сорт 2) Диагностирую болезни/вредителей 3) Порекомендую лечение. Отправьте фото сейчас! 📸",
     },
-    "roi": {
-        "en": "You are a blueberry investment advisor. Ask the user: 1) Country/region 2) Area in hectares 3) Variety (new like Sekoya/Demba or classic like Bluecrop/Duke) 4) Market target (fresh export/domestic/frozen). Then calculate: setup costs (land prep, plants, irrigation, nets, labor), annual operating costs, expected yield (MT/ha), expected price, gross revenue, net profit, and payback period in years. Use realistic 2025/26 data. Be specific with numbers. Format as a clear financial summary.",
-        "pl": "Jesteś doradcą inwestycyjnym ds. borówek. Zapytaj użytkownika: 1) Kraj/region 2) Powierzchnia w ha 3) Odmiana (nowa jak Sekoya/Demba czy klasyczna jak Bluecrop/Duke) 4) Rynek docelowy (świeży eksport/krajowy/mrożony). Następnie oblicz: koszty założenia, koszty operacyjne, spodziewany plon (t/ha), cena, przychód brutto, zysk netto i okres zwrotu. Użyj danych 2025/26. Konkretne liczby. Format jako jasne podsumowanie finansowe.",
-        "de": "Sie sind ein Heidelbeer-Investitionsberater. Fragen Sie: 1) Land/Region 2) Fläche in Hektar 3) Sorte 4) Zielmarkt. Berechnen Sie dann: Einrichtungskosten, Betriebskosten, erwarteter Ertrag, Preis, Bruttoeinnahmen, Nettogewinn, Amortisationszeit. Daten 2025/26. Klare Finanzzusammenfassung.",
-        "es": "Eres asesor de inversión en arándanos. Pregunta: 1) País/región 2) Área en hectáreas 3) Variedad 4) Mercado objetivo. Calcula: costos de establecimiento, costos operativos, rendimiento esperado, precio, ingresos brutos, ganancia neta, período de recuperación. Datos 2025/26. Resumen financiero claro.",
-        "ru": "Вы инвестиционный советник по голубике. Спросите: 1) Страна/регион 2) Площадь в га 3) Сорт 4) Целевой рынок. Рассчитайте: затраты на создание, операционные расходы, ожидаемый урожай, цена, валовой доход, чистая прибыль, срок окупаемости. Данные 2025/26. Чёткое финансовое резюме.",
-    },
     "currency": {
         "en": "Current blueberry price converter and market rates June 2026. Show prices in all major currencies: EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD (Serbian Dinar), MAD (Moroccan Dirham). Use verified June 2026 exchange rates. Show: Serbia farm gate EUR 5-7/kg in all currencies, Peru FOB $4.19/kg in all currencies, Poland wholesale 30-40 PLN/kg in all currencies, Netherlands wholesale $4.06/kg in all currencies, China market $6.79/kg in all currencies. Also show retail prices per country. User can ask: 'convert 5 EUR to PLN for blueberry price' or 'what is 40 PLN/kg in EUR?'",
         "pl": "Przelicznik cen borówek i aktualne kursy czerwiec 2026. Pokaż ceny we wszystkich głównych walutach: EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD, MAD. Użyj kursów z czerwca 2026. Pokaż: Serbia skup EUR 5-7/kg we wszystkich walutach, Peru FOB $4,19/kg, Polska hurt 30-40 PLN/kg, Holandia $4,06/kg, Chiny $6,79/kg we wszystkich walutach. Też ceny detaliczne. Użytkownik może pytać: 'przelicz 5 EUR na PLN dla ceny borówki'.",
@@ -922,11 +910,10 @@ def main_menu_keyboard(lang):
          InlineKeyboardButton(labels["nursery"],      callback_data="topic_nursery")],
         [InlineKeyboardButton(labels["news"],         callback_data="topic_news"),
          InlineKeyboardButton(labels["photo"],        callback_data="topic_photo")],
-        [InlineKeyboardButton(labels["roi"],          callback_data="topic_roi"),
-         InlineKeyboardButton(labels["currency"],     callback_data="topic_currency")],
-        [InlineKeyboardButton(labels["health"],       callback_data="topic_health"),
-         InlineKeyboardButton(labels["search"],       callback_data="topic_search")],
-        [InlineKeyboardButton(labels["lang"],         callback_data="choose_lang")],
+        [InlineKeyboardButton(labels["currency"],     callback_data="topic_currency"),
+         InlineKeyboardButton(labels["health"],       callback_data="topic_health")],
+
+
     ]
     return InlineKeyboardMarkup(keyboard)
 
