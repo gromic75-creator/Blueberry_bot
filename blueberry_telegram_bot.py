@@ -1,12 +1,12 @@
 """
 🫐 BlueberryBot v2.0 — Global Highbush Blueberry Market Intelligence
-Sources: IBO, FreshPlaza, Blueberries Consulting, USDA, Proarándanos
-Data: 2024/2025 season (latest available)
-Languages: EN, PL, DE, ES, RU
 """
 
 import os
 import logging
+import json
+import base64
+from datetime import datetime
 import anthropic
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -29,559 +29,328 @@ LANGUAGES = {
 }
 
 WELCOME = {
-    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Tip:* Type your country name for variety advice!\n📸 *Send a photo* — variety identification + disease diagnosis!\n\nChoose a topic or ask me anything!",
+    "en": "🫐 *BlueberryBot v2.0* — Global Highbush Blueberry Market Intelligence\n\n📊 Data: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Tip:* Type your country name for variety advice!\n📸 *Send a photo* — variety ID + disease diagnosis!\n\nChoose a topic or ask me anything!",
     "pl": "🫐 *BlueberryBot v2.0* — Globalny Wywiad Rynku Borówki Amerykańskiej\n\n📊 Dane: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n💡 *Wskazówka:* Napisz kraj aby dostać rekomendacje odmian!\n📸 *Wyślij zdjęcie* — rozpoznanie odmiany + diagnoza chorób!\n\nWybierz temat lub zadaj pytanie!",
-    "de": "🫐 *BlueberryBot v2.0* — Globale Heidelbeer-Marktintelligenz\n\n📊 Daten: IBO · FreshPlaza · USDA · 2024/2025\n\nThema wählen oder Frage stellen!",
-    "es": "🫐 *BlueberryBot v2.0* — Inteligencia del Mercado Global de Arándanos\n\n📊 Datos: IBO · FreshPlaza · USDA · Proarándanos · 2024/2025\n\n¡Elige un tema o pregunta lo que quieras!",
-    "ru": "🫐 *BlueberryBot v2.0* — Глобальная аналитика рынка голубики\n\n📊 Данные: IBO · FreshPlaza · USDA · 2024/2025\n\nВыберите тему или задайте вопрос!",
+    "de": "🫐 *BlueberryBot v2.0* — Globale Heidelbeer-Marktintelligenz\n\n📊 Daten: IBO · FreshPlaza · USDA · 2025/26\n\nThema wählen oder Frage stellen!",
+    "es": "🫐 *BlueberryBot v2.0* — Inteligencia del Mercado Global de Arándanos\n\n📊 Datos: IBO · FreshPlaza · USDA · Proarándanos · 2025/26\n\n¡Elige un tema o pregunta lo que quieras!",
+    "ru": "🫐 *BlueberryBot v2.0* — Глобальная аналитика рынка голубики\n\n📊 Данные: IBO · FreshPlaza · USDA · 2025/26\n\nВыберите тему или задайте вопрос!",
 }
 
 MENU_LABELS = {
     "en": {
-        "market":    "📊 Global Market",
-        "production":"🌍 Production by Country",
-        "export":    "🚢 Export Leaders",
+        "market":       "📊 Global Market",
+        "production":   "🌍 Production by Country",
+        "export":       "🚢 Export Leaders",
         "destinations": "🎯 Key Markets",
-        "prices":    "💰 Market Prices 2025/26",
-        "varieties": "🌱 New Varieties",
-        "classics":  "📚 Classic Varieties",
-        "nursery":   "🏭 Nursery & Plants",
-        "search":    "🔍 Live Search",
-        "news":      "📰 Breaking News",
-        "photo":     "📸 Photo Analysis",
-        "currency":  "💱 Currency & Prices",
-        "health":    "🏥 Health Benefits",
-        "lang":      "🌐 Language",
+        "prices":       "💰 Market Prices 2025/26",
+        "varieties":    "🌱 New Varieties",
+        "classics":     "📚 Classic Varieties",
+        "nursery":      "🏭 Nursery & Plants",
+        "news":         "📰 Breaking News",
+        "photo":        "📸 Photo Analysis",
+        "currency":     "💱 Currency & Prices",
+        "health":       "🏥 Health Benefits",
+        "search":       "🔍 Live Search",
+        "lang":         "🌐 Language",
     },
     "pl": {
-        "market":    "📊 Rynek globalny",
-        "production":"🌍 Produkcja wg kraju",
-        "export":    "🚢 Liderzy eksportu",
+        "market":       "📊 Rynek globalny",
+        "production":   "🌍 Produkcja wg kraju",
+        "export":       "🚢 Liderzy eksportu",
         "destinations": "🎯 Kluczowe rynki",
-        "prices":    "💰 Ceny rynkowe 2025/26",
-        "varieties": "🌱 Nowe odmiany",
-        "classics":  "📚 Klasyczne odmiany",
-        "nursery":   "🏭 Szkółki i sadzonki",
-        "search":    "🔍 Wyszukiwanie live",
-        "news":      "📰 Aktualności",
-        "photo":     "📸 Analiza zdjęcia",
-        "currency":  "💱 Waluty i ceny",
-        "health":    "🏥 Właściwości zdrowotne",
-        "lang":      "🌐 Język",
+        "prices":       "💰 Ceny rynkowe 2025/26",
+        "varieties":    "🌱 Nowe odmiany",
+        "classics":     "📚 Klasyczne odmiany",
+        "nursery":      "🏭 Szkółki i sadzonki",
+        "news":         "📰 Aktualności",
+        "photo":        "📸 Analiza zdjęcia",
+        "currency":     "💱 Waluty i ceny",
+        "health":       "🏥 Właściwości zdrowotne",
+        "search":       "🔍 Wyszukiwanie live",
+        "lang":         "🌐 Język",
     },
     "de": {
-        "market":    "📊 Globaler Markt",
-        "production":"🌍 Produktion nach Land",
-        "export":    "🚢 Export-Führer",
+        "market":       "📊 Globaler Markt",
+        "production":   "🌍 Produktion nach Land",
+        "export":       "🚢 Export-Führer",
         "destinations": "🎯 Schlüsselmärkte",
-        "prices":    "💰 Marktpreise 2025/26",
-        "varieties": "🌱 Neue Sorten",
-        "classics":  "📚 Klassische Sorten",
-        "nursery":   "🏭 Baumschulen & Pflanzen",
-        "search":    "🔍 Live-Suche",
-        "news":      "📰 Aktuelle News",
-        "photo":     "📸 Foto-Analyse",
-        "currency":  "💱 Währung & Preise",
-        "health":    "🏥 Gesundheitsvorteile",
-        "lang":      "🌐 Sprache",
+        "prices":       "💰 Marktpreise 2025/26",
+        "varieties":    "🌱 Neue Sorten",
+        "classics":     "📚 Klassische Sorten",
+        "nursery":      "🏭 Baumschulen & Pflanzen",
+        "news":         "📰 Aktuelle News",
+        "photo":        "📸 Foto-Analyse",
+        "currency":     "💱 Währung & Preise",
+        "health":       "🏥 Gesundheitsvorteile",
+        "search":       "🔍 Live-Suche",
+        "lang":         "🌐 Sprache",
     },
     "es": {
-        "market":    "📊 Mercado global",
-        "production":"🌍 Producción por país",
-        "export":    "🚢 Líderes exportación",
+        "market":       "📊 Mercado global",
+        "production":   "🌍 Producción por país",
+        "export":       "🚢 Líderes exportación",
         "destinations": "🎯 Mercados clave",
-        "prices":    "💰 Precios mercado 2025/26",
-        "varieties": "🌱 Nuevas variedades",
-        "classics":  "📚 Variedades clásicas",
-        "nursery":   "🏭 Viveros y plantas",
-        "search":    "🔍 Búsqueda en vivo",
-        "news":      "📰 Noticias",
-        "photo":     "📸 Análisis de foto",
-        "currency":  "💱 Divisas y precios",
-        "health":    "🏥 Beneficios salud",
-        "lang":      "🌐 Idioma",
+        "prices":       "💰 Precios mercado 2025/26",
+        "varieties":    "🌱 Nuevas variedades",
+        "classics":     "📚 Variedades clásicas",
+        "nursery":      "🏭 Viveros y plantas",
+        "news":         "📰 Noticias",
+        "photo":        "📸 Análisis de foto",
+        "currency":     "💱 Divisas y precios",
+        "health":       "🏥 Beneficios salud",
+        "search":       "🔍 Búsqueda en vivo",
+        "lang":         "🌐 Idioma",
     },
     "ru": {
-        "market":    "📊 Мировой рынок",
-        "production":"🌍 Производство по странам",
-        "export":    "🚢 Лидеры экспорта",
+        "market":       "📊 Мировой рынок",
+        "production":   "🌍 Производство по странам",
+        "export":       "🚢 Лидеры экспорта",
         "destinations": "🎯 Ключевые рынки",
-        "prices":    "💰 Рыночные цены 2025/26",
-        "varieties": "🌱 Новые сорта",
-        "classics":  "📚 Классические сорта",
-        "nursery":   "🏭 Питомники и саженцы",
-        "search":    "🔍 Поиск в реальном времени",
-        "news":      "📰 Новости",
-        "photo":     "📸 Анализ фото",
-        "currency":  "💱 Валюты и цены",
-        "health":    "🏥 Польза для здоровья",
-        "lang":      "🌐 Язык",
+        "prices":       "💰 Рыночные цены 2025/26",
+        "varieties":    "🌱 Новые сорта",
+        "classics":     "📚 Классические сорта",
+        "nursery":      "🏭 Питомники и саженцы",
+        "news":         "📰 Новости",
+        "photo":        "📸 Анализ фото",
+        "currency":     "💱 Валюты и цены",
+        "health":       "🏥 Польза для здоровья",
+        "search":       "🔍 Поиск в реальном времени",
+        "lang":         "🌐 Язык",
     },
 }
 
-# ══════════════════════════════════════════════════════════════
-# KNOWLEDGE BASE — VERIFIED DATA FROM IBO, FRESHPLAZA, USDA
-# ══════════════════════════════════════════════════════════════
 BLUEBERRY_KNOWLEDGE = """
-╔══════════════════════════════════════════════════════════════════╗
-║  BLUEBERRY KNOWLEDGE BASE — VERIFIED 2024/2025 DATA            ║
-║  Sources: IBO, FreshPlaza, USDA, Proarándanos, Blueberries Consulting ║
-╚══════════════════════════════════════════════════════════════════╝
+BLUEBERRY KNOWLEDGE BASE — VERIFIED 2025/26 DATA
+Sources: IBO, FreshPlaza, USDA, Proarándanos, Blueberries Consulting
 
-⚠️ CRITICAL DISTINCTION:
-- This bot covers ONLY cultivated HIGHBUSH BLUEBERRY (Vaccinium corymbosum)
-  = Borówka Amerykańska / Arándano / Heidelbeere (Kulturheidelbeere)
-- NOT wild bilberry / Vaccinium myrtillus (jagoda leśna / czarna jagoda)
-- These are completely different fruits and markets!
+CRITICAL: This bot covers ONLY cultivated HIGHBUSH BLUEBERRY (Vaccinium corymbosum).
+NOT wild bilberry (jagoda lesna / czarna jagoda). Completely different fruits!
 
-══════════════════════════════════════════════════════════════════
-SECTION 1: GLOBAL MARKET SIZE & VALUE
-══════════════════════════════════════════════════════════════════
+SECTION 1: GLOBAL MARKET 2025/26
+- Global production 2024: exceeded 2.0 million MT first time in history
+- Global export 2024: 1,000,000 MT, value $6.73 billion (IBO)
+- Cultivation area 2023: 267,000 ha (+7.2%)
+- Latin America: 42% of world acreage
+- IBO forecast: 2.5 billion kg fresh by 2029
 
-Global cultivated highbush blueberry production (IBO data):
-- 2023: 1.78 million tonnes (global)
-- 2024: exceeded 2.0 million tonnes for first time in history
-- Global cultivation area 2023: 267,000 hectares (+7.2% vs 2022)
-- Global export value 2024: $6.73 billion (1 million tonnes exported)
-- Latin America: 42% of world acreage (Peru, Mexico, Chile)
-- Growth rate: ~10% annually in exports (+60,000 tonnes/year since 2019)
+SECTION 2: PRODUCTION BY COUNTRY
+China #1 producer (domestic only!), Peru #1 EXPORTER.
 
-IBO forecast: global fresh blueberry segment to reach 2.5 billion kg by 2029
+1. China: 570,000-780,000 MT — Guizhou, Jilin, Yunnan — DOMESTIC ONLY
+2. USA: 358,000 MT — Washington, Oregon, Georgia — value $1.15B farm gate
+3. Peru: 320,000-412,000 MT — La Libertad 51%, Lambayeque 23% — #1 EXPORTER
+4. Canada: 170,000 MT — British Columbia highbush
+5. Chile: 150,000 MT — Biobio, Araucania
+6. Morocco: 83,000 MT (record!) — rose from 7th to 4th exporter
+7. Spain: 110,000 MT — Huelva (Andalusia) 90%
+8. Poland: 75,000-80,000 MT — Mazovia, Lublin — largest EU producer
+9. Mexico: 65,000-70,000 MT — Jalisco, Baja California
+10. South Africa: 35,000 MT
+11. Portugal: 25,000 MT
+12. Ukraine: 25,000 MT
+13. Australia: 20,000 MT
+14. Argentina: 18,000 MT
+15. Germany: 12,000 MT
+16. Russia: 15,000 MT cultivated
+17. Serbia: 6,000-7,000 MT (Duke 90%)
+18. Georgia (country): 7,500 MT, 95% exported, May-June season
+19. Romania: growing, Sekoya varieties planted 2021+
+20. Zimbabwe: emerging
 
-══════════════════════════════════════════════════════════════════
-SECTION 2: PRODUCTION BY COUNTRY — IMPORTANT CLARIFICATION
-══════════════════════════════════════════════════════════════════
+SECTION 3: EXPORT DATA 2024
+Total: 1,000,000 MT, $6.73 billion
+1. Peru: 31% (310,000 MT), $2.56B
+2. Chile: 8% (80,000 MT)
+3. Spain: 8% (80,000 MT)
+4. Morocco: 8% (83,000 MT) — rose from 7th!
+5. USA: 7% (70,000 MT)
+6. Poland: 5% (50,000 MT)
+7. Mexico: 2.3% (23,000 MT, +13%)
+8. Canada: 3%
 
-⚠️ PRODUCTION vs EXPORT — COMPLETELY DIFFERENT PICTURE:
+PERU 2025/26 FINAL: 380,260 MT (+21.5%), $2.56B
+- USA: 150,673 MT (+3%), Europe: 91,926 MT (+36%), China: 43,935 MT (+153%!)
 
-PRODUCTION RANKING (total volume, 2023-2024):
-China is #1 producer BY VOLUME but exports almost NOTHING — all domestic.
-China overtook USA in 2021 as largest producer.
-
-1. 🇨🇳 CHINA — ~570,000-780,000 MT (2024)
-   - Provinces: Guizhou, Jilin, Yunnan, Shandong
-   - ~32% of global production
-   - DOMESTIC CONSUMPTION ONLY — minimal exports
-   - Varieties: low-chill adapted (Misty, O'Neal, Sharpblue, Brightwell)
-   - Rapidly expanding, mainly serving 1.4B domestic consumers
-   - Also imports 80,000-100,000 MT/year — demand far exceeds domestic supply
-
-2. 🇺🇸 USA — 358,000 MT cultivated highbush (2024, USDA data)
-   + 90.8 million lbs wild lowbush (Maine) — separate market
-   - Top states: Washington, Oregon, Georgia (= 65% of total)
-   - Also: Michigan, California, North Carolina, New Jersey, Florida
-   - 90% cultivated (highbush), 10% wild
-   - Value: $1.15 billion farm gate (2024)
-   - 55% fresh market, 45% processing/frozen
-
-3. 🇵🇪 PERU — ~320,000-412,000 MT (2024/25 season)
-   - WORLD'S #1 EXPORTER by volume AND value
-   - 20,490 hectares certified for export (2024/25)
-   - Regions: La Libertad (51%), Lambayeque (23%), Ica (11%)
-   - Season: August–January (peak Sept–Nov)
-   - Yields: 19 MT/hectare — highest in world
-   - Export value 2025: ~$2.56 billion
-
-4. 🇨🇦 CANADA — ~170,000 MT total
-   - Highbush: British Columbia (94% of highbush)
-   - Wild lowbush: Quebec (43,997 MT wild in 2024), Nova Scotia, New Brunswick
-   - Fraser Valley dominant for cultivated
-
-5. 🇨🇱 CHILE — ~150,000 MT
-   - #2 exporter by volume
-   - 2024/25: 90,000+ MT fresh exports (+5% vs previous season)
-   - Regions: Biobío, La Araucanía, Bío Bío
-   - New varieties driving 50% growth in premium segment
-
-6. 🇪🇸 SPAIN — ~110,000 MT
-   - Main region: Huelva (Andalusia) — 90%+ of production
-   - Season: February–June (fills EU gap)
-   - #3 exporter globally (8% world export share)
-   - Key player: Onubafruit (20,000 MT, Blue World varieties)
-
-7. 🇵🇱 POLAND — ~75,000-80,000 MT
-   - Largest highbush producer in EU
-   - Main regions: Mazovia, Lublin, Greater Poland
-   - Season: July–September
-   - Key varieties: Bluecrop, Duke, Patriot, Draper, Aurora
-   - ~50,000 MT exported, mainly Germany/Netherlands/UK/Scandinavia
-
-8. 🇲🇽 MEXICO — ~65,000-70,000 MT
-   - Rapid growth: +13% exports 2025
-   - Key regions: Jalisco, Baja California, Sinaloa
-   - Season: Nov–April (fills North America off-season with Chile/Peru)
-   - Growing role in US market (proximity advantage)
-
-9. 🇲🇦 MOROCCO — ~83,000 MT (record 2024!)
-   - Fastest rising exporter: climbed from 7th to 4th place globally in 2024
-   - 8% of global export share (equal to Chile and Spain)
-   - Season: February–April (earliest EU supply)
-   - Main market: Europe (Netherlands, UK, France)
-   - From 636 tonnes (2009) to 83,000 tonnes (2024) — extraordinary growth
-
-10. 🇵🇹 PORTUGAL — ~25,000 MT
-11. 🇿🇦 SOUTH AFRICA — ~35,000 MT (growing exporter)
-12. 🇦🇷 ARGENTINA — ~18,000 MT
-13. 🇦🇺 AUSTRALIA — ~20,000 MT
-14. 🇩🇪 GERMANY — ~12,000 MT
-15. 🇳🇱 NETHERLANDS — ~10,000 MT (mainly greenhouse)
-16. 🇷🇺 RUSSIA — ~15,000 MT cultivated (+ large wild bilberry harvest)
-17. 🇺🇦 UKRAINE — ~25,000 MT (before conflict was higher)
-18. 🇷🇸 SERBIA — ~8,000 MT
-19. 🇿🇼 ZIMBABWE — emerging, fast growing
-20. 🇬🇪 GEORGIA (country) — emerging new exporter
-
-══════════════════════════════════════════════════════════════════
-SECTION 3: EXPORT DATA — WHO ACTUALLY SELLS TO THE WORLD
-══════════════════════════════════════════════════════════════════
-
-GLOBAL EXPORT 2024 (IBO / Blue Book data):
-- Total: 1,000,000 MT (first time exceeding 1 million tonnes!)
-- Total value: $6.73 billion
-
-TOP EXPORTERS 2024 by share:
-1. 🇵🇪 Peru — 31% (~310,000 MT) — WORLD LEADER
-2. 🇨🇱 Chile — 8% (~80,000 MT)
-3. 🇪🇸 Spain — 8% (~80,000 MT)
-4. 🇲🇦 Morocco — 8% (~83,000 MT) ⬆️ NEW — rose from 7th to 4th!
-5. 🇺🇸 USA — 7% (~70,000 MT)
-6. 🇵🇱 Poland — ~5% (~50,000 MT)
-7. 🇲🇽 Mexico — ~2.3% (~23,000 MT, +13%)
-8. 🇨🇦 Canada — ~3%
-9. 🇿🇦 South Africa — growing
-10. 🇦🇺 Australia — growing
-
-PERU EXPORTS 2025 (most detailed data):
-- Total volume 2025: ~412,000 MT (record), value ~$2.56 billion
-- USA: 150,673 MT (+3%) = #1 destination, value $1.19B
-- Europe (Netherlands hub): 91,926 MT (+36%), value $508M
-- China: 43,935 MT (+18%), value $231M (surged 153% in some reports)
-- Other destinations: +122% growth (diversification)
-- Average price: $6.20/kg (vs $6.43 in 2024 — slight decline)
-- 66 destination countries (up from 52 in 2024)
-
-CHILE EXPORTS 2024/25:
-- Fresh exports: 90,000+ MT (+5% vs previous season)
-- New varieties: 50% growth, now 21% of total exports
-- Main varieties shifting from Biloxi to premium (Sekoya, Eureka)
-
-══════════════════════════════════════════════════════════════════
 SECTION 4: KEY IMPORT MARKETS
-══════════════════════════════════════════════════════════════════
+USA: largest importer 200,000+ MT/year
+China: fastest growing +25%/year, 80,000-100,000 MT, loves Sekoya Pop and Ventura
+Europe: Netherlands hub, Morocco(Feb-Apr)→Spain(Apr-Jun)→Poland(Jul-Sep)→S.Hemisphere(Nov-Mar)
+Russia: post-2022 mainly Belarus, Azerbaijan, China, Iran
 
-🇺🇸 USA:
-- World's largest importer: ~200,000+ MT/year
-- Counter-season supply: Chile, Peru, Mexico (Oct–May)
-- Domestic season: April–September
-- USA + Netherlands = 48% of world imports (2023)
+SECTION 5: PRICES 2025/26 (VERIFIED)
+Serbia farm gate June 2026: EUR 5-7/kg (DROPPING to 4-5 at peak)
+Poland wholesale Bronisze June 2026: tunnel 20-45 PLN/kg, import 30-40 PLN/kg
+Peru FOB: $4.19/kg (March 2026)
+Netherlands wholesale: $4.06/kg (March 2026)
+Belgium: $6.51/kg (Dec 2025)
+China: $6.79/kg (Q1 2026 — highest globally)
+USA: $4.41/kg (March 2026)
+Retail: USA $8-16/kg, Germany EUR 12-24/kg, Poland 45-70 PLN/kg, China 80-200 CNY/kg
+Frozen bulk EU: EUR 0.90-1.50/kg
+TREND: Global downward pressure, oversupply warning from IBO
 
-🇨🇳 CHINA:
-- Imports: 80,000-100,000 MT/year
-- Fastest growing import market (+25%/year)
-- Main suppliers: Peru (#1, +153% in 2025), Chile, Australia, NZ
-- Key driver: Chancay Port (Peru) reduces logistics costs
-- Preference: large, firm, sweet varieties (Sekoya Pop, Ventura)
-- Domestic production growing but demand still far exceeds supply
+SECTION 6: VARIETIES — NEW (post-2020)
+SEKOYA platform (Fall Creek): B2B, 15 members, 25 countries, 87,000 MT target
+- LOW-CHILL (Peru, Mexico, Morocco, warm): Pop (China fav 24%), Beauty, Crunch, Grande
+- HIGH-CHILL (Poland, Canada, cold): Nova FC15-173, ArabellaBlue FC14-062, LoretoBlue, Apex FCM14-057 (2026)
+- Mechanical harvest: FC11-164 (trials Europe/US/Chile)
 
-🇪🇺 EUROPE (EU + UK):
-- Netherlands: central redistribution hub
-- ~200,000+ MT/year imports
-- Seasonal supply chain:
-  * November–January: Southern Hemisphere (Peru, Chile, Argentina)
-  * February–April: Morocco (fastest growing!)
-  * April–June: Spain (Huelva dominates)
-  * July–September: Poland, Germany, Netherlands (domestic)
-  * October: gap → Southern Hemisphere returns
+BLUE WORLD / DEMBA (Onubafruit/FV.BV Netherlands):
+- Demba (FV1908) + Dana (FV1907) = Superior Taste Award winners
+- Range: Demba, Dana, Aila, Lena, Selma, Selena
+- EU protection until 2056, 25-30 t/ha, Huelva season Nov-June
 
-🇷🇺 RUSSIA:
-- Pre-2022: imported ~30,000 MT mainly from Serbia, Poland, Belarus
-- Post-2022 sanctions: Western imports drastically reduced
-- Current suppliers: Belarus, Azerbaijan, China, Iran, Serbia (via third countries)
-- Domestic production growing: Leningrad region, Krasnodar, Siberia
-- Wild bilberry/cowberry still main berry consumed (different product!)
-- Retail prices: 400-800 RUB/250g punnet
+PLANASA (Spain): Blue Manila, Malibu, Madeira, Maldiva, Marina, Masirah — zero chill
+BerryWorld Orb: new northern highbush 2025
+PeachyBlue: retail hit USA 2025
 
-══════════════════════════════════════════════════════════════════
-SECTION 5: PRICES 2024/2025
-══════════════════════════════════════════════════════════════════
+PERU TOP VARIETIES 2024/25: Ventura 26% (EU fav), Biloxi 16% (declining), Sekoya Pop 14% (China), Magica 19% (China)
 
-EXPORT (FOB) PRICES:
-- Peru average 2025: $6.20/kg (down from $6.43/kg in 2024, -3%)
-- Peak season (Sept-Oct Peru): can fall sharply due to volume glut
-- Off-season (Jan-May): $3.5-7.0/kg depending on origin
-- Premium varieties (Sekoya): +20-40% premium over conventional
+CLASSIC VARIETIES (pre-2020):
+Northern Highbush (high chill 800-1200h): Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Elliott, Patriot
+Southern Highbush (low chill 200-500h): Biloxi, Ventura, O'Neal, Misty, Emerald, Jewel, Star
+Half-High (extreme cold -35C): Northblue, Polaris, Chippewa
 
-RETAIL PRICES (approximate):
-- USA: $4-8/pint punnet (~$8-16/kg)
-- Germany: €3-6/250g punnet (~€12-24/kg)
-- UK: £2.50-5.00/150g (~£16-33/kg)
-- Poland: 12-25 PLN/250g (~50-100 PLN/kg) in peak season
-- Russia: 400-900 RUB/250g
-- China: 80-200 CNY/kg (premium for large Sekoya-type berries)
+SECTION 7: NURSERIES TOP 5
+1. Fall Creek USA: 40M+ plants/yr, 59 countries, SEKOYA platform, Peru (14M) + Spain (14M) hubs
+2. Planasa Spain: 1B plants/yr total, 7000 staff, 27 countries, Blue Manila/Madeira/Maldiva
+3. Onubafruit/FV.BV: Blue World varieties (Demba, Dana)
+4. Oregon Blueberry USA: largest N.America wholesale
+5. Lorsena Spain: EU specialist
+Costs: plug $0.50-2.00, finished plant $2-5
 
-FROZEN (bulk, EU import):
-- Standard: €0.90-1.50/kg
-- Premium/organic: €1.80-2.50/kg
+SECTION 8: BREAKING NEWS JUNE 2026
+Serbia: PEAK season, Duke 90%, prices EUR 6.50→4.00-5.00/kg (dropping fast), labor +12-15%
+Romania: season starting June 15, first Sekoya volumes 450-500 MT
+Poland: frost damage April-May 2026 (coldest May in 34 years), tunnel borówki 20-45 PLN, field July
+Georgia (country): active May-June, 7,500 MT, 95% export to Germany/Poland/Russia/Dubai
+Europe supply: Spain ending, Morocco done, Serbia PEAK, Romania starting, Poland/Germany July
+Global IBO 5 trends: year-round quality, climate resilience, post-harvest innovation, mechanical harvesting, premium vs commodity segmentation
 
-PRICE TREND: Mild downward pressure globally due to oversupply.
-IBO warns of "margin squeeze" as production outpaces demand growth.
-
-══════════════════════════════════════════════════════════════════
-SECTION 6: VARIETIES — THE NEW GENERATION 2022-2025
-══════════════════════════════════════════════════════════════════
-
-▶ SEKOYA PLATFORM (Fall Creek® breeding) — MOST IMPORTANT BRAND GLOBALLY
-  The #1 premium variety platform worldwide, B2B model with 15 member companies.
-  Present in 25 countries, 2,500 hectares, ~87,000 MT production target 2024.
-  40% sold USA/Canada, 36% Europe, 24% Asia
-  
-  LOW/ZERO CHILL (warm climates — Peru, Mexico, S.USA):
-  - Sekoya Pop™ 'FCM14-052' — most planted in Peru, preferred in China market
-  - Sekoya Beauty™ 'FCM12-097' — early season, large berry
-  - Sekoya Crunch™ 'FC13-083' — exceptional firmness, shelf life
-  - Sekoya Grande™ 'FC13-122' — jumbo size
-
-  HIGH CHILL (cold climates — Poland, Canada, N.USA, high Chile):
-  - SEKOYA® Nova 'FC15-173' — newest high-chill, just launched
-  - ArabellaBlue® 'FC14-062' — vigorous, early-fruiting (launched Dec 2025)
-  - LoretoBlue™ 'FC11-118' — high performance
-  - FC11-164 — mechanical harvest focused (commercial trials 2024, Europe/US/Chile)
-  - Apex 'FCM14-057' — launched April 2026, for EMEA Jan-May window
-
-▶ DEMBA & BLUE WORLD (Onubafruit / FV.BV Netherlands) — TOP EUROPEAN VARIETIES
-  Developed by Dutch company FV.BV, exclusive licensee Onubafruit (Spain/Portugal/Morocco)
-  Protected until December 31, 2056 in EU.
-  Awards: International Taste Institute Superior Taste Award (Demba, Dana)
-  Productivity: 25,000-30,000 kg/hectare, >80% size 18mm+
-  Season: November to June (Huelva, Spain)
-  
-  - Demba (FV1908) ⭐ — AWARD WINNER. Precocity, size, firmness, exceptional flavor.
-    One of world's best-rated blueberries by International Taste Institute.
-  - Dana (FV1907) ⭐ — Award winner, excellent flavor and firmness
-  - Selma (FV1901) — covers mid-season
-  - Aila (FV1905) — early season
-  - Lena (FV1904) — part of full-season portfolio
-  - Selena (FV1905) — additional coverage
-  - FV1902, FV1903 — in development, no commercial name yet
-  Onubafruit Blue World target: 50% of 20,000 MT production, +10-15%/year growth
-
-▶ PERU TOP VARIETIES (2024/25 season, Proarándanos data):
-  ~65 varieties grown commercially in Peru!
-  Top 9 = 80% of certified area:
-  1. Ventura — 26% share (EU preference: 50% of shipments to Europe!)
-  2. Biloxi — 16% (declining, being replaced)
-  3. Sekoya Pop — 14% ⬆️ (growing fast, preferred in China: 24% of China shipments)
-  4. Rocío — growing
-  5. Mágica — growing (19% of China shipments in 2024/25!)
-  6. Atlasblue — present
-  7. Eureka / Eureka Sunrise — growing
-  8. Scintilla — present
-  9. Stella Blue / Kirra / Terrapin — other notable varieties
-  
-  Other: Emerald, Jupiterblue, Bella, Kestrel, Springhigh, Bonita,
-         Snowchaser, Sekoya Beauty, Magnifica, First Blush, Salvador,
-         Arana, Biancablue, Stellar, Jewel, among others
-
-▶ NORTHERN HIGHBUSH (cold climates — Poland, Canada, NE USA, high Chile):
-  Classic proven varieties still dominant in Poland/Eastern Europe:
-  - Bluecrop — still most planted worldwide (reliable workhorse)
-  - Duke — early season, cold tolerant, very popular Poland
-  - Draper — premium, excellent flavor, good shelf life
-  - Aurora — very late season, large berry
-  - Liberty — late season, excellent flavor
-  - Cargo — high yield, firmness
-  - Calypso — disease resistant, patented
-
-▶ HALF-HIGH (extreme cold — Scandinavia, Russia, Canada prairies):
-  - Northblue — cold hardy to -35°C
-  - Polaris — very aromatic, cold tolerant
-  - Chippewa — reliable in harsh conditions
-
-▶ NEW EMERGING VARIETIES (various breeders):
-  - BerryWorld Orb® — new northern highbush, commercial volumes 2025
-  - Eureka Sunrise, Eureka Sunset (Clear genetics)
-  - Magnifica™, Bella™, Bonita™, Julieta™ (Clear genetics, Peru)
-  - FC11-164 (Fall Creek) — mechanical harvest, trials in Europe/US/Chile
-  - Stella Blue — growing presence Peru
-  - Arana — appearing in Peru export data
-
-══════════════════════════════════════════════════════════════════
-SECTION 7: KEY INDUSTRY TRENDS 2025
-══════════════════════════════════════════════════════════════════
-
-1. OVERSUPPLY PRESSURE: Production growing faster than demand.
-   IBO warns of "margin squeeze" — growers face lower prices.
-   
-2. VARIETAL REVOLUTION: Rapid replacement of old varieties (Biloxi→Sekoya/Ventura)
-   for better quality, yield, shelf life.
-
-3. MECHANICAL HARVESTING: Fall Creek FC11-164 leading development.
-   Critical for labor cost reduction in Europe and USA.
-
-4. CHINA MARKET BOOM: Imports surging. Peru exports to China +153% in 2025.
-   Chancay Port dramatically reduces logistics costs Peru→China.
-
-5. MOROCCO RISE: From 636 MT (2009) to 83,000 MT (2024).
-   Now 4th largest exporter. Disrupting EU early-season supply.
-
-6. SEGMENTATION: Premium (Sekoya, Demba) vs commodity (Biloxi, Bluecrop).
-   "Blueberries are no longer a generic product" — Sekoya CEO.
-
-7. YEAR-ROUND SUPPLY: 12-month availability now standard in EU and USA.
-
-8. PRICE DECLINE: Average international price -3% in 2025 ($6.20/kg vs $6.43).
-══════════════════════════════════════════════════════════════════
-SECTION 9: BREAKING NEWS — JUNE 2026 (CURRENT SEASON)
-Sources: Bronisze/sadyogrody.pl/jagodnik.pl/fresh-market.pl/hortidaily/IBO/Tridge/EastFruit
-══════════════════════════════════════════════════════════════════
-
-THIS IS THE MOST CURRENT DATA — June 21, 2026
-
-SERBIA — June 2026 PEAK SEASON:
-- Production: 6,000-7,000 MT/year, ~2,500 ha, 4,161 growers (2023)
-- Duke variety = 90-95% of all Serbian blueberries — season June to mid-July
-- Export markets: Netherlands, Germany, Poland, Czech Republic, UK
-- PRICES June 2026: Started at EUR 6.50-7.00/kg early June → NOW DROPPING sharply
-  as volumes spike. Mid-June trend: toward EUR 4.00-5.00/kg
-- This Serbian surge is pulling down ALL European blueberry prices simultaneously
-- 80%+ exported in retail packs (500g) directly to EU supermarket chains
-- Labor costs: +12-15% vs 2024 — margins squeezed
-- Quality 2026: GOOD — no major frost damage unlike Poland
-- New investment: Serbia expanding facilities, targeting China market access (since 2023)
-
-ROMANIA — June 2026 STARTING:
-- Season: June 15 - August 31
-- New varieties from 2021 onwards: Sekoya (Fall Creek/Agrovision)
-- First commercial volumes new varieties 2026 (~450-500 MT)
-- Large volumes expected from 2027 (100+ ha new plantings)
-- Romania follows Serbia by ~3 weeks on the EU market
-- Target: become largest premium blueberry producer in Europe
-
-CROATIA: Not a significant commercial exporter — domestic market only.
-
-POLAND — June 2026 VERIFIED DATA:
-Weather: April-May 2026 frosts (coldest May in 34 years)
-- April 26-30: frosts to -10C locally — flowers severely damaged at bloom stage
-- May 3-14: Arctic air sweeping country every night for 12 days
-- Government compensation: ARiMR payments for losses over 70%
-- Final verdict: season similar to 2025 — NOT catastrophic, borówek nie zabraknie
-
-PRICES Poland June 2026 (VERIFIED from Bronisze/sadyogrody.pl):
-- Tunnel borówki (first Polish, under cover): 20-45 zł/kg depending on caliber/quality
-- Field crop: NOT YET — starts first week of July
-- Imported borówki (Serbia/Peru): 30-40 zł/kg wholesale
-- Retail stores: 45-70 zł/kg in June (pre-season)
-- March 2026 import price in Krakow: EUR 10.47-14.66/kg
-- "Ceny importowanych borówek mocno w dół" — fresh-market.pl, May 20, 2026
-
-WHY SERBIAN PRICE DROP MATTERS FOR POLAND:
-Serbia farm gate EUR 5-7/kg + transport EUR 1.5-2/kg + margins = EUR 7-9/kg
-= approx. 30-38 zł/kg wholesale Poland — so Serbian prices DO match Polish wholesale.
-Any further Serbian price drop will directly pull Polish import prices down.
-
-EUROPE SUPPLY CHAIN June 2026:
-- Spain (Huelva): season ENDING — Germany main destination (June 16)
-- Morocco: season COMPLETE
-- Serbia: PEAK NOW — volumes causing price drops across EU
-- Romania: STARTING (June 15+)
-- Germany/Netherlands domestic: 2-3 weeks away (early July)
-- Poland field crop: first week of July
-- Georgia (country): Active May-June, supplying Germany/Poland/Russia/Dubai
-
-GLOBAL PRICE REFERENCES Q4 2025 - Q1 2026 (Tridge/IMARC verified):
-- USA: $4,405/MT = $4.41/kg (March 2026, downward trend)
-- Netherlands wholesale: $4,062/MT = $4.06/kg (March 2026)
-- Belgium: $6,507/MT = $6.51/kg (December 2025, premium market)
-- China: $6,790/MT = $6.79/kg (Q1 2026 — highest price globally)
-- Peru FOB: $4,193/MT = $4.19/kg (March 2026)
-- Chile Nov 2025: $8.92/kg (Tridge transaction data)
-- Netherlands Nov 2025: $13.50/kg (premium retail)
-
-
-══════════════════════════════════════════════════════════════════
-SECTION 8: SEASON 2025/26 — CURRENT DATA & FORECASTS
-══════════════════════════════════════════════════════════════════
-
-⚠️ NOTE ON DATA CURRENCY (as of June 2026):
-- Season 2025/26 NOW COMPLETE for Peru/Chile (May–April cycle)
-- Season 2025 complete for USA/Poland/Europe (April–September 2025)
-- Morocco/Spain 2026 seasons complete (Feb–June 2026)
-- Season 2026/27 for Peru/Chile begins August 2026
-
-🇵🇪 PERU SEASON 2025/26 — FINAL RESULTS (FreshPlaza/Proarándanos, May 2026):
-- Total exports: 380,260 MT (+21.5% vs 2024/25!)
-- Slight miss vs forecast of 400,000 MT
-- Peak: October (90,000+ MT), September (75,000+ MT), November (66,000+ MT)
-- La Libertad: 189,700 MT (50%), Lambayeque: 89,500 MT, Ica: 50,000+ MT (+48%!)
-- Outlook 2026/27: growth expected, El Niño risk factor
-
-🇨🇱 CHILE SEASON 2025/26 — (Frutas de Chile, Oct 2025):
-- Fresh exports: +1% vs 2024/25
-- Protected/new varieties: +67% (now 35% of total, up from 21%!)
-- Traditional varieties: -17% (phased out)
-- Frozen: 161,000+ MT record (43% of all Chilean shipments — strategic channel!)
-
-🇺🇸 USA SEASON 2025 (USDA/NABC):
-- Highbush: ~9% lower than 2024 (weather impact, mainly processing affected)
-- Wild (Maine): 45M lbs vs 90.8M lbs in 2024 (-50%! Rain+drought)
-- Imports: record 720B lbs
-- Exports: 94.8M lbs
-
-🇬🇪 GEORGIA (country) — EMERGING PLAYER (FreshPlaza, Feb 2026):
-- Production 2025: 7,500 MT, 95% exported
-- Season: May–June (fills EU gap after Morocco/Spain, before Poland!)
-- Markets: Russia, Germany, Poland, Dubai + new: India, Israel, Saudi Arabia
-- 2026 target: 10,000+ MT
-
-GLOBAL FORECASTS 2026–2030:
-- Global production 2025: 2.10 million MT
-- 2030 target: 2.71 million MT (CAGR ~2.88% volume)
-- Market value 2026: ~$4.16 billion → 2030: ~$6.08 billion (CAGR 6.5%)
-- Asia-Pacific: fastest growing region
-- UK: $0.6B (2025) → $1.1B (2033)
-- South Africa exports: +10% forecast 2026
-
-IBO 5 KEY TRENDS (IBO Summit 2025, South Africa):
-1. Consistent quality beyond seasonal peaks — retailers demand year-round programs
-2. Climate resilience — resistant varieties + covered production
-3. Post-harvest innovation — shelf life critical for China/India
-4. Mechanical harvesting — FC11-164 and others, labor cost priority
-5. Market segmentation — premium (Sekoya, Demba) vs commodity bifurcation
-
-PRICE OUTLOOK 2025/26:
-- Mild global downward pressure continues
-- Q4 2025 USA: $4,658/MT; Q1 2026 China: $6,790/MT; Q4 2025 Belgium: $6,793/MT
-- Premium varieties maintain margins; commodity squeezed
-- IBO warns: oversupply risk as production outpaces demand
-
-NEW MARKETS 2025/26:
-- Vietnam: Australian access granted Dec 2025
-- India: Georgia + Australia targeting 2026
-- Saudi Arabia, Israel, UAE: emerging premium markets
-- Taiwan: Poland targeting fresh blueberry entry 2026
-- Zimbabwe: now authorized to export to China
-
+SECTION 9: HEALTH BENEFITS
+ORAC: 9,621 umol TE/100g (highest common fruits)
+Anthocyanins: malvidin, delphinidin, cyanidin, petunidin, peonidin
+Brain: -26% cognitive decline (Harvard 2012, 16,000 women)
+Heart: -32% heart attack risk, -4-6mmHg blood pressure
+Diabetes: GI 53, improves insulin sensitivity
+Cancer: anthocyanins inhibit tumor growth (colon, breast, liver)
+Eyes: lutein, zeaxanthin protect macular degeneration
+Gut: prebiotic fiber, polyphenols feed good bacteria
+Sports: reduce muscle damage, faster recovery (300g before exercise)
+Per 100g: 57 kcal, 14.5g carbs, 2.4g fiber, Vit C 9.7mg
+Frozen retains 90%+ antioxidants
 """
+
+PHOTO_SYSTEM = """You are a world-class blueberry expert: plant pathologist, variety specialist, and quality control inspector.
+
+Analyze the photo and respond with:
+
+1. WHAT YOU SEE: berries / leaves / plant / combination
+
+2. IF BERRIES VISIBLE — VARIETY ID:
+Visual clues: size, color, bloom (waxy coat), crown/calyx, shape
+- Large firm light blue heavy bloom small crown: likely Draper/Duke
+- Very large light blue: Chandler/Aurora
+- Large deep blue exceptional bloom very firm: Sekoya Pop/Crunch/Ventura
+- Medium powder blue loose clusters: Biloxi
+- Large dark blue excellent flavor: O'Neal/Liberty
+- Pink/red: Pink Lemonade/PeachyBlue
+State: MOST LIKELY: [variety] | CONFIDENCE: HIGH/MEDIUM/LOW + why
+
+3. QUALITY CONTROL (if berries):
+Size grade: Jumbo >22mm / Large 18-22mm / Medium 14-18mm / Small <14mm
+Bloom: Heavy (premium) / Light / None (degraded)
+Defects found: Category A (reject): Botrytis, mummies, cracks, bird damage, bruising
+              Category B (downgrade): scarring, russeting, misshapen, sunburn
+              Category C (minor): size variation, light marks
+Brix estimate (visual ±2): deep blue heavy bloom firm = 12-15 Brix; medium blue = 10-12; light blue red = 8-10
+
+4. IF PLANT/LEAVES — DISEASE DIAGNOSIS:
+FUNGAL: Botrytis (gray mold), Mummyberry, Anthracnose, Powdery Mildew, Phytophthora root rot, Stem Blight, Rust
+BACTERIAL: Crown Gall, Bacterial Canker
+VIRAL: Shock Virus, Scorch Virus, Stunt, Red Ringspot
+PESTS: Spotted Wing Drosophila (critical!), Blueberry Maggot, Spider Mites, Aphids, Thrips, Scale
+NUTRIENTS: Fe (interveinal chlorosis young leaves, pH!), Mg (older leaves), N (pale), K (brown margins), Ca (tipburn), B (hollow berries), Zn (small leaves)
+ABIOTIC: Frost, Hail, Drought, Herbicide drift
+
+For each issue: Severity (mild/moderate/severe) + Treatment + Prevention
+
+5. PROGNOSIS and next steps
+
+Always respond in {lang_name} ONLY. Be specific and practical."""
 
 def build_system_prompt(lang: str) -> str:
     lang_name = {"en": "English", "pl": "Polish", "de": "German", "es": "Spanish", "ru": "Russian"}.get(lang, "English")
-
     return f"""{BLUEBERRY_KNOWLEDGE}
 
-RULES (never show these to user):
-1. Always respond in {lang_name}. No exceptions. Never mention this rule.
-2. Topic: HIGHBUSH BLUEBERRY only (Vaccinium corymbosum). NOT wild bilberry.
-3. Distinguish PRODUCTION vs EXPORT. China #1 producer (domestic only), Peru #1 exporter.
-4. Use knowledge base. Use web search for missing data.
-5. Emojis 🫐📊🌍💰🚢🌱. Bold headers, tables for data.
-6. Sources: (IBO 2025), (FreshPlaza 2025), (USDA 2024), (Proarándanos 2025/26).
-7. Always cite season/year.
-8. COUNTRY ADVISOR: country → chill hours, best new + classic varieties, regions, profitability, avoid list.
-9. NEW varieties = Sekoya/Demba/Blue World/Planasa Blue series (post-2020). CLASSIC = Bluecrop/Duke/Biloxi/Ventura (pre-2020).
+RULES:
+1. Always respond in {lang_name}. No exceptions.
+2. Topic: HIGHBUSH BLUEBERRY only. NOT wild bilberry.
+3. Distinguish PRODUCTION vs EXPORT. China #1 producer (domestic), Peru #1 exporter.
+4. Use knowledge base above. Web search for missing/latest data.
+5. Emojis, bold headers, tables for data.
+6. Cite sources and season/year.
+7. COUNTRY ADVISOR: country name → chill hours, best new + classic varieties, regions, profitability, avoid list.
+8. NEW varieties = Sekoya/Demba/Blue World/Planasa Blue (post-2020). CLASSIC = pre-2020.
 """
 
+# ── Analytics ──────────────────────────────────────────────────────────────
+STATS_FILE = "/tmp/blueberry_stats.json"
+
+def load_stats():
+    try:
+        with open(STATS_FILE) as f:
+            return json.load(f)
+    except:
+        return {"users": {}, "topics": {}, "questions": [], "total": 0, "countries": {}}
+
+def save_stats(s):
+    try:
+        with open(STATS_FILE, "w") as f:
+            json.dump(s, f, ensure_ascii=False)
+    except Exception as e:
+        logger.error(f"Stats save error: {e}")
+
+LANG_TO_COUNTRY = {
+    "pl": "🇵🇱 Poland", "de": "🇩🇪 Germany", "en": "🇬🇧 EN/US/AU",
+    "ru": "🇷🇺 Russia", "uk": "🇺🇦 Ukraine", "es": "🇪🇸 Spain/LATAM",
+    "fr": "🇫🇷 France", "it": "🇮🇹 Italy", "nl": "🇳🇱 Netherlands",
+    "pt": "🇵🇹 Portugal/Brazil", "ro": "🇷🇴 Romania", "sr": "🇷🇸 Serbia",
+    "tr": "🇹🇷 Turkey", "ar": "🇸🇦 Arabic", "zh": "🇨🇳 China",
+    "ja": "🇯🇵 Japan", "ko": "🇰🇷 Korea", "cs": "🇨🇿 Czech",
+    "sk": "🇸🇰 Slovakia", "hu": "🇭🇺 Hungary", "bg": "🇧🇬 Bulgaria",
+    "hr": "🇭🇷 Croatia", "sl": "🇸🇮 Slovenia", "sv": "🇸🇪 Sweden",
+    "no": "🇳🇴 Norway", "da": "🇩🇰 Denmark", "fi": "🇫🇮 Finland",
+    "he": "🇮🇱 Israel", "fa": "🇮🇷 Iran", "be": "🇧🇾 Belarus",
+    "ka": "🇬🇪 Georgia", "az": "🇦🇿 Azerbaijan", "kk": "🇰🇿 Kazakhstan",
+}
+
+def track(uid, uname, lang, etype, content="", tg_lang_code=None):
+    s = load_stats()
+    uid = str(uid)
+    now = datetime.utcnow().isoformat()
+    country = LANG_TO_COUNTRY.get(tg_lang_code, f"🌍 {tg_lang_code or 'unknown'}")
+    if uid not in s["users"]:
+        s["users"][uid] = {"name": uname, "lang": lang, "first": now, "count": 0, "country": country}
+    s["users"][uid]["count"] += 1
+    s["users"][uid]["last"] = now
+    s["users"][uid]["lang"] = lang
+    if tg_lang_code:
+        s["users"][uid]["country"] = country
+    if etype == "topic":
+        s["topics"][content] = s["topics"].get(content, 0) + 1
+    if etype == "question" and content:
+        s["questions"].append({"q": content[:150], "lang": lang, "country": country, "t": now})
+        s["questions"] = s["questions"][-500:]
+    if "countries" not in s:
+        s["countries"] = {}
+    s["countries"][country] = s["countries"].get(country, 0) + 1
+    s["total"] = s.get("total", 0) + 1
+    save_stats(s)
+
+# ── Claude API — ASYNC ─────────────────────────────────────────────────────
 async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
     tools = [{"type": "web_search_20250305", "name": "web_search"}] if use_search else []
     kwargs = {
         "model": "claude-sonnet-4-6",
@@ -591,309 +360,126 @@ async def ask_claude(prompt: str, lang: str, use_search: bool = False) -> str:
     }
     if tools:
         kwargs["tools"] = tools
-    response = client.messages.create(**kwargs)
-    parts = [block.text for block in response.content if block.type == "text"]
+    response = await client.messages.create(**kwargs)
+    parts = [block.text for block in response.content if hasattr(block, 'text')]
     return "\n".join(parts) if parts else "⚠️ No response."
 
 async def analyze_plant_photo(image_data: bytes, lang: str) -> str:
-    """Analyze blueberry plant photo for diseases, pests, deficiencies"""
-    import base64
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
+    client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
     lang_name = {"en": "English", "pl": "Polish", "de": "German", "es": "Spanish", "ru": "Russian"}.get(lang, "English")
-
-    system = f"""You are a world-class blueberry expert combining:
-- Plant pathologist (20+ years diagnosing blueberry diseases)
-- Pomologist & variety specialist (knows 60+ commercial varieties)
-- Quality control inspector (knows USDA/EU grade standards and defects)
-- Agronomist (nutrition, soil, growing conditions)
-
-═══════════════════════════════════════════
-STEP 1: IDENTIFY WHAT IS IN THE PHOTO
-═══════════════════════════════════════════
-A) FRUIT/BERRIES ONLY → Quality control + variety ID + Brix estimate
-B) LEAVES/STEMS/PLANT → Disease/pest/deficiency diagnosis
-C) FRUIT + PLANT → Full analysis (both A and B)
-D) EARLY STAGE PLANT (young bush, no fruit) → Variety clues from leaf shape/color/growth habit + plant health
-
-═══════════════════════════════════════════
-STEP 2A: FRUIT QUALITY CONTROL ANALYSIS
-═══════════════════════════════════════════
-For each fruit visible, assess:
-
-SIZE GRADING:
-- Jumbo: >22mm diameter
-- Large: 18-22mm  
-- Medium: 14-18mm
-- Small: <14mm
-- Non-conforming: <12mm (usually rejected)
-
-COLOR ASSESSMENT:
-- Uniform deep blue/blue-black = mature, ideal
-- Light blue with red areas = underripe
-- Shriveled dark = overripe
-- Uneven coloring = uneven maturity
-
-BLOOM (waxy coating):
-- Heavy bloom = premium quality, excellent shelf life
-- Light bloom = reduced shelf life
-- No bloom = overhandled, quality degraded
-
-DEFECTS - identify any present:
-CATEGORY A DEFECTS (reject):
-  - Botrytis (gray mold) — gray fuzzy growth, mushy spots
-  - Mummified berries — shriveled, dry, black
-  - Cracking/splitting — visible skin breaks (water stress or hail)
-  - Bird/insect damage — holes, cavities
-  - Severe bruising — large dark soft areas
-  - Stem punctures — holes from stem attachment
-  
-CATEGORY B DEFECTS (downgrade):
-  - Scarring — healed skin damage from hail/rubbing
-  - Russeting — rough brown skin patches
-  - Misshapen — not round
-  - Minor bruising — small soft spots
-  - Stem damage — torn calyx
-  - Rain cracking — fine surface cracks
-  - Sunburn — bleached/tan patches
-
-CATEGORY C DEFECTS (minor, acceptable):
-  - Minor size variation
-  - Light surface marks
-  - Slight color variation
-
-BRIX ESTIMATION (visual only, ±2°Brix accuracy):
-- Deep blue-black, heavy bloom, firm = likely 12-15°Brix (premium)
-- Medium blue, good bloom = likely 10-12°Brix (commercial standard)
-- Light blue, some red = likely 8-10°Brix (underripe)
-- Dark shriveled = likely 15-18°Brix but overripe (poor texture)
-Note: Accurate Brix requires refractometer or NIR spectrometer (SCiO, F750).
-Modern iPhone/Samsung NIR sensors are NOT accessible to apps for Brix measurement.
-
-═══════════════════════════════════════════
-STEP 2B: PLANT DISEASE/PEST/DEFICIENCY DIAGNOSIS
-═══════════════════════════════════════════
-FUNGAL DISEASES:
-- Botrytis cinerea (Gray Mold) — gray fuzzy growth on berries/flowers/stems. Favors humid conditions. Treatment: iprodione, fenhexamid, cyprodinil/fludioxonil (Switch). Remove infected material.
-- Mummyberry (Monilinia vaccinii-corymbosi) — mummified berries, witches' broom shoots in spring. Treatment: myclobutanil, propiconazole at bloom. Critical timing!
-- Anthracnose (Colletotrichum acutatum) — salmon-orange spore masses on berries. Treatment: azoxystrobin, fludioxonil post-harvest.
-- Powdery Mildew (Erysiphe vaccinii) — white powder on leaves. Treatment: sulfur, potassium bicarbonate, myclobutanil.
-- Phytophthora Root Rot — wilting, red-brown roots, poor growth. Treatment: mefenoxam, phosphorous acid. Improve drainage CRITICAL.
-- Stem Blight (Botryosphaeria) — brown wilting canes. Prune 30cm below symptoms.
-- Fusicoccum Canker — elliptical cankers on stems. Prune and destroy.
-- Leaf Spot (Septoria) — brown spots with purple border on leaves.
-- Rust (Pucciniastrum vaccinii) — orange pustules under leaves. Treatment: azoxystrobin.
-- Exobasidium leaf/fruit gall — pale green/pink swollen galls. Remove by hand.
-
-BACTERIAL DISEASES:
-- Crown Gall (Agrobacterium) — rough galls at crown/roots. No cure, remove plant.
-- Bacterial Canker — angular water-soaked lesions. Copper sprays preventive.
-
-VIRAL DISEASES:
-- Blueberry Shock Virus — sudden blossom/leaf drop in spring, recovery next year.
-- Blueberry Scorch Virus — scorched appearance, no recovery. Remove plant.
-- Stunt (phytoplasma) — small yellowed leaves, stunted growth. No cure, remove.
-- Necrotic Ring Blotch — ring patterns on leaves. No cure.
-- Red Ringspot — red rings on berries. No cure.
-- Tobacco Ringspot/Tomato Ringspot — necrotic patterns. Remove plant.
-
-PESTS:
-- Spotted Wing Drosophila (Drosophila suzukii) — small larvae inside ripe berries. CRITICAL pest. Treatment: spinosad, malathion. Monitor with traps.
-- Blueberry Maggot (Rhagoletis mendax) — larvae in berries. Kaolin clay, spinosad.
-- Mummyberry Moth — larvae in green berries. Monitor bloom stage.
-- Japanese Beetle — skeletonized leaves. Treatment: carbaryl, neem.
-- Blueberry Tip Borer — wilted shoot tips. Prune below damage.
-- Scale insects — brown/white crusty bumps on stems. Horticultural oil dormant season.
-- Spider Mites — fine webbing, stippled leaves. Miticide, high humidity helps.
-- Aphids — curled leaves, sticky honeydew. Insecticidal soap, beneficial insects.
-- Thrips — silvery scarring on berries/leaves. Spinosad.
-
-NUTRIENT DEFICIENCIES:
-- Iron (Fe) deficiency — interveinal chlorosis young leaves (yellow with green veins). pH too high! Lower to 4.5-5.2 with sulfur. Apply chelated iron.
-- Magnesium (Mg) — interveinal chlorosis OLDER leaves, red edges. Apply MgSO4.
-- Nitrogen (N) — pale/yellow whole plant, red leaves early. Apply ammonium sulfate (NOT nitrate!).
-- Potassium (K) — brown leaf margins, poor fruit quality. Apply K2SO4.
-- Calcium (Ca) — tipburn, blossom end rot on berries. Foliar CaCl2.
-- Boron (B) — hollow berries, shoot dieback. Foliar borax solution.
-- Zinc (Zn) — small leaves, stunted shoots. Chelated zinc spray.
-- Manganese (Mn) — similar to Fe but less severe. pH related.
-- Sulfur (S) — light green/yellow leaves. Apply elemental sulfur.
-CRITICAL: Always check soil pH first! pH above 5.5 causes multiple deficiencies simultaneously.
-
-ENVIRONMENTAL/ABIOTIC:
-- Frost damage — brown/black flowers, wilted shoots after cold night. No treatment, assess extent.
-- Hail damage — round indentations, scarring on berries/leaves. Assess severity.
-- Drought stress — leaf curl, wilting, small berries. Irrigation urgently.
-- Waterlogging — yellowing, root rot start. Improve drainage.
-- Herbicide drift — unusual leaf shapes/colors. Document for insurance.
-- Sunscald — bleached/tan patches on sun-exposed berries.
-
-═══════════════════════════════════════════  
-STEP 2C: VARIETY IDENTIFICATION
-═══════════════════════════════════════════
-NORTHERN HIGHBUSH clues:
-- Bluecrop: medium-large, light blue, good bloom, flat crown, clusters
-- Duke: medium, powder blue, very uniform, tight crown, firm
-- Draper: large, light blue, heavy bloom, small crown, very firm
-- Aurora: very large, light blue, waxy, late season, excellent flavor
-- Liberty: medium-large, dark blue, excellent flavor, loose clusters
-- Chandler: VERY large (sometimes >25mm), light blue, irregular shape
-- Elliott: medium, firm, tart, very late, loose clusters
-- Patriot: medium, dark blue, aromatic, cold hardy
-
-SOUTHERN HIGHBUSH clues:
-- Biloxi: medium, powder blue, very productive, loose clusters (declining variety)
-- Ventura: large-very large, deep blue, excellent bloom, firm, tight crown (Peru #1)
-- O'Neal: large, dark blue, excellent flavor, early season
-- Misty: medium, light blue, open growth habit
-- Emerald: large, light blue, very firm, excellent shelf life
-- Jewel: large, deep blue, very sweet
-- Star: large, light blue, excellent flavor
-- Sekoya Pop: large-very large, deep blue, EXCEPTIONAL bloom, very firm (China favorite)
-- Sekoya Crunch: very firm, excellent shelf life, premium appearance
-- Farthing: large, light blue, early, warm climates
-
-HALF-HIGH clues:
-- Northblue: small-medium, dark blue, very dark flesh, intense flavor
-- Polaris: medium, blue, aromatic
-- Chippewa: medium, light blue, upright
-
-PLANASA VARIETIES (Blue series):
-- Blue Manila/Maldiva: large, light blue, zero-chill adapted, tropical climates
-
-Always state: MOST LIKELY: [variety] | ALSO POSSIBLE: [variety] | CONFIDENCE: HIGH/MEDIUM/LOW
-Explain visual clues used for identification.
-
-═══════════════════════════════════════════
-FINAL RESPONSE FORMAT:
-═══════════════════════════════════════════
-Use appropriate sections based on what photo shows.
-Be SPECIFIC and ACTIONABLE — growers need practical advice.
-State what you CAN and CANNOT determine from photo alone.
-Always recommend consulting local extension service for confirmation.
-Respond in {lang_name} ONLY. No other language."""
-
+    system = PHOTO_SYSTEM.replace("{lang_name}", lang_name)
     image_b64 = base64.standard_b64encode(image_data).decode("utf-8")
-
-    response = client.messages.create(
+    response = await client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=1500,
         system=system,
         messages=[{
             "role": "user",
             "content": [
-                {
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/jpeg",
-                        "data": image_b64,
-                    },
-                },
-                {
-                    "type": "text",
-                    "text": "Please analyze this blueberry photo. If berries are visible, identify the variety. Always check plant health and diagnose any diseases, pests or deficiencies."
-                }
+                {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": image_b64}},
+                {"type": "text", "text": "Analyze this blueberry photo: identify variety if berries visible, diagnose diseases/pests/deficiencies, assess quality."}
             ],
         }]
     )
-    parts = [block.text for block in response.content if block.type == "text"]
+    parts = [block.text for block in response.content if hasattr(block, 'text')]
     return "\n".join(parts) if parts else "⚠️ Could not analyze image."
 
+# ── Topic prompts ──────────────────────────────────────────────────────────
 TOPIC_PROMPTS = {
     "market": {
-        "en": "Global highbush blueberry market 2025/26: production volume, market value, growth rate, top regions. Distinguish production vs export. Key numbers only, concise.",
-        "pl": "Globalny rynek borówki amerykańskiej 2025/26: produkcja, wartość, wzrost, regiony. Rozróżnij produkcję od eksportu. Tylko kluczowe liczby.",
-        "de": "Globaler Heidelbeermarkt 2025/26: Produktion, Wert, Wachstum, Regionen. Produktion vs. Export unterscheiden. Kurz und präzise.",
-        "es": "Mercado global arándanos 2025/26: producción, valor, crecimiento, regiones. Distinguir producción de exportación. Solo cifras clave.",
-        "ru": "Мировой рынок голубики 2025/26: производство, стоимость, рост, регионы. Отличить производство от экспорта. Только ключевые цифры.",
+        "en": "Global highbush blueberry market 2025/26: production, value, growth, regions. Distinguish production vs export. Concise with key numbers.",
+        "pl": "Globalny rynek borówki 2025/26: produkcja, wartość, wzrost, regiony. Produkcja vs eksport. Kluczowe liczby.",
+        "de": "Globaler Heidelbeermarkt 2025/26: Produktion, Wert, Wachstum. Produktion vs Export. Präzise.",
+        "es": "Mercado global arándanos 2025/26: producción, valor, crecimiento. Distinguir producción de exportación.",
+        "ru": "Мировой рынок голубики 2025/26: производство, стоимость, рост. Производство vs экспорт.",
     },
     "production": {
-        "en": "Top 20 highbush blueberry producing countries 2024/25 with MT volumes, key regions, season. Note: China #1 producer (domestic only), Peru #1 exporter. Table format.",
-        "pl": "Top 20 krajów produkujących borówkę amerykańską 2024/25: wolumeny MT, regiony, sezon. Chiny nr 1 producent (rynek wewnętrzny), Peru nr 1 eksporter. Format tabeli.",
-        "de": "Top 20 Highbush-Produzenten 2024/25: MT, Regionen, Saison. China #1 Produzent (Inland), Peru #1 Exporteur. Tabellenformat.",
-        "es": "Top 20 productores highbush 2024/25: TM, regiones, temporada. China #1 productor (doméstico), Perú #1 exportador. Formato tabla.",
-        "ru": "Топ-20 производителей высокорослой голубики 2024/25: тонны, регионы, сезон. Китай #1 производитель (внутренний), Перу #1 экспортёр. Таблица.",
+        "en": "Top 20 highbush blueberry producing countries 2024/25: MT volumes, regions, season. China #1 producer (domestic), Peru #1 exporter. Table format.",
+        "pl": "Top 20 krajów borówki 2024/25: tony, regiony, sezon. Chiny nr1 producent (rynek wewn.), Peru nr1 eksporter. Tabela.",
+        "de": "Top 20 Produzenten 2024/25: MT, Regionen, Saison. China #1 Inland, Peru #1 Export. Tabelle.",
+        "es": "Top 20 productores 2024/25: TM, regiones, temporada. China #1 doméstico, Perú #1 exportador. Tabla.",
+        "ru": "Топ-20 производителей 2024/25: тонны, регионы, сезон. Китай #1 внутренний, Перу #1 экспорт. Таблица.",
     },
     "export": {
-        "en": "Global blueberry export 2024/25: 1M MT, $6.73B. Top 10 exporters with MT and $ share. Peru 31% ($2.56B), Morocco rose 7th→4th. Season windows per country. Concise table.",
-        "pl": "Globalny eksport borówek 2024/25: 1 mln MT, $6,73 mld. Top 10 eksporterów z MT i udziałem $. Peru 31% ($2,56 mld), Maroko wzrosło z 7 na 4 miejsce. Okna sezonowe. Tabela.",
-        "de": "Globaler Export 2024/25: 1 Mio MT, $6,73 Mrd. Top 10 Exporteure mit MT und %. Peru 31%, Marokko 7.→4. Saisonfenster. Kompakte Tabelle.",
-        "es": "Exportación global 2024/25: 1M TM, $6.73B. Top 10 exportadores con TM y %. Perú 31%, Marruecos subió 7°→4°. Ventanas temporada. Tabla.",
-        "ru": "Мировой экспорт 2024/25: 1 млн тонн, $6,73 млрд. Топ-10 экспортёров с тоннами и долей. Перу 31%, Марокко с 7 на 4 место. Сезонные окна. Таблица.",
+        "en": "Global blueberry export 2024/25: 1M MT, $6.73B. Top 10 exporters MT and share. Peru 31% ($2.56B), Morocco rose 7→4th. Season windows.",
+        "pl": "Globalny eksport 2024/25: 1mln MT, $6,73mld. Top10 eksporterów MT i %. Peru 31%, Maroko 7→4. Okna sezonowe.",
+        "de": "Globaler Export 2024/25: 1 Mio MT, $6,73 Mrd. Top 10. Peru 31%, Marokko 7.→4. Saisonfenster.",
+        "es": "Exportación global 2024/25: 1M TM, $6.73B. Top 10. Perú 31%, Marruecos 7°→4°. Ventanas.",
+        "ru": "Мировой экспорт 2024/25: 1 млн тонн, $6,73 млрд. Топ-10. Перу 31%, Марокко 7→4. Сезоны.",
     },
     "destinations": {
-        "en": "Key blueberry import markets 2025/26: USA (largest, 200k MT), China (fastest +153% from Peru, Chancay Port), Europe (Morocco→Spain→Poland→S.Hemisphere supply chain), Russia (post-2022 suppliers). Prices per market.",
-        "pl": "Kluczowe rynki importu borówek 2025/26: USA (największy, 200k MT), Chiny (najszybszy +153% z Peru, port Chancay), Europa (Maroko→Hiszpania→Polska→PołHem), Rosja (dostawcy po 2022). Ceny per rynek.",
-        "de": "Wichtigste Importmärkte 2025/26: USA (200k MT), China (+153% aus Peru, Chancay), Europa (Lieferkette), Russland (Post-2022). Preise je Markt.",
-        "es": "Mercados importación clave 2025/26: USA (200k TM), China (+153% Perú, Chancay), Europa (cadena suministro), Rusia (post-2022). Precios por mercado.",
-        "ru": "Ключевые рынки импорта 2025/26: США (200к тонн), Китай (+153% из Перу, Чанкай), Европа (цепочка поставок), Россия (после 2022). Цены по рынкам.",
+        "en": "Key import markets 2025/26: USA 200k MT, China +153% from Peru (Chancay Port), Europe supply chain Morocco→Spain→Poland→S.Hemisphere, Russia post-2022. Prices per market.",
+        "pl": "Rynki importu 2025/26: USA 200k MT, Chiny +153% z Peru (port Chancay), Europa Maroko→Hiszpania→Polska→PołHem, Rosja po 2022. Ceny.",
+        "de": "Importmärkte 2025/26: USA 200k MT, China +153% aus Peru, Europa Lieferkette, Russland. Preise je Markt.",
+        "es": "Mercados importación 2025/26: USA 200k TM, China +153% Perú, Europa cadena, Rusia. Precios.",
+        "ru": "Рынки импорта 2025/26: США 200к тонн, Китай +153% из Перу, Европа цепочка, Россия. Цены.",
     },
     "prices": {
-        "en": "Current blueberry market & wholesale prices 2025/26: Serbia farm gate June 2026 EUR 5-7/kg (dropping fast at peak). Poland wholesale Bronisze June 2026: tunnel 20-45 zł/kg, Serbian import 30-40 zł/kg. Peru FOB $4.19/kg (March 2026, down). Netherlands wholesale $4.06/kg. Belgium $6.51/kg. China $6.79/kg (highest globally). USA $4.41/kg. Retail: USA $8-16/kg, Germany €12-24/kg, Poland 45-70 zł/kg pre-season. Frozen bulk €0.90-1.50/kg. Overall trend: downward pressure globally.",
-        "pl": "Aktualne ceny rynkowe i hurtowe borówek 2025/26: Serbia skup czerwiec 2026 EUR 5-7/kg (gwałtownie spada przy szczycie). Polska hurt Bronisze czerwiec 2026: tunelowe 20-45 zł/kg, import serbski 30-40 zł/kg. Peru FOB $4,19/kg (marzec 2026). Holandia hurt $4,06/kg. Belgia $6,51/kg. Chiny $6,79/kg (najdrożej). USA $4,41/kg. Detal: USA $8-16/kg, Niemcy €12-24/kg, Polska 45-70 zł/kg. Mrożone €0,90-1,50/kg. Trend: globalna presja spadkowa.",
-        "de": "Aktuelle Markt- und Großhandelspreise 2025/26: Serbien Erzeugerpreis Juni 2026 EUR 5-7/kg (fällt stark). Polen Großhandel Bronisze Juni: Tunnel 20-45 zł/kg, Import 30-40 zł/kg. Peru FOB $4,19/kg. NL $4,06/kg. BE $6,51/kg. China $6,79/kg. USA $4,41/kg. Einzelhandel: USA, DE, PL, CN. TK €0,90-1,50/kg. Trend: globaler Preisdruck.",
-        "es": "Precios actuales mercado y mayorista 2025/26: Serbia productor junio 2026 EUR 5-7/kg (bajando rápido). Polonia mayorista Bronisze junio: túnel 20-45 zł/kg, importado 30-40 zł/kg. Perú FOB $4,19/kg. NL $4,06/kg. BE $6,51/kg. China $6,79/kg. USA $4,41/kg. Retail: USA, DE, PL, CN. Congelado €0,90-1,50/kg. Tendencia: presión bajista global.",
-        "ru": "Актуальные рыночные и оптовые цены 2025/26: Сербия скупка июнь 2026 EUR 5-7/кг (резко падает на пике). Польша опт Брониши июнь: тепличные 20-45 зл/кг, импорт 30-40 зл/кг. Перу FOB $4,19/кг. Нидерланды $4,06/кг. Бельгия $6,51/кг. Китай $6,79/кг. США $4,41/кг. Розница: США, Германия, Польша, Китай. Замороженные €0,90-1,50/кг. Тренд: глобальное снижение.",
+        "en": "Current prices June 2026: Serbia farm gate EUR 5-7/kg dropping. Poland Bronisze: tunnel 20-45 PLN, import 30-40 PLN. Peru FOB $4.19/kg. NL $4.06/kg. Belgium $6.51. China $6.79/kg (highest). USA $4.41. Retail USA $8-16/kg, Germany EUR 12-24, Poland 45-70 PLN. Frozen EUR 0.90-1.50/kg.",
+        "pl": "Aktualne ceny czerwiec 2026: Serbia skup EUR 5-7/kg spada. Bronisze: tunelowe 20-45 PLN, import 30-40 PLN. Peru FOB $4,19/kg. Holandia $4,06. Belgia $6,51. Chiny $6,79 (najdrożej). USA $4,41. Detal USA $8-16/kg, Niemcy EUR 12-24, Polska 45-70 PLN. Mrożone EUR 0,90-1,50.",
+        "de": "Aktuelle Preise Juni 2026: Serbien EUR 5-7/kg fallend. Polen Bronisze: Tunnel 20-45 PLN, Import 30-40 PLN. Peru FOB $4,19. NL $4,06. BE $6,51. China $6,79. USA $4,41. Einzelhandel USA, DE, PL. TK EUR 0,90-1,50.",
+        "es": "Precios actuales junio 2026: Serbia EUR 5-7/kg bajando. Polonia Bronisze: túnel 20-45 PLN, importado 30-40 PLN. Perú FOB $4,19. NL $4,06. BE $6,51. China $6,79. USA $4,41. Retail. Congelado EUR 0,90-1,50.",
+        "ru": "Цены июнь 2026: Сербия EUR 5-7/кг падает. Польша: тепличные 20-45 зл, импорт 30-40 зл. Перу FOB $4,19. Нидерланды $4,06. Бельгия $6,51. Китай $6,79. США $4,41. Розница. Замороженные EUR 0,90-1,50.",
     },
     "varieties": {
-        "en": "NEW blueberry varieties 2020-2026: SEKOYA low-chill (Pop-China fav, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026). Demba/Blue World (Taste Award: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva-zero chill). BerryWorld Orb, PeachyBlue. Best climate for each.",
-        "pl": "NOWE odmiany 2020-2026: SEKOYA low-chill (Pop-Chiny, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026). Demba/Blue World (nagroda: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva-zero chill). BerryWorld Orb, PeachyBlue. Klimat dla każdej.",
-        "de": "NEUE Sorten 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Demba/Blue World (Taste Award) + Planasa (Blue Manila, Madeira, Maldiva) + BerryWorld Orb. Klima je Sorte.",
-        "es": "NUEVAS variedades 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Demba/Blue World (Taste Award) + Planasa (Blue Manila, Madeira, Maldiva) + BerryWorld Orb. Clima por variedad.",
-        "ru": "НОВЫЕ сорта 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Demba/Blue World (Taste Award) + Planasa (Blue Manila, Madeira, Maldiva) + BerryWorld Orb. Климат для каждого.",
+        "en": "NEW varieties 2020-2026: SEKOYA low-chill (Pop, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026, FC11-164 mechanical). Blue World/Demba (Taste Award: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva). BerryWorld Orb, PeachyBlue. Climate for each.",
+        "pl": "NOWE odmiany 2020-2026: SEKOYA low-chill (Pop, Beauty, Crunch, Grande) + high-chill (Nova, ArabellaBlue, Apex 2026). Blue World/Demba (nagroda: Demba, Dana). Planasa (Blue Manila, Madeira, Maldiva). BerryWorld Orb, PeachyBlue. Klimat.",
+        "de": "NEUE Sorten 2020-2026: SEKOYA (Pop, Beauty, Crunch, Nova, ArabellaBlue, Apex) + Blue World/Demba (Taste Award) + Planasa Blue + BerryWorld Orb. Klima je Sorte.",
+        "es": "NUEVAS variedades 2020-2026: SEKOYA + Blue World/Demba (Taste Award) + Planasa Blue + BerryWorld Orb. Clima por variedad.",
+        "ru": "НОВЫЕ сорта 2020-2026: SEKOYA + Blue World/Demba (Taste Award) + Planasa Blue + BerryWorld Orb. Климат.",
     },
     "classics": {
-        "en": "Classic blueberry varieties pre-2020: Northern Highbush high-chill (Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Patriot, Elliott). Southern Highbush low-chill (Biloxi, Ventura, O'Neal, Misty, Emerald, Jewel). Half-High extreme cold (Northblue, Polaris, Chippewa). Climate requirements table.",
-        "pl": "Klasyczne odmiany pre-2020: Północne high-chill (Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Patriot). Południowe low-chill (Biloxi, Ventura, O'Neal, Misty, Emerald). Półwysokopienne (Northblue, Polaris, Chippewa). Tabela wymagań klimatycznych.",
-        "de": "Klassische Sorten pre-2020: Nord-Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Süd-Highbush (Biloxi, Ventura, O'Neal, Misty) + Half-High (Northblue, Polaris). Klimatabelle.",
-        "es": "Variedades clásicas pre-2020: Northern Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Southern Highbush (Biloxi, Ventura, O'Neal, Misty) + Half-High (Northblue, Polaris). Tabla climática.",
-        "ru": "Классические сорта до 2020: Северные (Bluecrop, Duke, Draper, Aurora, Liberty) + Южные (Biloxi, Ventura, O'Neal, Misty) + Полувысокорослые (Northblue, Polaris). Таблица климата.",
+        "en": "Classic varieties pre-2020: Northern Highbush high-chill (Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Patriot, Elliott). Southern Highbush low-chill (Biloxi, Ventura, O'Neal, Misty, Emerald, Jewel). Half-High extreme cold (Northblue, Polaris, Chippewa). Climate table.",
+        "pl": "Klasyczne pre-2020: Północne high-chill (Bluecrop, Duke, Draper, Aurora, Liberty, Chandler, Patriot). Południowe low-chill (Biloxi, Ventura, O'Neal, Misty, Emerald). Półwysokopienne (Northblue, Polaris, Chippewa). Tabela klimatu.",
+        "de": "Klassisch pre-2020: Nord-Highbush (Bluecrop, Duke, Draper, Aurora, Liberty) + Süd-Highbush (Biloxi, Ventura, O'Neal, Misty) + Half-High (Northblue, Polaris). Klimatabelle.",
+        "es": "Clásicas pre-2020: Northern Highbush (Bluecrop, Duke, Draper, Aurora) + Southern Highbush (Biloxi, Ventura, O'Neal, Misty) + Half-High (Northblue, Polaris). Tabla climática.",
+        "ru": "Классические до 2020: Северные (Bluecrop, Duke, Draper, Aurora) + Южные (Biloxi, Ventura, O'Neal, Misty) + Полувысокорослые (Northblue, Polaris). Таблица климата.",
     },
     "nursery": {
-        "en": "Top 5 global blueberry nurseries: 1) Fall Creek® USA - 40M+ plants/yr, 59 countries, SEKOYA platform. 2) Planasa Spain - 1B plants/yr total, 7000 staff, Blue Manila/Madeira/Maldiva. 3) Onubafruit/FV.BV - Blue World (Demba, Dana). 4) Oregon Blueberry USA - largest N.America wholesale. 5) Lorsena Spain - EU specialist. Plant costs: $0.50-5.00.",
-        "pl": "Top 5 szkółek borówki: 1) Fall Creek® USA - 40 mln szt/rok, 59 krajów, SEKOYA. 2) Planasa Hiszpania - 1 mld szt/rok łącznie, 7000 prac., Blue Manila/Madeira/Maldiva. 3) Onubafruit/FV.BV - Blue World (Demba, Dana). 4) Oregon Blueberry USA - największa hurt. Ameryka Pn. 5) Lorsena Hiszpania - specjalista EU. Ceny: $0,50-5,00.",
-        "de": "Top 5 Baumschulen: 1) Fall Creek® USA 40M+/Jahr, 59 Länder. 2) Planasa Spanien 1Mrd/Jahr, 7000 MA. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry USA. 5) Lorsena Spanien. Preise $0,50-5.",
-        "es": "Top 5 viveros: 1) Fall Creek® USA 40M+/año, 59 países. 2) Planasa España 1000M/año, 7000 emp. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry USA. 5) Lorsena España. Precios $0,50-5.",
-        "ru": "Топ-5 питомников: 1) Fall Creek® США 40М+/год, 59 стран. 2) Planasa Испания 1 млрд/год, 7000 сотр. 3) Onubafruit/FV.BV Blue World. 4) Oregon Blueberry США. 5) Lorsena Испания. Цены $0,50-5.",
+        "en": "Top 5 blueberry nurseries: 1) Fall Creek USA 40M+/yr, 59 countries, SEKOYA. 2) Planasa Spain 1B plants/yr, 7000 staff, Blue Manila/Madeira/Maldiva. 3) Onubafruit/FV.BV Blue World (Demba, Dana). 4) Oregon Blueberry USA largest N.America. 5) Lorsena Spain EU specialist. Costs $0.50-5.",
+        "pl": "Top 5 szkółek: 1) Fall Creek USA 40mln/rok, 59 krajów, SEKOYA. 2) Planasa Hiszpania 1mld/rok, 7000 prac., Blue Manila/Madeira/Maldiva. 3) Onubafruit/FV.BV Blue World (Demba, Dana). 4) Oregon Blueberry USA. 5) Lorsena Hiszpania. Ceny $0,50-5.",
+        "de": "Top 5: 1) Fall Creek USA 40M+/Jahr, 59 Länder. 2) Planasa Spanien 1Mrd/Jahr, 7000 MA. 3) Onubafruit Blue World. 4) Oregon Blueberry USA. 5) Lorsena Spanien. $0,50-5.",
+        "es": "Top 5: 1) Fall Creek USA 40M+/año, 59 países. 2) Planasa España 1000M/año, 7000 emp. 3) Onubafruit Blue World. 4) Oregon Blueberry. 5) Lorsena. $0,50-5.",
+        "ru": "Топ-5: 1) Fall Creek США 40М+/год, 59 стран. 2) Planasa Испания 1млрд/год, 7000 сотр. 3) Onubafruit Blue World. 4) Oregon Blueberry США. 5) Lorsena Испания. $0,50-5.",
     },
     "news": {
-        "en": "Report the CURRENT situation in June 2026 blueberry markets using Section 9: Serbia price crash details, Poland frost damage update, Romania start, European wholesale prices now. Be specific with numbers.",
-        "pl": "Podaj AKTUALNĄ sytuację na rynku borówek czerwiec 2026 z Sekcji 9: szczegóły spadku cen w Serbii, szkody przymrozkowe w Polsce, start Rumunii, europejskie ceny hurtowe teraz. Podaj konkretne liczby.",
-        "de": "Aktuelle Situation Juni 2026 aus Abschnitt 9: Serbien Preiseinbruch, Polen Frostschäden, Rumänien Saisonstart, europäische Großhandelspreise. Konkrete Zahlen.",
-        "es": "Situación ACTUAL junio 2026 de Sección 9: caída precios Serbia, daños heladas Polonia, inicio Rumanía, precios mayoristas europeos ahora. Números específicos.",
-        "ru": "ТЕКУЩАЯ ситуация июнь 2026 из Раздела 9: обвал цен в Сербии, ущерб от заморозков в Польше, старт Румынии, европейские оптовые цены. Конкретные цифры.",
+        "en": "Breaking news June 2026: Serbia prices EUR 6.50→4.00-5.00/kg at peak (Duke season), Poland frost damage (May coldest 34 years) tunnel 20-45 PLN field July, Romania starting June 15 first Sekoya volumes, Georgia (country) active May-June 7500 MT. Europe: Serbia peak, Romania starting, Poland/Germany July.",
+        "pl": "Aktualności czerwiec 2026: Serbia ceny EUR 6,50→4,00-5,00/kg w szczycie (sezon Duke), Polska szkody przymrozkowe (maj najzimniejszy od 34 lat) tunelowe 20-45 PLN pole lipiec, Rumunia start 15 czerwca pierwsze wolumeny Sekoya, Gruzja aktywna maj-czerwiec 7500 MT. Europa: Serbia szczyt, Rumunia start, Polska/Niemcy lipiec.",
+        "de": "News Juni 2026: Serbien EUR 6,50→4,00-5,00/kg Peak (Duke), Polen Frostschäden (kältester Mai 34 Jahre) Tunnel 20-45 PLN Feld Juli, Rumänien Start 15. Juni erste Sekoya, Georgien aktiv Mai-Juni 7500 MT.",
+        "es": "Noticias junio 2026: Serbia EUR 6,50→4,00-5,00/kg pico (Duke), Polonia daños heladas (mayo más frío 34 años) túnel 20-45 PLN campo julio, Rumanía inicio 15 junio primeros Sekoya, Georgia activa mayo-junio 7500 MT.",
+        "ru": "Новости июнь 2026: Сербия EUR 6,50→4,00-5,00/кг пик (Duke), Польша заморозки (май холоднейший 34 года) теплица 20-45 зл поле июль, Румыния старт 15 июня первые Sekoya, Грузия активна май-июнь 7500 MT.",
     },
     "photo": {
-        "en": "You clicked Photo Analysis! Please send me a photo of your blueberry plant, berries, or leaves. I will: 1) Identify the variety (if berries visible) 2) Diagnose any diseases, pests or nutrient deficiencies 3) Recommend treatment. Just send the photo now! 📸",
-        "pl": "Kliknąłeś Analizę Zdjęcia! Wyślij mi zdjęcie swojej borówki — owoców, liści lub krzewu. Zrobię: 1) Rozpoznam odmianę (jeśli widać owoce) 2) Zdiagnozuję choroby, szkodniki lub niedobory 3) Zaproponuję leczenie. Wyślij zdjęcie teraz! 📸",
-        "de": "Sie haben Foto-Analyse gewählt! Senden Sie mir ein Foto Ihrer Heidelbeerpflanze. Ich werde: 1) Sorte identifizieren 2) Krankheiten/Schädlinge diagnostizieren 3) Behandlung empfehlen. Foto jetzt senden! 📸",
-        "es": "¡Elegiste Análisis de Foto! Envíame una foto de tu planta de arándano. Haré: 1) Identificar variedad 2) Diagnosticar enfermedades/plagas 3) Recomendar tratamiento. ¡Envía la foto ahora! 📸",
-        "ru": "Вы выбрали Анализ Фото! Отправьте мне фото вашего растения голубики. Я: 1) Определю сорт 2) Диагностирую болезни/вредителей 3) Порекомендую лечение. Отправьте фото сейчас! 📸",
+        "en": "📸 Photo Analysis ready! Send me a photo of your blueberry plant, berries, or leaves. I will identify the variety, diagnose diseases/pests/deficiencies, and assess fruit quality. Just send the photo!",
+        "pl": "📸 Analiza zdjęcia gotowa! Wyślij mi zdjęcie borówki — owoców, liści lub krzewu. Rozpoznam odmianę, zdiagnozuję choroby/szkodniki/niedobory i ocenię jakość. Wyślij zdjęcie!",
+        "de": "📸 Fotoanalyse bereit! Senden Sie ein Foto Ihrer Heidelbeerpflanze. Ich identifiziere die Sorte, diagnostiziere Krankheiten und beurteile die Qualität.",
+        "es": "📸 Análisis de foto listo! Envíame una foto de tu planta de arándano. Identificaré la variedad, diagnosticaré enfermedades y evaluaré la calidad.",
+        "ru": "📸 Анализ фото готов! Отправьте фото вашего растения голубики. Определю сорт, диагностирую болезни/вредителей, оценю качество.",
     },
     "currency": {
-        "en": "Current blueberry price converter and market rates June 2026. Show prices in all major currencies: EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD (Serbian Dinar), MAD (Moroccan Dirham). Use verified June 2026 exchange rates. Show: Serbia farm gate EUR 5-7/kg in all currencies, Peru FOB $4.19/kg in all currencies, Poland wholesale 30-40 PLN/kg in all currencies, Netherlands wholesale $4.06/kg in all currencies, China market $6.79/kg in all currencies. Also show retail prices per country. User can ask: 'convert 5 EUR to PLN for blueberry price' or 'what is 40 PLN/kg in EUR?'",
-        "pl": "Przelicznik cen borówek i aktualne kursy czerwiec 2026. Pokaż ceny we wszystkich głównych walutach: EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD, MAD. Użyj kursów z czerwca 2026. Pokaż: Serbia skup EUR 5-7/kg we wszystkich walutach, Peru FOB $4,19/kg, Polska hurt 30-40 PLN/kg, Holandia $4,06/kg, Chiny $6,79/kg we wszystkich walutach. Też ceny detaliczne. Użytkownik może pytać: 'przelicz 5 EUR na PLN dla ceny borówki'.",
-        "de": "Heidelbeer-Preisrechner und Wechselkurse Juni 2026. Preise in EUR, USD, PLN, GBP, CNY, RUB, RON, RSD, MAD. Serbien Erzeuger EUR 5-7/kg, Peru FOB $4,19/kg, Polen Großhandel 30-40 PLN/kg, NL $4,06/kg, China $6,79/kg — alle in allen Währungen.",
-        "es": "Conversor de precios de arándanos y tasas de cambio junio 2026. Precios en EUR, USD, PLN, GBP, CNY, RUB, RON, RSD, MAD. Serbia productor EUR 5-7/kg, Perú FOB $4,19/kg, Polonia mayorista 30-40 PLN/kg, NL $4,06/kg, China $6,79/kg — todos en todas las divisas.",
-        "ru": "Конвертер цен на голубику и курсы валют июнь 2026. Цены в EUR, USD, PLN, GBP, CNY, RUB, UAH, RON, RSD, MAD. Сербия EUR 5-7/кг, Перу FOB $4,19/кг, Польша опт 30-40 зл/кг, Нидерланды $4,06/кг, Китай $6,79/кг — всё во всех валютах.",
+        "en": "Blueberry price converter June 2026. Key prices in EUR/USD/PLN/GBP/CNY/RUB/RSD/RON/MAD: Serbia EUR 5-7/kg, Peru FOB $4.19/kg, Poland wholesale 30-40 PLN/kg, Netherlands $4.06/kg, China $6.79/kg. Use approximate June 2026 rates: EUR/PLN 4.25, USD/PLN 3.90, EUR/USD 1.09. Show all key markets in all currencies.",
+        "pl": "Przelicznik cen borówek czerwiec 2026. Ceny w EUR/USD/PLN/GBP/CNY/RUB/RSD/RON/MAD: Serbia EUR 5-7/kg, Peru FOB $4,19/kg, Polska hurt 30-40 PLN/kg, Holandia $4,06/kg, Chiny $6,79/kg. Kursy: EUR/PLN 4,25, USD/PLN 3,90, EUR/USD 1,09. Pokaż wszystkie rynki we wszystkich walutach.",
+        "de": "Preisrechner Juni 2026. EUR/USD/PLN/GBP/CNY/RUB: Serbien EUR 5-7/kg, Peru FOB $4,19, Polen 30-40 PLN, NL $4,06, China $6,79. Kurse: EUR/PLN 4,25, USD/PLN 3,90.",
+        "es": "Conversor precios junio 2026. EUR/USD/PLN/GBP/CNY/RUB: Serbia EUR 5-7/kg, Perú FOB $4,19, Polonia 30-40 PLN, NL $4,06, China $6,79. Tasas: EUR/PLN 4,25, USD/PLN 3,90.",
+        "ru": "Конвертер цен июнь 2026. EUR/USD/PLN/GBP/CNY/RUB: Сербия EUR 5-7/кг, Перу FOB $4,19, Польша 30-40 зл, NL $4,06, Китай $6,79. Курсы: EUR/PLN 4,25, USD/PLN 3,90.",
     },
     "health": {
-        "en": "Comprehensive blueberry health benefits guide: 1) ANTIOXIDANTS — ORAC value 9,621 μmol TE/100g (highest among common fruits), anthocyanins (malvidin, delphinidin, cyanidin, petunidin, peonidin), pterostilbene, resveratrol. 2) BRAIN HEALTH — studies show 26% reduction in cognitive decline (Harvard 2012, 16,000 women), improve memory and motor skills, cross blood-brain barrier. 3) HEART — lower LDL oxidation, reduce blood pressure by 4-6mmHg, reduce heart attack risk 32% (women, Harvard Nurses Study). 4) DIABETES — low GI (53), improve insulin sensitivity, regulate blood glucose. 5) CANCER — anthocyanins inhibit tumor cell growth (colon, breast, liver cancer studies), pterostilbene more bioavailable than resveratrol. 6) EYES — lutein, zeaxanthin protect against macular degeneration, improve night vision. 7) GUT HEALTH — prebiotic fiber, polyphenols feed beneficial bacteria. 8) ANTI-AGING — reduce DNA damage, slow cellular aging. 9) SPORTS PERFORMANCE — reduce muscle damage, faster recovery (studies: 300g before exercise). 10) NUTRITION per 100g: 57 kcal, 14.5g carbs, 2.4g fiber, 0.7g protein, Vitamin C 9.7mg, K 19μg, Mn 0.34mg. Fresh vs frozen — frozen retains 90%+ of antioxidants. Wild blueberries (bilberry) have 2-3x more anthocyanins than cultivated.",
-        "pl": "Kompleksowy przewodnik po właściwościach zdrowotnych borówki: 1) ANTYOKSYDANTY — ORAC 9621 μmol TE/100g (najwyższy wśród popularnych owoców), antocyjany (malwidyna, delfinidyna, cjanidyna), pterostilben, resweratrol. 2) MÓZG — badania pokazują 26% redukcję spadku funkcji poznawczych (Harvard 2012, 16.000 kobiet), poprawa pamięci i motoryki, przenikają barierę krew-mózg. 3) SERCE — obniżenie utleniania LDL, redukcja ciśnienia o 4-6mmHg, zmniejszenie ryzyka zawału o 32%. 4) CUKRZYCA — niski IG (53), poprawa wrażliwości na insulinę. 5) RAK — antocyjany hamują wzrost komórek nowotworowych (okrężnica, pierś, wątroba). 6) OCZY — luteina, zeaksantyna chronią plamkę. 7) JELITA — błonnik prebiotyczny, polifenole odżywiają dobre bakterie. 8) SPORT — redukcja uszkodzeń mięśni, szybsza regeneracja (300g przed treningiem). 9) WARTOŚCI odżywcze/100g: 57 kcal, 14,5g węglowodanów, 2,4g błonnika, wit. C 9,7mg. Mrożone zachowują 90%+ antyoksydantów.",
-        "de": "Umfassender Gesundheitsleitfaden Heidelbeeren: ORAC 9.621 μmol TE/100g, Anthocyane, Pterostilben. Gehirn: -26% kognitive Abnahme (Harvard 2012). Herz: -32% Herzinfarktrisiko, -4-6mmHg Blutdruck. Diabetes: GI 53, Insulinsensitivität. Krebs: Anthocyane hemmen Tumorwachstum. Augen: Lutein, Zeaxanthin. Darm: Präbiotika. Sport: Muskelregeneration. 100g: 57kcal, 14,5g KH, 2,4g Ballaststoffe, Vit.C 9,7mg.",
-        "es": "Guía completa beneficios salud arándanos: ORAC 9.621 μmol TE/100g, antocianinas, pterostilbeno. Cerebro: -26% declive cognitivo (Harvard 2012). Corazón: -32% infarto, -4-6mmHg presión. Diabetes: IG 53, sensibilidad insulina. Cáncer: antocianinas inhiben tumores. Ojos: luteína, zeaxantina. Intestino: prebióticos. Deporte: recuperación muscular. 100g: 57kcal, 14,5g carbos, 2,4g fibra, Vit.C 9,7mg.",
-        "ru": "Полное руководство по пользе черники для здоровья: ORAC 9621 мкмоль TE/100г, антоцианы, птеростильбен. Мозг: -26% снижение когнитивных функций (Гарвард 2012). Сердце: -32% риск инфаркта, -4-6мм рт.ст. давление. Диабет: ГИ 53, чувствительность к инсулину. Рак: антоцианы подавляют опухоли. Глаза: лютеин, зеаксантин. Кишечник: пребиотики. Спорт: восстановление мышц. 100г: 57 ккал, 14,5г углеводов, 2,4г клетчатки, Вит.С 9,7мг.",
+        "en": "Blueberry health benefits: ORAC 9,621 umol/100g. Brain: -26% cognitive decline (Harvard 2012). Heart: -32% heart attack risk, -4-6mmHg BP. Diabetes: GI 53. Cancer: anthocyanins inhibit tumors. Eyes: lutein/zeaxanthin. Gut: prebiotic. Sports: muscle recovery 300g. Per 100g: 57kcal, 14.5g carbs, 2.4g fiber, Vit C 9.7mg. Frozen = 90%+ antioxidants retained.",
+        "pl": "Właściwości zdrowotne borówki: ORAC 9621 umol/100g. Mózg: -26% spadku poznawczego (Harvard 2012). Serce: -32% zawał, -4-6mmHg ciśnienie. Cukrzyca: IG 53. Rak: antocyjany hamują nowotwory. Oczy: luteina/zeaksantyna. Jelita: prebiotyk. Sport: regeneracja 300g. 100g: 57kcal, 14,5g węglowodany, 2,4g błonnik, Vit C 9,7mg. Mrożone = 90%+ antyoksydantów.",
+        "de": "Gesundheitsvorteile: ORAC 9.621. Gehirn: -26% Harvard 2012. Herz: -32% Herzinfarkt. GI 53. Anthocyane hemmen Tumore. Lutein/Zeaxanthin Augen. 100g: 57kcal, Vit C 9,7mg. TK: 90%+ Antioxidantien.",
+        "es": "Beneficios salud: ORAC 9.621. Cerebro: -26% Harvard 2012. Corazón: -32% infarto. GI 53. Antocianinas inhiben tumores. Luteína ojos. 100g: 57kcal, Vit C 9,7mg. Congelado: 90%+ antioxidantes.",
+        "ru": "Польза для здоровья: ORAC 9621. Мозг: -26% Гарвард 2012. Сердце: -32% инфаркт. ГИ 53. Антоцианы подавляют опухоли. Лютеин глаза. 100г: 57ккал, Вит С 9,7мг. Замороженные: 90%+ антиоксидантов.",
     },
     "search": {
-        "en": "Search web for latest 2025-2026 blueberry news from FreshPlaza, IBO, Proarándanos. Current prices, export data, new varieties. Combine with knowledge base.",
-        "pl": "Szukaj najnowszych wiadomości borówkowych 2025-2026 z FreshPlaza, IBO, Proarándanos. Aktualne ceny, eksport, nowe odmiany.",
-        "de": "Aktuelle Heidelbeernews 2025-2026 von FreshPlaza, IBO suchen. Preise, Export, neue Sorten.",
-        "es": "Buscar noticias arándanos 2025-2026 FreshPlaza, IBO, Proarándanos. Precios actuales, exportación, nuevas variedades.",
-        "ru": "Поиск новостей черники 2025-2026 с FreshPlaza, IBO, Proarándanos. Цены, экспорт, новые сорта.",
+        "en": "Search FreshPlaza, IBO, Proarándanos for latest 2026 blueberry news: current prices, export data, new varieties, market trends. Combine with knowledge base.",
+        "pl": "Szukaj FreshPlaza, IBO, Proarándanos najnowszych wiadomości borówkowych 2026: ceny, eksport, odmiany, trendy.",
+        "de": "FreshPlaza, IBO suchen: aktuelle Heidelbeernews 2026. Preise, Export, Sorten.",
+        "es": "Buscar FreshPlaza, IBO noticias arándanos 2026: precios, exportación, variedades.",
+        "ru": "Поиск FreshPlaza, IBO новостей черники 2026: цены, экспорт, сорта.",
     },
 }
 
+# ── Helpers ────────────────────────────────────────────────────────────────
 def get_lang(context):
     return context.user_data.get("lang", "en")
 
@@ -923,306 +509,159 @@ def lang_keyboard():
         for code, name in LANGUAGES.items()
     ])
 
+async def safe_reply(edit_func, text, **kwargs):
+    """Send message with Markdown, fallback to plain text."""
+    try:
+        await edit_func(text, parse_mode="Markdown", **kwargs)
+    except Exception:
+        try:
+            await edit_func(text, **kwargs)
+        except Exception as e:
+            logger.error(f"Reply error: {e}")
+
+# ── Handlers ───────────────────────────────────────────────────────────────
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     user = update.effective_user
     s = load_stats()
     is_new = str(user.id) not in s["users"]
-
-    # Show welcome message first
+    track(user.id, user.username or "anon", lang, "question", "/start", tg_lang_code=user.language_code)
     await update.message.reply_text(WELCOME[lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
-
-    # Show sponsor ad only to NEW users
     if is_new:
         ad_texts = {
-            "en": (
-                "🌱 *Sponsored · Partner of BlueberryBot*\n\n"
-                "**NanoGro Aqua Forest** — biostimulant for professional cultivation\n"
-                "Improves root development, stress resistance and yield quality.\n"
-                "Trusted by blueberry growers across Europe.\n\n"
-                "🔗 [Learn more → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
-            ),
-            "pl": (
-                "🌱 *Sponsor · Partner BlueberryBot*\n\n"
-                "**NanoGro Aqua Forest** — biostymulator dla profesjonalnych upraw\n"
-                "Poprawia ukorzenianie, odporność na stres i jakość plonów.\n"
-                "Stosowany przez plantatorów borówek w całej Europie.\n\n"
-                "🔗 [Dowiedz się więcej → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
-            ),
-            "de": (
-                "🌱 *Gesponsert · Partner von BlueberryBot*\n\n"
-                "**NanoGro Aqua Forest** — Biostimulans für professionellen Anbau\n"
-                "Verbessert Wurzelentwicklung, Stressresistenz und Ertragsqualität.\n\n"
-                "🔗 [Mehr erfahren → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
-            ),
-            "es": (
-                "🌱 *Patrocinado · Partner de BlueberryBot*\n\n"
-                "**NanoGro Aqua Forest** — bioestimulante para cultivo profesional\n"
-                "Mejora el desarrollo radicular, resistencia al estrés y calidad del rendimiento.\n\n"
-                "🔗 [Saber más → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
-            ),
-            "ru": (
-                "🌱 *Реклама · Партнёр BlueberryBot*\n\n"
-                "**NanoGro Aqua Forest** — биостимулятор для профессионального выращивания\n"
-                "Улучшает корнеобразование, устойчивость к стрессу и качество урожая.\n\n"
-                "🔗 [Узнать больше → agrarius.eu](https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/)"
-            ),
+            "en": "🌱 *Sponsored · Partner of BlueberryBot*\n\nNanoGro Aqua Forest — biostimulant for professional blueberry cultivation.\nImproves root development, stress resistance and yield quality.\n\n👇 Learn more:",
+            "pl": "🌱 *Sponsor · Partner BlueberryBot*\n\nNanoGro Aqua Forest — biostymulator dla profesjonalnych upraw borówki.\nPoprawia ukorzenianie, odporność na stres i jakość plonów.\n\n👇 Dowiedz się więcej:",
+            "de": "🌱 *Gesponsert · Partner von BlueberryBot*\n\nNanoGro Aqua Forest — Biostimulans für professionellen Heidelbeeranbau.\n\n👇 Mehr erfahren:",
+            "es": "🌱 *Patrocinado · Partner de BlueberryBot*\n\nNanoGro Aqua Forest — bioestimulante para cultivo profesional de arándanos.\n\n👇 Saber más:",
+            "ru": "🌱 *Реклама · Партнёр BlueberryBot*\n\nNanoGro Aqua Forest — биостимулятор для профессионального выращивания голубики.\n\n👇 Узнать больше:",
         }
-        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-        ad_button = InlineKeyboardMarkup([[
-            InlineKeyboardButton(
-                "🌱 NanoGro Aqua Forest → agrarius.eu",
-                url="https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/"
-            )
-        ]])
+        ad_button = InlineKeyboardMarkup([[InlineKeyboardButton(
+            "🌱 NanoGro Aqua Forest → agrarius.eu",
+            url="https://agrarius.eu/en/our-solutions/specialised-products-for-forestry-cultivation/nanogro-aqua-forest/"
+        )]])
         await update.message.reply_text(
             ad_texts.get(lang, ad_texts["en"]),
             parse_mode="Markdown",
             reply_markup=ad_button,
-            disable_web_page_preview=False
+            disable_web_page_preview=True
         )
-        track(user.id, user.username or "anon", lang, "question", "NEW USER /start", tg_lang_code=user.language_code)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     await update.message.reply_text(WELCOME[lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
 
 async def ask_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /ask <question> command"""
     lang = get_lang(context)
     user = update.effective_user
     question = " ".join(context.args) if context.args else ""
-
     if not question:
         hints = {
-            "en": "💡 Usage: /ask <your question>\n\nExamples:\n/ask best varieties for Poland\n/ask blueberry price in China 2025\n/ask how many tonnes does Peru export",
-            "pl": "💡 Użycie: /ask <pytanie>\n\nPrzykłady:\n/ask najlepsze odmiany do Polski\n/ask cena borówek w Chinach 2025\n/ask ile ton eksportuje Peru",
-            "de": "💡 Verwendung: /ask <Frage>\n\nBeispiele:\n/ask beste Sorten für Polen\n/ask Heidelbeerpreis China 2025",
-            "es": "💡 Uso: /ask <pregunta>\n\nEjemplos:\n/ask mejores variedades para Polonia\n/ask precio arándanos China 2025",
-            "ru": "💡 Использование: /ask <вопрос>\n\nПримеры:\n/ask лучшие сорта для Польши\n/ask цена черники в Китае 2025",
+            "en": "💡 Usage: /ask <question>\n\nExamples:\n/ask best varieties for Poland\n/ask blueberry price China 2026\n/ask Peru export volume 2025",
+            "pl": "💡 Użycie: /ask <pytanie>\n\nPrzykłady:\n/ask najlepsze odmiany do Polski\n/ask cena borówek Chiny 2026\n/ask eksport Peru 2025",
+            "de": "💡 /ask <Frage>\n\nBeispiele:\n/ask beste Sorten für Polen\n/ask Heidelbeerpreis China 2026",
+            "es": "💡 /ask <pregunta>\n\nEjemplos:\n/ask mejores variedades Polonia\n/ask precio arándanos China 2026",
+            "ru": "💡 /ask <вопрос>\n\nПримеры:\n/ask лучшие сорта для Польши\n/ask цена черники Китай 2026",
         }
         await update.message.reply_text(hints.get(lang, hints["en"]))
         return
-
-    track(user.id, user.username or "anon", lang, "question", f"/ask {question}", tg_lang_code=user.language_code)
-
-    thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
-                "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
+    track(user.id, user.username or "anon", lang, "question", question, tg_lang_code=user.language_code)
+    thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...", "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
     msg = await update.message.reply_text(thinking.get(lang, "🫐 Thinking..."))
     try:
         response = await ask_claude(question, lang, use_search=True)
         if len(response) > 4000:
             response = response[:3990] + "\n\n_(truncated)_"
-        await msg.edit_text(response, parse_mode="Markdown")
+        await safe_reply(msg.edit_text, response)
         await update.message.reply_text("─" * 20, reply_markup=main_menu_keyboard(lang))
     except Exception as e:
         logger.error(f"Ask error: {e}")
-        await msg.edit_text("⚠️ Error. Please try again.")
-
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    data = query.data
-    lang = get_lang(context)
-
-    if data == "choose_lang":
-        await query.edit_message_text("🌐 Choose language / Wybierz język:", reply_markup=lang_keyboard())
-        return
-
-    if data.startswith("lang_"):
-        new_lang = data.split("_", 1)[1]
-        context.user_data["lang"] = new_lang
-        await query.edit_message_text(WELCOME[new_lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(new_lang))
-        return
-
-    if data.startswith("topic_"):
-        topic = data.split("_", 1)[1]
-        loading = {"en": "⏳ Analyzing market data...", "pl": "⏳ Analizuję dane rynkowe...",
-                   "de": "⏳ Marktdaten werden analysiert...", "es": "⏳ Analizando datos...",
-                   "ru": "⏳ Анализирую данные..."}
-        await query.edit_message_text(loading.get(lang, "⏳ Loading..."))
-        use_search = (topic == "search")
-        prompt = TOPIC_PROMPTS.get(topic, {}).get(lang) or TOPIC_PROMPTS.get(topic, {}).get("en", "Tell me about blueberries.")
-        user = query.from_user
-        track(user.id, user.username or "anon", lang, "topic", topic, tg_lang_code=user.language_code)
-        try:
-            response = await ask_claude(prompt, lang, use_search=use_search)
-            if len(response) > 4000:
-                response = response[:3990] + "\n\n_(truncated)_"
-            await query.edit_message_text(response, parse_mode="Markdown", reply_markup=main_menu_keyboard(lang))
-        except Exception as e:
-            logger.error(f"Error: {e}")
-            await query.edit_message_text("⚠️ Error. Please try again.", reply_markup=main_menu_keyboard(lang))
-
-# ── Analytics ──────────────────────────────────────────────────────────────
-import json
-from datetime import datetime
-
-STATS_FILE = "/tmp/blueberry_stats.json"
-
-def load_stats():
-    try:
-        with open(STATS_FILE) as f:
-            return json.load(f)
-    except:
-        return {"users": {}, "topics": {}, "questions": [], "total": 0}
-
-def save_stats(s):
-    try:
-        with open(STATS_FILE, "w") as f:
-            json.dump(s, f, ensure_ascii=False)
-    except Exception as e:
-        logger.error(f"Stats: {e}")
-
-# Telegram language_code → country mapping
-LANG_TO_COUNTRY = {
-    "pl": "🇵🇱 Poland", "de": "🇩🇪 Germany", "en": "🇬🇧 EN/US/AU",
-    "ru": "🇷🇺 Russia", "uk": "🇺🇦 Ukraine", "es": "🇪🇸 Spain/LATAM",
-    "fr": "🇫🇷 France", "it": "🇮🇹 Italy", "nl": "🇳🇱 Netherlands",
-    "pt": "🇵🇹 Portugal/Brazil", "ro": "🇷🇴 Romania", "sr": "🇷🇸 Serbia",
-    "tr": "🇹🇷 Turkey", "ar": "🇸🇦 Arabic", "zh": "🇨🇳 China",
-    "ja": "🇯🇵 Japan", "ko": "🇰🇷 Korea", "cs": "🇨🇿 Czech",
-    "sk": "🇸🇰 Slovakia", "hu": "🇭🇺 Hungary", "bg": "🇧🇬 Bulgaria",
-    "hr": "🇭🇷 Croatia", "sl": "🇸🇮 Slovenia", "sv": "🇸🇪 Sweden",
-    "no": "🇳🇴 Norway", "da": "🇩🇰 Denmark", "fi": "🇫🇮 Finland",
-    "he": "🇮🇱 Israel", "fa": "🇮🇷 Iran", "be": "🇧🇾 Belarus",
-    "ka": "🇬🇪 Georgia", "az": "🇦🇿 Azerbaijan", "kk": "🇰🇿 Kazakhstan",
-    "uz": "🇺🇿 Uzbekistan", "lt": "🇱🇹 Lithuania", "lv": "🇱🇻 Latvia",
-    "et": "🇪🇪 Estonia", "mk": "🇲🇰 Macedonia", "sq": "🇦🇱 Albania",
-    "ms": "🇲🇾 Malaysia", "id": "🇮🇩 Indonesia", "vi": "🇻🇳 Vietnam",
-}
-
-def track(uid, uname, lang, etype, content="", tg_lang_code=None):
-    s = load_stats()
-    uid = str(uid)
-    now = datetime.utcnow().isoformat()
-    country = LANG_TO_COUNTRY.get(tg_lang_code, f"🌍 {tg_lang_code or 'unknown'}")
-    if uid not in s["users"]:
-        s["users"][uid] = {"name": uname, "lang": lang, "first": now, "count": 0, "topics": [], "country": country, "tg_lang": tg_lang_code}
-    s["users"][uid]["count"] += 1
-    s["users"][uid]["last"] = now
-    s["users"][uid]["lang"] = lang
-    if tg_lang_code:
-        s["users"][uid]["tg_lang"] = tg_lang_code
-        s["users"][uid]["country"] = country
-    if etype == "topic":
-        s["topics"][content] = s["topics"].get(content, 0) + 1
-    if etype == "question" and content:
-        s["questions"].append({"q": content[:150], "lang": lang, "country": country, "t": now})
-        s["questions"] = s["questions"][-500:]
-    # Track countries
-    if "countries" not in s:
-        s["countries"] = {}
-    s["countries"][country] = s["countries"].get(country, 0) + 1
-    s["total"] = s.get("total", 0) + 1
-    save_stats(s)
+        await msg.edit_text(f"⚠️ Error: {str(e)[:200]}")
 
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Admin /stats command"""
     user = update.effective_user
     admin_id = int(os.getenv("ADMIN_ID", "0"))
     if user.id != admin_id:
         await update.message.reply_text("⛔ Access denied.")
         return
     s = load_stats()
-    txt = f"📊 *BlueberryBot Stats*\n"
-    txt += f"👥 Users: {len(s['users'])}\n"
-    txt += f"📨 Total queries: {s.get('total', 0)}\n\n"
-    txt += f"🔝 *Top topics:*\n"
+    txt = f"📊 *BlueberryBot Stats*\n👥 Users: {len(s['users'])}\n📨 Total: {s.get('total',0)}\n\n"
+    txt += "🔝 *Top topics:*\n"
     for t, cnt in sorted(s["topics"].items(), key=lambda x: -x[1])[:10]:
         txt += f"  {t}: {cnt}\n"
-    txt += f"\n🌍 *Languages:*\n"
-    lang_count = {}
-    for u in s["users"].values():
-        l = u.get("lang", "en")
-        lang_count[l] = lang_count.get(l, 0) + 1
-    for l, cnt in sorted(lang_count.items(), key=lambda x: -x[1]):
-        txt += f"  {l}: {cnt} users\n"
-    txt += f"\n🌍 *Countries (by phone language):*\n"
-    countries = s.get("countries", {})
-    for country, cnt in sorted(countries.items(), key=lambda x: -x[1])[:15]:
-        txt += f"  {country}: {cnt}\n"
-    txt += f"\n💬 *Last 5 questions:*\n"
+    txt += "\n🌍 *Countries:*\n"
+    for c, cnt in sorted(s.get("countries", {}).items(), key=lambda x: -x[1])[:15]:
+        txt += f"  {c}: {cnt}\n"
+    txt += "\n💬 *Last questions:*\n"
     for q in s["questions"][-5:]:
         txt += f"  [{q.get('country','?')}] {q['q'][:60]}\n"
     await update.message.reply_text(txt[:4000], parse_mode="Markdown")
+
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    data = query.data
+    lang = get_lang(context)
+    if data == "choose_lang":
+        await query.edit_message_text("🌐 Choose language / Wybierz język:", reply_markup=lang_keyboard())
+        return
+    if data.startswith("lang_"):
+        new_lang = data.split("_", 1)[1]
+        context.user_data["lang"] = new_lang
+        await query.edit_message_text(WELCOME[new_lang], parse_mode="Markdown", reply_markup=main_menu_keyboard(new_lang))
+        return
+    if data.startswith("topic_"):
+        topic = data.split("_", 1)[1]
+        loading = {"en": "⏳ Loading...", "pl": "⏳ Ładuję...", "de": "⏳ Laden...", "es": "⏳ Cargando...", "ru": "⏳ Загрузка..."}
+        await query.edit_message_text(loading.get(lang, "⏳ Loading..."))
+        user = query.from_user
+        track(user.id, user.username or "anon", lang, "topic", topic, tg_lang_code=user.language_code)
+        prompt = TOPIC_PROMPTS.get(topic, {}).get(lang) or TOPIC_PROMPTS.get(topic, {}).get("en", "Tell me about blueberries.")
+        use_search = (topic == "search")
+        try:
+            response = await ask_claude(prompt, lang, use_search=use_search)
+            if len(response) > 4000:
+                response = response[:3990] + "\n\n_(truncated)_"
+            await safe_reply(query.edit_message_text, response, reply_markup=main_menu_keyboard(lang))
+        except Exception as e:
+            logger.error(f"Button error: {e}")
+            await query.edit_message_text(f"⚠️ Error: {str(e)[:200]}", reply_markup=main_menu_keyboard(lang))
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     user_msg = update.message.text
     user = update.effective_user
     track(user.id, user.username or "anon", lang, "question", user_msg, tg_lang_code=user.language_code)
-
-    thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...",
-                "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
+    thinking = {"en": "🫐 Analyzing...", "pl": "🫐 Analizuję...", "de": "🫐 Analysiere...", "es": "🫐 Analizando...", "ru": "🫐 Анализирую..."}
     msg = await update.message.reply_text(thinking.get(lang, "🫐 Thinking..."))
     try:
         response = await ask_claude(user_msg, lang, use_search=True)
         if len(response) > 4000:
             response = response[:3990] + "\n\n_(truncated)_"
-        await msg.edit_text(response, parse_mode="Markdown")
+        await safe_reply(msg.edit_text, response)
         await update.message.reply_text("─" * 20, reply_markup=main_menu_keyboard(lang))
     except Exception as e:
-        logger.error(f"Error: {e}")
-        await msg.edit_text("⚠️ Error. Please try again.")
+        logger.error(f"Message error: {e}")
+        await msg.edit_text(f"⚠️ Error: {str(e)[:200]}")
 
 async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle photo messages — plant disease detection"""
     lang = get_lang(context)
     user = update.effective_user
-
-    thinking_texts = {
-        "en": "🔬 Analyzing photo — identifying variety & checking plant health...",
-        "pl": "🔬 Analizuję zdjęcie — rozpoznaję odmianę i stan zdrowia rośliny...",
-        "de": "🔬 Foto wird analysiert — Sorte und Pflanzengesundheit werden geprüft...",
-        "es": "🔬 Analizando foto — identificando variedad y salud de la planta...",
-        "ru": "🔬 Анализирую фото — определяю сорт и состояние здоровья растения...",
-    }
-    msg = await update.message.reply_text(thinking_texts.get(lang, "🔬 Analyzing..."))
-
+    thinking = {"en": "🔬 Analyzing photo...", "pl": "🔬 Analizuję zdjęcie...", "de": "🔬 Foto analysieren...", "es": "🔬 Analizando foto...", "ru": "🔬 Анализирую фото..."}
+    msg = await update.message.reply_text(thinking.get(lang, "🔬 Analyzing..."))
     try:
-        # Get highest resolution photo
         photo = update.message.photo[-1]
         photo_file = await context.bot.get_file(photo.file_id)
-        
-        # Download photo bytes
-        import io
         photo_bytes = await photo_file.download_as_bytearray()
-        
-        # Analyze with Claude Vision
         result = await analyze_plant_photo(bytes(photo_bytes), lang)
-        
         if len(result) > 4000:
             result = result[:3990] + "\n\n_(truncated)_"
-        
-        await msg.edit_text(result, parse_mode="Markdown")
-        
-        # Track analytics
-        track(user.id, user.username or "anon", lang, "topic", "photo_diagnosis", tg_lang_code=user.language_code)
-        
-        # Show menu after diagnosis
-        followup = {
-            "en": "📸 Send another photo or choose a topic:",
-            "pl": "📸 Wyślij kolejne zdjęcie lub wybierz temat:",
-            "de": "📸 Weiteres Foto senden oder Thema wählen:",
-            "es": "📸 Envía otra foto o elige un tema:",
-            "ru": "📸 Отправьте ещё фото или выберите тему:",
-        }
-        await update.message.reply_text(
-            followup.get(lang, followup["en"]),
-            reply_markup=main_menu_keyboard(lang)
-        )
-
+        await safe_reply(msg.edit_text, result)
+        track(user.id, user.username or "anon", lang, "topic", "photo", tg_lang_code=user.language_code)
+        followup = {"en": "📸 Send another photo or choose:", "pl": "📸 Wyślij kolejne zdjęcie lub wybierz:", "de": "📸 Weiteres Foto oder Thema:", "es": "📸 Otra foto o elige tema:", "ru": "📸 Ещё фото или выберите тему:"}
+        await update.message.reply_text(followup.get(lang, "📸"), reply_markup=main_menu_keyboard(lang))
     except Exception as e:
-        logger.error(f"Photo analysis error: {e}")
-        error_texts = {
-            "en": "⚠️ Could not analyze photo. Please send a clear, well-lit photo of the affected plant part.",
-            "pl": "⚠️ Nie udało się przeanalizować zdjęcia. Wyślij wyraźne zdjęcie dobrze oświetlonej chorej części rośliny.",
-            "de": "⚠️ Foto konnte nicht analysiert werden. Bitte senden Sie ein klares, gut beleuchtetes Foto.",
-            "es": "⚠️ No se pudo analizar la foto. Envía una foto clara y bien iluminada.",
-            "ru": "⚠️ Не удалось проанализировать фото. Отправьте чёткое, хорошо освещённое фото.",
-        }
-        await msg.edit_text(error_texts.get(lang, error_texts["en"]))
+        logger.error(f"Photo error: {e}")
+        await msg.edit_text(f"⚠️ Photo error: {str(e)[:200]}")
 
 def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
@@ -1238,4 +677,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# This is just a marker — actual update is in the knowledge base below
